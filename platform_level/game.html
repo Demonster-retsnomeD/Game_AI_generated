@@ -2559,9 +2559,9 @@ openSlotMenu();
 
 // ===== AUTH SYSTEM =====
 const AUTH_API = 'https://ball-dungeon-auth.xc-9090606.workers.dev';
-let authToken = localStorage.getItem('bd_token') || null;
-let authUsername = localStorage.getItem('bd_username') || null;
-let authMode = 'login'; // 'login' | 'reg'
+var authToken = localStorage.getItem('bd_token') || null;
+var authUsername = localStorage.getItem('bd_username') || null;
+var authMode = 'login'; // 'login' | 'reg'
 
 function authTab(mode) {
   authMode = mode;
