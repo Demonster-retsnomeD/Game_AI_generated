@@ -1,0 +1,10 @@
+.git/
+att_unpacked/
+node_modules/
+*.jsonc
+*.json
+*.md
+*.ps1
+*.sh
+.gitignore
+.vercel
