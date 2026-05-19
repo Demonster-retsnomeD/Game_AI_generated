@@ -2559,9 +2559,14 @@ async function authSubmit() {
   const user = document.getElementById('authUser').value.trim();
   const pass = document.getElementById('authPass').value;
   const msg = document.getElementById('authMsg');
+  msg.style.color = '#f66';
   if (!user || !pass) { msg.textContent = '请填写用户名和密码 / Fill all fields'; return; }
   const btn = document.getElementById('authSubmitBtn');
-  btn.disabled = true; btn.textContent = '...';
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.textContent = '请稍候... / Loading...';
+  msg.style.color = '#aaa';
+  msg.textContent = '连接中...';
   try {
     const res = await fetch(`${AUTH_API}/${authMode === 'login' ? 'login' : 'register'}`, {
       method: 'POST',
@@ -2573,16 +2578,20 @@ async function authSubmit() {
       authToken = data.token; authUsername = data.username;
       localStorage.setItem('bd_token', authToken);
       localStorage.setItem('bd_username', authUsername);
-      authDone();
+      msg.style.color = '#4f4';
+      msg.textContent = '✓ 成功！/ Success!';
+      setTimeout(()=>authDone(), 600);
+      return;
     } else {
       msg.style.color = '#f66';
       msg.textContent = data.error || 'Error';
     }
   } catch(e) {
     msg.style.color = '#f66';
-    msg.textContent = '网络错误 / Network error';
+    msg.textContent = '网络错误 / Network error: ' + e.message;
   }
   btn.disabled = false;
+  btn.style.opacity = '1';
   authTab(authMode);
 }
 
