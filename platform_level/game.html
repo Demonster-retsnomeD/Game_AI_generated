@@ -1719,7 +1719,7 @@ class DungeonGame{
     }));
     // BOSS in portal room
     const _pr2=rooms[farthest];
-    const _bHp=Math.round(this.dc.eHp*10);
+    const _bHp=Math.round(this.dc.eHp*20);
     const _bShHp=Math.round(this.dc.eHp*2.5);
     this.boss={
       x:(_pr2.gx*CW+RW/2)*DTZ, y:(_pr2.gy*CH+RH/2)*DTZ-50,
@@ -2475,8 +2475,8 @@ class DungeonGame{
     ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='10px Arial';ctx.textAlign='left';ctx.textBaseline='top';
     ctx.fillText(_pHint,8,28);
     ctx.textAlign='left';ctx.textBaseline='alphabetic';
-    // Boss HP bar (top center)
-    if(this.boss&&this.boss.alive){
+    // Boss HP bar (top center) — only when player is in boss room
+    if(this.boss&&this.boss.alive&&this._getCurrentRoom()===this.portalRoomId){
       const bos=this.boss;
       const bbw=280,bbh=14,bbx=W/2-bbw/2,bby=30;
       ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(bbx-3,bby-3,bbw+6,bbh+6);
