@@ -319,6 +319,10 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
 <div id="toast"></div>
 
 <script>
+// ─── auth vars declared early so getSaveSlots() can reference them ───
+var authToken = localStorage.getItem('bd_token') || null;
+var authUsername = localStorage.getItem('bd_username') || null;
+var authMode = 'login';
 // ─── i18n ────────────────────────────────────────────────────
 let lang='zh';
 const LANG={
@@ -2559,9 +2563,7 @@ openSlotMenu();
 
 // ===== AUTH SYSTEM =====
 const AUTH_API = 'https://ball-dungeon-auth.xc-9090606.workers.dev';
-var authToken = localStorage.getItem('bd_token') || null;
-var authUsername = localStorage.getItem('bd_username') || null;
-var authMode = 'login'; // 'login' | 'reg'
+// authToken / authUsername / authMode declared at top of script
 
 function authTab(mode) {
   authMode = mode;
