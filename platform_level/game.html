@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>平台冒险 · 肉鸽养成版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0d1a;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:Arial,sans-serif;color:#fff;user-select:none}
+#menu{display:flex;flex-direction:row;align-items:stretch;width:800px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:16px;animation:fadeIn .5s;overflow:hidden}
+.menu-left{width:300px;flex-shrink:0;padding:22px 20px;display:flex;flex-direction:column;background:rgba(0,0,0,.25)}
+.menu-divider{width:1px;background:rgba(255,255,255,.07);flex-shrink:0}
+.menu-right{flex:1;padding:22px 20px;display:flex;flex-direction:column;align-items:center}
+.back-link{color:#555;font-size:.78em;text-decoration:none;border:1px solid #232330;padding:4px 11px;border-radius:14px;transition:all .2s;margin-bottom:12px;display:inline-block;align-self:flex-start}
+.back-link:hover{color:#aaa;border-color:#555}
+#menu h1{font-size:1.85em;background:linear-gradient(135deg,#e94560,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+#meta-bar{background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
+#meta-level{font-size:1.15em;font-weight:bold;color:#ffd740;min-width:50px}
+#meta-xp-wrap{flex:1;min-width:90px}
+#meta-xp-label{font-size:.68em;color:#aaa;margin-bottom:3px}
+#meta-xp-bar{height:6px;background:#2a2a3a;border-radius:3px;overflow:hidden}
+#meta-xp-fill{height:100%;background:linear-gradient(90deg,#4af,#8f5);transition:width .4s;border-radius:3px;width:0%}
+#meta-sp{font-size:.8em;color:#b8f;white-space:nowrap;width:100%}
+.sec-label{color:#555;font-size:.7em;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.mode-cards{display:flex;gap:8px;margin-bottom:10px;width:100%}
+.mode-card{flex:1;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 6px;cursor:pointer;text-align:center;transition:all .2s}
+.mode-card:hover{background:rgba(255,255,255,.07)}
+.mode-card.active{border-color:#4af;background:rgba(74,170,255,.1);box-shadow:0 0 12px rgba(74,170,255,.12)}
+.mc-icon{font-size:1.5em;margin-bottom:3px}
+.mc-name{font-size:.88em;font-weight:bold;margin-bottom:2px}
+.mc-desc{font-size:.67em;color:#777;line-height:1.4}
+#mode-hint{font-size:.72em;color:#555;line-height:1.65;padding:6px 2px;flex:1}
+#diff-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:10px;width:100%}
+.diff-btn{padding:10px 18px;font-size:.88em;cursor:pointer;border:none;border-radius:9px;font-weight:bold;transition:transform .15s,box-shadow .15s,opacity .15s;outline:none}
+.diff-btn:hover:not(.locked){transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.diff-btn.locked{opacity:.4;cursor:not-allowed}
+.diff-btn .lock-tag{font-size:.68em;display:block;opacity:.85;margin-top:2px}
+#btn-d1{background:linear-gradient(135deg,#43d48c,#1a8a4a);color:#fff}
+#btn-d2{background:linear-gradient(135deg,#4CAF50,#2e7d32);color:#fff}
+#btn-d3{background:linear-gradient(135deg,#FF9800,#e65100);color:#fff}
+#btn-d4{background:linear-gradient(135deg,#F44336,#7b1fa2);color:#fff}
+#btn-d5{background:linear-gradient(135deg,#3a0a5a,#e94560);color:#fff;border:1px solid #e94560}
+#btn-skills{background:rgba(255,215,64,.12);border:1px solid #ffd740;color:#ffd740;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:.88em;font-weight:bold;transition:background .2s}
+#btn-skills:hover{background:rgba(255,215,64,.22)}
+.hint{font-size:.76em;color:#555;margin:8px 0;text-align:center;line-height:1.6}
+#gameWrap{display:none;position:relative}
+canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);cursor:crosshair}
+#hud{position:absolute;top:10px;left:10px;pointer-events:none}
+#hud-hp{font-size:1em;text-shadow:0 0 4px #000;margin-bottom:3px}
+#hud-jumps{font-size:.82em;text-shadow:0 0 4px #000;margin-bottom:2px;color:#4af}
+#hud-info{font-size:.8em;color:#ccc;text-shadow:0 0 4px #000}
+#overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);align-items:center;justify-content:center;flex-direction:column;border-radius:10px}
+#overlay h2{font-size:2em;margin-bottom:4px}
+#overlay .sub{color:#aaa;margin-bottom:5px;font-size:.9em}
+#overlay .xp-gain{color:#ffd740;font-size:1.1em;margin-bottom:5px;font-weight:bold}
+#overlay .lvlup{color:#4af;font-size:1.15em;margin-bottom:10px;font-weight:bold}
+.ov-btn{padding:11px 26px;font-size:1em;cursor:pointer;border:none;border-radius:8px;margin:5px;font-weight:bold;background:#e94560;color:#fff;transition:opacity .15s}
+.ov-btn:hover{opacity:.85}
+.ov-btn.sec{background:#444}
+#skillMenu{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;align-items:center;justify-content:center;flex-direction:column;padding:24px}
+#skillMenu h2{font-size:1.7em;color:#ffd740;margin-bottom:6px}
+#skill-meta-info{color:#888;font-size:.85em;margin-bottom:14px}
+.sk-tabs{display:flex;gap:0;margin-bottom:18px;background:rgba(255,255,255,.06);border-radius:10px;padding:3px;width:100%;max-width:600px}
+.sk-tab{flex:1;padding:9px 4px;border:none;background:transparent;color:#666;cursor:pointer;border-radius:8px;font-size:.85em;font-weight:bold;transition:all .2s}
+.sk-tab.active{background:rgba(255,255,255,.14);color:#fff}
+.sk-tab:hover:not(.active){color:#bbb}
+#skill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:600px;min-height:200px}
+.skill-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 12px;text-align:center;transition:border-color .2s,background .2s}
+.skill-card.sk-owned{border-color:#4af;background:rgba(74,170,255,.08)}
+.skill-card.sk-owned .sk-name{color:#4af}
+.skill-card.sk-avail{border-color:rgba(255,215,64,.35)}
+.skill-card.sk-avail:hover{border-color:#ffd740;background:rgba(255,215,64,.05)}
+.skill-card.sk-locked{opacity:.38}
+.skill-card.sk-ach-got{border-color:#ffd740;background:rgba(255,215,64,.08)}
+.sk-icon{font-size:1.9em;margin-bottom:5px}
+.sk-name{font-weight:bold;font-size:.92em;margin-bottom:3px}
+.sk-desc{font-size:.73em;color:#888;margin-bottom:10px;line-height:1.4}
+.sk-btn{padding:5px 14px;font-size:.78em;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
+.sk-btn.buy{background:#ffd740;color:#000}
+.sk-btn.buy:hover{background:#ffe877}
+.sk-btn.got{background:#4af;color:#000;cursor:default}
+.sk-btn.cant{background:#2a2a2a;color:#555;cursor:not-allowed}
+#btn-close-skills{margin-top:16px;padding:9px 28px;background:#222;color:#888;border:1px solid #333;border-radius:8px;cursor:pointer;font-size:.9em}
+#btn-close-skills:hover{background:#2e2e2e;color:#bbb}
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ffd740,#f5a623);color:#000;padding:10px 24px;border-radius:24px;font-weight:bold;font-size:1em;display:none;z-index:200}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+#slotMenu{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#slotMenu h2{font-size:1.9em;color:#ffd740;margin-bottom:2px}
+.slot-hint{color:#444;font-size:.8em;margin-bottom:10px}
+.slot-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;max-width:720px}
+.slot-card{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);border-radius:16px;padding:22px 26px;min-width:180px;text-align:center;transition:border-color .2s}
+.slot-card.slot-has{border-color:rgba(74,170,255,.3)}
+.slot-num{font-size:.72em;color:#555;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase}
+.slot-lv{font-size:1.5em;font-weight:bold;color:#fff;margin-bottom:4px}
+.slot-detail{font-size:.75em;color:#666;line-height:1.7;margin-bottom:16px}
+.slot-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.slot-play{padding:8px 20px;border:none;border-radius:8px;background:#4af;color:#000;font-weight:bold;cursor:pointer;font-size:.88em}
+.slot-play:hover{background:#6cf}
+.slot-new{padding:8px 20px;border:1px solid #333;border-radius:8px;background:transparent;color:#888;cursor:pointer;font-size:.88em}
+.slot-new:hover{background:rgba(255,255,255,.07);color:#ccc}
+.slot-del{padding:6px 10px;border:1px solid #332;border-radius:7px;background:transparent;color:#666;cursor:pointer;font-size:.78em;margin-top:6px}
+.slot-del:hover{color:#f55;border-color:#f55}
+#btn-slot-switch{background:rgba(255,215,64,.1);border:1px solid rgba(255,215,64,.3);color:#ffd740;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:.85em;font-weight:bold;transition:background .2s;margin-top:4px}
+#btn-slot-switch:hover{background:rgba(255,215,64,.2)}
+.lang-btn{position:fixed;top:12px;right:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#aaa;padding:5px 13px;border-radius:8px;cursor:pointer;font-size:.82em;z-index:600;transition:all .2s}
+.lang-btn:hover{background:rgba(255,255,255,.14);color:#fff}
+#dungeonUpgrade{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:30px}
+#dungeonUpgrade h2{font-size:1.6em;color:#cc88ff}
+.du-sub{color:#666;font-size:.82em;margin-bottom:6px}
+.du-choices{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:720px}
+.du-card{background:rgba(255,255,255,.05);border:2px solid rgba(200,100,255,.22);border-radius:14px;padding:20px 18px;min-width:160px;max-width:210px;text-align:center;cursor:pointer;transition:all .2s}
+.du-card:hover{border-color:#cc88ff;background:rgba(200,100,255,.1);transform:translateY(-4px)}
+.du-icon{font-size:2.2em;margin-bottom:6px}
+.du-name{font-weight:bold;font-size:.96em;margin-bottom:4px;color:#eee}
+.du-desc{font-size:.74em;color:#888;line-height:1.45}
+.du-stacks{font-size:.68em;color:#555;margin-top:6px}
+#active-skill-picker{display:none;margin-top:10px;padding:8px 0}
+.ask-label{font-size:.75em;color:#666;margin-bottom:6px;letter-spacing:1px}
+.ask-cards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.ask-card{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;min-width:90px;max-width:120px;text-align:center;cursor:pointer;transition:all .2s;font-size:.78em}
+.ask-card:hover{border-color:#cc88ff;background:rgba(200,100,255,.08)}
+.ask-card.ask-active{border-color:#cc88ff;background:rgba(200,100,255,.15);color:#eee}
+.ask-icon{font-size:1.5em;margin-bottom:3px}
+.ask-name{font-weight:bold;color:#ddd;margin-bottom:2px}
+.ask-desc{color:#666;font-size:.72em;line-height:1.3}
+.type-cards{display:flex;gap:8px;justify-content:center;margin:8px 0 6px}
+.type-card{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 10px;flex:1;min-width:70px;text-align:center;cursor:pointer;transition:all .2s}
+.type-card:hover:not(.tc-locked){border-color:#cc88ff;background:rgba(200,100,255,.08)}
+.type-card.active{border-color:#cc88ff;background:rgba(200,100,255,.12)}
+.tc-icon{font-size:1.8em;margin-bottom:3px}
+.tc-name{font-weight:bold;font-size:.82em;color:#eee;line-height:1.3}
+.tc-soon{font-size:.62em;color:#f90;margin-top:3px;background:rgba(255,140,0,.1);border-radius:4px;padding:1px 5px;display:inline-block}
+.type-card.tc-locked{cursor:default;opacity:.4}
+.type-card.tc-locked:hover{border-color:rgba(255,255,255,.1)!important;background:rgba(255,255,255,.04)!important}
+</style>
+</head>
+<body>
+<button class="lang-btn" id="btn-lang" onclick="toggleLang()">EN</button>
+<div id="menu">
+  <!-- 左栏：模式选择 -->
+  <div class="menu-left">
+    <a href="../index.html" class="back-link">← 游戏中心</a>
+    <h1>⚔ 平台冒险</h1>
+    <div id="meta-bar">
+      <div id="meta-level">Lv.1</div>
+      <div id="meta-xp-wrap">
+        <div id="meta-xp-label">0 / 100 XP</div>
+        <div id="meta-xp-bar"><div id="meta-xp-fill"></div></div>
+      </div>
+      <div id="meta-sp">⭐ 0 技能点</div>
+    </div>
+    <div class="sec-label" id="sec-gametype">选择游戏</div>
+    <div class="type-cards">
+      <div class="type-card tc-locked" id="tc-rhythm" onclick="setGameType('rhythm')">
+        <div class="tc-icon">🎵</div>
+        <div class="tc-name">节拍冲击</div>
+        <div class="tc-soon">即将上线</div>
+      </div>
+      <div class="type-card active" id="tc-dungeon" onclick="setGameType('dungeon')">
+        <div class="tc-icon">🏰</div>
+        <div class="tc-name">Ball Dungeon</div>
+      </div>
+      <div class="type-card" id="tc-platform" onclick="setGameType('platform')">
+        <div class="tc-icon">🏃</div>
+        <div class="tc-name">Platform Jump</div>
+      </div>
+    </div>
+    <div id="sub-mode-section" style="display:none">
+      <div class="sec-label" id="sec-submode">选择模式</div>
+      <div class="mode-cards">
+        <div class="mode-card active" id="mc-parkour" onclick="setMode('parkour')">
+          <div class="mc-icon">🏃</div>
+          <div class="mc-name">跑酷</div>
+          <div class="mc-desc">单段跳<br>抵达终点</div>
+        </div>
+        <div class="mode-card" id="mc-roguelite" onclick="setMode('roguelite')">
+          <div class="mc-icon">⚔️</div>
+          <div class="mc-name">肉鸽</div>
+          <div class="mc-desc">养成解锁<br>歼灭全部敌人</div>
+        </div>
+      </div>
+    </div>
+    <div id="mode-hint" style="font-size:.82em;color:#666;margin-top:8px;min-height:2em;text-align:center"></div>
+  </div>
+  <div class="menu-divider"></div>
+  <!-- 右栏：难度+操作 -->
+  <div class="menu-right">
+    <div class="sec-label">选择难度</div>
+    <div id="diff-btns">
+      <button class="diff-btn" id="btn-d1">🌱 D1 新手<span class="lock-tag">新手友好</span></button>
+      <button class="diff-btn" id="btn-d2">🌿 D2 简单<span class="lock-tag">适合入门</span></button>
+      <button class="diff-btn" id="btn-d3">🔥 D3 中等<span class="lock-tag">需要技巧</span></button>
+      <button class="diff-btn" id="btn-d4">💀 D4 困难<span class="lock-tag">高手挑战</span></button>
+      <button class="diff-btn" id="btn-d5">☠ D5 地狱<span class="lock-tag">极限</span></button>
+    </div>
+    <p class="hint" id="ctrl-hint">A/D 移动 &nbsp;|&nbsp; 空格 跳跃</p>
+    <div id="active-skill-picker">
+      <div class="ask-label" id="ask-label">⚡ 主动技能（Q键触发）</div>
+      <div class="ask-cards" id="ask-cards"></div>
+    </div>
+    <button id="btn-endless" style="background:linear-gradient(135deg,#8b22cc,#4a0f9f);border:none;color:#fff;padding:10px 22px;border-radius:10px;font-weight:bold;font-size:.9em;cursor:pointer;margin-bottom:8px;transition:opacity .2s;display:none" onmouseenter="this.style.opacity='.8'" onmouseleave="this.style.opacity='1'">⚡ 无尽模式</button>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">
+      <button id="btn-skills">🌟 养成系统</button>
+      <button id="btn-slot-switch">💾 切换存档</button>
+    </div>
+  </div>
+</div>
+
+<div id="slotMenu">
+  <h2>💾 选择存档</h2>
+  <p class="slot-hint">选择存档槽开始冒险</p>
+  <div class="slot-cards" id="slot-cards"></div>
+</div>
+
+<div id="gameWrap">
+  <canvas id="gc" width="800" height="500"></canvas>
+  <div id="hud">
+    <div id="hud-hp">❤️ ♥♥♥</div>
+    <div id="hud-jumps"></div>
+    <div id="hud-info">难度: —</div>
+  </div>
+  <div id="overlay">
+    <h2 id="ov-title">游戏结束</h2>
+    <div class="sub" id="ov-sub"></div>
+    <div class="xp-gain" id="ov-xp"></div>
+    <div class="lvlup" id="ov-lvlup" style="display:none">🎊 升级！</div>
+    <button class="ov-btn" id="btn-restart">重玩本难度</button>
+    <button class="ov-btn sec" id="btn-menu2">返回菜单</button>
+  </div>
+</div>
+
+<div id="skillMenu">
+  <h2>🌟 养成系统</h2>
+  <div id="skill-meta-info"></div>
+  <div class="sk-tabs">
+    <button class="sk-tab active" onclick="switchSkTab('jump')">🦅 跳跃</button>
+    <button class="sk-tab" onclick="switchSkTab('melee')">⚔️ 近战</button>
+    <button class="sk-tab" onclick="switchSkTab('ranged')">🏹 远程</button>
+    <button class="sk-tab" onclick="switchSkTab('qskill')">🎮 主动技能</button>
+    <button class="sk-tab" onclick="switchSkTab('ach')">🏆 成就</button>
+  </div>
+  <div id="skill-grid"></div>
+  <button id="btn-close-skills">✕ 关闭</button>
+</div>
+<div id="dungeonUpgrade">
+  <h2 id="du-title">选择强化</h2>
+  <p class="du-sub" id="du-sub"></p>
+  <div class="du-choices" id="upgrade-choices"></div>
+  <button id="du-skip" onclick="G&&G._skipUpgrade()" style="margin-top:18px;padding:10px 32px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#aaa;border-radius:10px;cursor:pointer;font-size:.9em;display:none">跳过 →</button>
+</div>
+<div id="pauseOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;align-items:center;justify-content:center;flex-direction:column;gap:18px">
+  <div style="font-size:1.6em;color:#cc88ff;font-weight:bold" id="pause-title">⏸ 暂停</div>
+  <button id="pause-resume" onclick="G&&G.resumeGame()" style="padding:12px 40px;background:rgba(100,200,100,.15);border:1px solid #4a4;color:#8f8;border-radius:10px;cursor:pointer;font-size:1em;width:200px">▶ 继续游戏</button>
+  <button id="pause-quit" onclick="onPauseQuit()" style="padding:12px 40px;background:rgba(200,100,100,.12);border:1px solid #a44;color:#f88;border-radius:10px;cursor:pointer;font-size:1em;width:200px">🏠 退出到主界面</button>
+</div>
+<div id="endlessExitOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:14px">
+  <div style="font-size:1.4em;color:#ffd740;font-weight:bold" id="eeo-title">🚪 退出无尽模式</div>
+  <div id="eeo-info" style="color:#888;font-size:.88em;margin-bottom:4px"></div>
+  <button id="eeo-settle" onclick="_settleAndLeave()" style="padding:13px 44px;background:rgba(233,69,96,.18);border:1px solid #e94560;color:#f88;border-radius:10px;cursor:pointer;font-size:1em;width:240px">🌟 结算并离开</button>
+  <div id="eeo-settle-hint" style="font-size:.72em;color:#666;margin-top:-8px">获得本次战斗经验，不可再继续</div>
+  <button id="eeo-save" onclick="_saveAndLeave()" style="padding:13px 44px;background:rgba(100,200,100,.12);border:1px solid #4a8;color:#8f8;border-radius:10px;cursor:pointer;font-size:1em;width:240px">💾 保存退出</button>
+  <div id="eeo-save-hint" style="font-size:.72em;color:#666;margin-top:-8px">保存当前进度，下次继续（不结算经验）</div>
+  <button onclick="document.getElementById('endlessExitOverlay').style.display='none';G&&G.resumeGame()" style="padding:8px 30px;background:transparent;border:1px solid #555;color:#666;border-radius:8px;cursor:pointer;font-size:.85em;margin-top:4px" id="eeo-cancel">取消</button>
+</div>
+<div id="endlessContinueOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:700;align-items:center;justify-content:center;flex-direction:column;gap:14px">
+  <div style="font-size:1.5em;color:#ffd740;font-weight:bold">📂 <span id="ecs-title">发现无尽存档</span></div>
+  <div id="ecs-info" style="color:#aaa;font-size:.95em;margin-bottom:4px"></div>
+  <button id="ecs-continue" onclick="_endlessContinue()" style="padding:12px 40px;background:rgba(80,200,100,.15);border:1px solid #4a8;color:#8f8;border-radius:10px;cursor:pointer;font-size:1em;width:230px">继续上次存档</button>
+  <button id="ecs-new" onclick="_endlessNew()" style="padding:12px 40px;background:rgba(200,80,80,.12);border:1px solid #a44;color:#f88;border-radius:10px;cursor:pointer;font-size:1em;width:230px">开始新的存档</button>
+  <button id="ecs-cancel" onclick="_endlessCancel()" style="padding:8px 30px;background:transparent;border:1px solid #555;color:#666;border-radius:8px;cursor:pointer;font-size:.85em;margin-top:4px">取消</button>
+</div>
+<div id="toast"></div>
+
+<script>
+// ─── i18n ────────────────────────────────────────────────────
+let lang='zh';
+const LANG={
+  zh:{
+    title:'⚔ 平台冒险',modeSelect:'选择模式',diffSelect:'选择难度',
+    parkourName:'跑酷',parkourDesc:'纯跑酷\n抵达终点',
+    rogueliteName:'肉鸽',rogueliteDesc:'养成解锁\n歼灭所有敌人',
+    dungeonName:'地牢',dungeonDesc:'随机房间\n可破坏地形',
+    modeHintParkour:'纯平台跑酷，挑战地形，抵达终点旗帜。跳跃解锁技能生效。',
+    modeHintRoguelite:'击杀关卡内全部敌人获胜。局外养成解锁二段跳等技能。',
+    modeHintDungeon:'俯视地牢。找到传送门即可通关。地形可破坏，房间随机生成。',
+    ctrlParkour:'A/D 移动 &nbsp;|&nbsp; 空格 跳跃',
+    ctrlRoguelite:'A/D 移动 &nbsp;|&nbsp; 空格 跳跃 &nbsp;|&nbsp; E 切换近战/远程 &nbsp;|&nbsp; 鼠标左键 攻击',
+    ctrlDungeon:'WASD 移动 &nbsp;|&nbsp; 左键 攻击 &nbsp;|&nbsp; E 切换近战/远程',
+    endless:'⚡ 无尽模式',skillBtn:'🌟 养成系统',slotBtn:'💾 切换存档',
+    skillTitle:'🌟 养成系统',tabJump:'🦅 跳跃',tabMelee:'⚔️ 近战',tabRanged:'🏹 远程',tabQ:'🎮 主动技能',tabAch:'🏆 成就',
+    closeSkill:'✕ 关闭',winTitle:'🎉 通关成功！',loseTitle:'💀 挑战失败',
+    restart:'重玩本难度',backMenu:'返回菜单',goalLabel:'GOAL',
+    dungeonWin:'⬡ 传送门激活！',dungeonLose:'💀 探索失败',
+    portalWinSub:'成功逃离！',portalLoseSub:'HP耗尽，下次再来',
+    upgradePick:'选择强化',upgradePortalSub:'第{n}层完成！选择一项永久强化：',upgradeChestSub:'发现宝箱！选择一项强化：',
+    perkNames:{maxHp:'生命强化',lifesteal:'吸血',meleeDmg:'近战强化',rangedDmg:'远程强化',rangedSpd:'攻速强化',multiShot:'多重射击',moveSpd:'移速强化'},
+    perkDescs:{maxHp:'+40 最大生命值',lifesteal:'攻击回复伤害5%的生命',meleeDmg:'近战伤害+15',rangedDmg:'远程伤害+8',rangedSpd:'射击CD-50ms',multiShot:'子弹+1（最多4发）',moveSpd:'移速+0.4'},
+    hpGoal:'目标: 找到传送门 ⬡',floorLabel:'第{n}层',
+    spLabel:'⭐ {n} 技能点',
+    diffSelect:'选择难度',
+    parkourDescHtml:'单段跳<br>抵达终点',rogueliteDescHtml:'养成解锁<br>歼灭全部敌人',dungeonDescHtml:'随机房间<br>可破坏地形',
+    d1label:'🌱 D1 新手',d2label:'🌿 D2 简单',d3label:'🔥 D3 中等',d4label:'💀 D4 困难',d5label:'☠ D5 地狱',
+    pauseTitle:'⏸ 暂停',pauseResume:'▶ 继续游戏',pauseQuit:'🏠 退出到主界面',
+    upgradeSkip:'跳过 →',allMaxed:'全部强化已满！',
+    dungeonHUD:'WASD移动 · 左键攻击 · E切换',hudMelee:'🟠 近战',hudRanged:'🔵 远程',
+    askLabel:'⚡ 主动技能（Q键触发）',
+    askNone:'无',askNoneDesc:'不携带技能',
+    askShield:'护盾',askShieldDesc:'无敌3s\n冷却8s',
+    askBarrage:'弹幕',askBarrageDesc:'360°弹幕2.5s\n冷却7s',
+    askMinion:'随从',askMinionDesc:'召唤随从(最多10)\n冷却5s',
+    hudQ:'Q',hudQReady:'就绪',hudQActive:'激活中',
+    jumpDouble:'二段跳',jumpTriple:'三段跳',glideUnlock:'🪶 滑翔已解锁',
+    atkMelee:'⚔️近战',atkRanged:'🏹远程',
+    hudParkour:'跑酷',hudDiff:'难度',hudEnemySuffix:'敌',
+    wavePass:'Wave {n} 通过！',wavePrepare:'准备 Wave {n}...',
+    noDmgRun:' ⚡无伤',
+    lvUpTitle:'🎊 升级！Lv.{lv}',lvUpSp:'获得1技能点',
+    winTitleStr:'🎉 通关成功！',loseTitleStr:'💀 挑战失败',
+    scoreLabel:'得分',hpLeftLabel:'HP剩余',
+    endlessWaveLabel:'最高波次: Wave',
+    spDisplay:'⭐ {n} 技能点',
+    lockNeedUnlock:'🔒 需解锁',
+    achGot:'✓ 已获得',achNotGot:'未获得',
+    skillGot:'✓ 已解锁',skillNeed:'需要',skillCost:'需{n}点',skillUnlock:'解锁 ({n}点)',
+    meleeCdLabel:'近战',
+    toastNeedUnlock:'需先解锁「{name}」才能挑战{diff}！',
+    toastAchUnlock:'🏆 成就解锁：{text}',
+    toastLvUp:'升级！ +1技能点',
+    confirmDeleteSlot:'确定删除存档 {num}？\n此操作不可撤销！',
+    remainingLabel:'剩余',enemiesLabel:'剩余敌人',
+    slotNum:'存档',slotEmpty:'空档位',slotNoSave:'尚无存档',
+    slotSkills:'技能',slotAch:'成就',
+    slotContinue:'▶ 继续',slotNew:'＋ 新建',slotDelete:'🗑 删除存档',
+    slotTitle:'💾 选择存档',slotHint:'选择存档槽开始冒险',
+    diffSelect:'选择难度',
+    parkourDescHtml:'单段跳<br>抵达终点',rogueliteDescHtml:'养成解锁<br>歼灭全部敌人',dungeonDescHtml:'随机房间<br>可破坏地形',
+    d1label:'🌱 D1 新手',d2label:'🌿 D2 简单',d3label:'🔥 D3 中等',d4label:'💀 D4 困难',d5label:'☠ D5 地狱',
+  },
+  en:{
+    title:'⚔ Platform Adventure',modeSelect:'SELECT MODE',diffSelect:'SELECT DIFFICULTY',
+    parkourName:'Parkour',parkourDesc:'Pure running\nReach the flag',
+    rogueliteName:'Roguelite',rogueliteDesc:'Meta progression\nKill all enemies',
+    dungeonName:'Dungeon',dungeonDesc:'Random rooms\nDestructible terrain',
+    modeHintParkour:'Pure platform run. Reach the goal flag. Jump skills apply if unlocked.',
+    modeHintRoguelite:'Kill all enemies to win. Unlock double-jump and more with meta skills.',
+    modeHintDungeon:'Top-down dungeon. Find the portal to escape. Terrain is destructible.',
+    ctrlParkour:'A/D Move &nbsp;|&nbsp; Space Jump',
+    ctrlRoguelite:'A/D Move &nbsp;|&nbsp; Space Jump &nbsp;|&nbsp; E Switch atk &nbsp;|&nbsp; LClick Attack',
+    ctrlDungeon:'WASD Move &nbsp;|&nbsp; LClick Attack &nbsp;|&nbsp; E Switch melee/ranged',
+    endless:'⚡ Endless',skillBtn:'🌟 Skills',slotBtn:'💾 Save Slots',
+    skillTitle:'🌟 Skill Tree',tabJump:'🦅 Jump',tabMelee:'⚔️ Melee',tabRanged:'🏹 Ranged',tabQ:'🎮 Active',tabAch:'🏆 Achieve',
+    closeSkill:'✕ Close',winTitle:'🎉 Stage Clear!',loseTitle:'💀 Game Over',
+    restart:'Retry',backMenu:'Menu',goalLabel:'GOAL',
+    dungeonWin:'⬡ Portal Activated!',dungeonLose:'💀 Exploration Failed',
+    portalWinSub:'Escaped successfully!',portalLoseSub:'HP depleted. Try again.',
+    upgradePick:'Choose Upgrade',upgradePortalSub:'Floor {n} cleared! Pick a permanent upgrade:',upgradeChestSub:'Found a chest! Pick an upgrade:',
+    perkNames:{maxHp:'Vital Boost',lifesteal:'Lifesteal',meleeDmg:'Melee Boost',rangedDmg:'Ranged Boost',rangedSpd:'Atk Speed',multiShot:'Multi-Shot',moveSpd:'Speed Boost'},
+    perkDescs:{maxHp:'+40 Max HP',lifesteal:'Heal 5% of damage dealt',meleeDmg:'Melee dmg +15',rangedDmg:'Ranged dmg +8',rangedSpd:'CD -50ms',multiShot:'+1 bullet (max 4)',moveSpd:'Move spd +0.4'},
+    hpGoal:'Goal: Find Portal ⬡',floorLabel:'Floor {n}',
+    spLabel:'⭐ {n} SP',
+    pauseTitle:'⏸ Paused',pauseResume:'▶ Resume',pauseQuit:'🏠 Main Menu',
+    upgradeSkip:'Skip →',allMaxed:'All upgrades maxed!',
+    dungeonHUD:'WASD Move · LClick Atk · E Switch',hudMelee:'🟠 Melee',hudRanged:'🔵 Ranged',
+    askLabel:'⚡ Active Skill (Q)',
+    askNone:'None',askNoneDesc:'No skill',
+    askShield:'Shield',askShieldDesc:'Invincible 3s\nCD 8s',
+    askBarrage:'Barrage',askBarrageDesc:'360° bullets 2.5s\nCD 7s',
+    askMinion:'Minion',askMinionDesc:'Summon minion (max 10)\nCD 5s',
+    hudQ:'Q',hudQReady:'Ready',hudQActive:'Active',
+    jumpDouble:'Double Jump',jumpTriple:'Triple Jump',glideUnlock:'🪶 Glide Unlocked',
+    atkMelee:'⚔️Melee',atkRanged:'🏹Ranged',
+    hudParkour:'Parkour',hudDiff:'Diff',hudEnemySuffix:' foes',
+    wavePass:'Wave {n} Clear!',wavePrepare:'Wave {n} incoming...',
+    noDmgRun:' ⚡No Dmg',
+    lvUpTitle:'🎊 Level Up! Lv.{lv}',lvUpSp:'Gained 1 Skill Point',
+    winTitleStr:'🎉 Stage Clear!',loseTitleStr:'💀 Game Over',
+    scoreLabel:'Score',hpLeftLabel:'HP Left',
+    endlessWaveLabel:'Best Wave:',
+    spDisplay:'⭐ {n} SP',
+    lockNeedUnlock:'🔒 Requires',
+    achGot:'✓ Obtained',achNotGot:'Not obtained',
+    skillGot:'✓ Unlocked',skillNeed:'Requires',skillCost:'{n}pt cost',skillUnlock:'Unlock ({n}pt)',
+    meleeCdLabel:'Melee',
+    toastNeedUnlock:'Unlock "{name}" first to play {diff}!',
+    toastAchUnlock:'🏆 Achievement: {text}',
+    toastLvUp:'Level Up! +1 Skill Point',
+    confirmDeleteSlot:'Delete save slot {num}?\nThis cannot be undone!',
+    remainingLabel:'left',enemiesLabel:'remaining',
+    slotNum:'Save',slotEmpty:'Empty',slotNoSave:'No save data',
+    slotSkills:'Skills',slotAch:'Achievements',
+    slotContinue:'▶ Continue',slotNew:'＋ New Game',slotDelete:'🗑 Delete Save',
+    slotTitle:'💾 Select Save',slotHint:'Choose a save slot to start',
+    diffSelect:'SELECT DIFFICULTY',
+    parkourDescHtml:'No combat<br>Reach the flag',rogueliteDescHtml:'Meta unlock<br>Kill all enemies',dungeonDescHtml:'Random rooms<br>Destructible tiles',
+    d1label:'🌱 D1 Easy',d2label:'🌿 D2 Normal',d3label:'🔥 D3 Medium',d4label:'💀 D4 Hard',d5label:'☠ D5 Hell',
+  }
+};
+function L(k,vars={}){
+  const s=(LANG[lang]||LANG.zh)[k]||(LANG.zh)[k]||k;
+  if(typeof s!=='string')return s;
+  return s.replace(/\{(\w+)\}/g,(_,v)=>vars[v]??`{${v}}`);
+}
+function toggleLang(){
+  lang=lang==='zh'?'en':'zh';
+  document.getElementById('btn-lang').textContent=lang==='zh'?'EN':'中文';
+  applyLang();
+}
+function applyLang(){
+  document.querySelector('#menu h1').textContent=L('title');
+  const sgEl=document.getElementById('sec-gametype');
+  if(sgEl)sgEl.textContent=lang==='en'?'SELECT GAME':'选择游戏';
+  const smEl=document.getElementById('sec-submode');
+  if(smEl)smEl.textContent=L('modeSelect');
+  const drEl=document.querySelector('.menu-right .sec-label');
+  if(drEl)drEl.textContent=L('diffSelect');
+  const tcR=document.getElementById('tc-rhythm');
+  if(tcR){tcR.querySelector('.tc-name').textContent=lang==='en'?'Beat Strike':'节拍冲击';tcR.querySelector('.tc-soon').textContent=lang==='en'?'Coming Soon':'即将上线';}
+  document.getElementById('mc-parkour').querySelector('.mc-name').textContent=L('parkourName');
+  document.getElementById('mc-roguelite').querySelector('.mc-name').textContent=L('rogueliteName');
+  document.getElementById('mc-parkour').querySelector('.mc-desc').innerHTML=L('parkourDescHtml');
+  document.getElementById('mc-roguelite').querySelector('.mc-desc').innerHTML=L('rogueliteDescHtml');
+  ['d1','d2','d3','d4','d5'].forEach(k=>{
+    const btn=document.getElementById(`btn-${k}`);if(!btn)return;
+    const tag=btn.querySelector('.lock-tag');
+    const tagHtml=tag?tag.outerHTML:'';
+    btn.innerHTML=L(`${k}label`)+tagHtml;
+  });
+  document.getElementById('btn-endless').textContent=L('endless');
+  document.getElementById('btn-skills').textContent=L('skillBtn');
+  document.getElementById('btn-slot-switch').textContent=L('slotBtn');
+  document.querySelector('#skillMenu h2').textContent=L('skillTitle');
+  const stabs=document.querySelectorAll('.sk-tab');
+  if(stabs[0])stabs[0].textContent=L('tabJump');
+  if(stabs[1])stabs[1].textContent=L('tabMelee');
+  if(stabs[2])stabs[2].textContent=L('tabRanged');
+  if(stabs[3])stabs[3].textContent=L('tabQ');
+  if(stabs[4])stabs[4].textContent=L('tabAch');
+  document.getElementById('btn-close-skills').textContent=L('closeSkill');
+  document.getElementById('btn-restart').textContent=L('restart');
+  document.getElementById('btn-menu2').textContent=L('backMenu');
+  document.getElementById('pause-title').textContent=L('pauseTitle');
+  document.getElementById('pause-resume').textContent=L('pauseResume');
+  document.getElementById('pause-quit').textContent=L('pauseQuit');
+  document.getElementById('du-skip').textContent=L('upgradeSkip');
+  if(document.getElementById('active-skill-picker').style.display!=='none') _renderActiveSkillCards();
+  // update slot menu if visible
+  const slotMenu=document.getElementById('slotMenu');
+  if(slotMenu.style.display!=='none'){
+    slotMenu.querySelector('h2').textContent=L('slotTitle');
+    slotMenu.querySelector('.slot-hint').textContent=L('slotHint');
+    buildSlotMenu();
+  }
+  // refresh meta-sp in menu bar
+  if(currentSlot){const meta=loadMeta();document.getElementById('meta-sp').textContent=L('spDisplay',{n:meta.sp});}
+  setGameType(selectedGameType);
+}
+
+// ─── constants ───────────────────────────────────────────────
+const W=800,H=500,GRAV=.55,JUMP_V=-13.5,SPD=3.8,PW=22,PH=34,ATK_RANGE=68,ATK_MS=220;
+const MELEE_DMG=3,BULLET_DMG=1,BULLET_SPD=9,RANGED_CD=350;
+
+// ─── difficulty configs ───────────────────────────────────────
+const CFG={
+  d1:{name:'D1 新手',nameEn:'D1 Easy',levelW:2400,pMinW:150,pMaxW:250,gapMin:25,gapMax:75,branchCount:28,enemyN:2,flyerN:0,walkerHp:1,flyerHp:1,eSpd:.7,bg:'#3a7a5a',bg2:'#1a4a2a',ground:'#2a6a3a',grass:'#4ab05a',paths:'≥20条路径',pathsEn:'≥20 paths',xpBase:150},
+  d2:{name:'D2 简单',nameEn:'D2 Normal',levelW:2800,pMinW:130,pMaxW:220,gapMin:40,gapMax:88,branchCount:22,enemyN:4,flyerN:1,walkerHp:2,flyerHp:1,eSpd:1.0,bg:'#5ba3d9',bg2:'#2a5f8f',ground:'#3a7d44',grass:'#52b05a',paths:'≥15条路径',pathsEn:'≥15 paths',xpBase:280},
+  d3:{name:'D3 中等',nameEn:'D3 Medium',levelW:3400,pMinW:85,pMaxW:165,gapMin:60,gapMax:118,branchCount:13,enemyN:8,flyerN:3,walkerHp:3,flyerHp:2,eSpd:1.6,bg:'#c47a3a',bg2:'#7a3e10',ground:'#6b3a1f',grass:'#8b5e3c',paths:'≥10条路径',pathsEn:'≥10 paths',xpBase:500},
+  d4:{name:'D4 困难',nameEn:'D4 Hard',levelW:4000,pMinW:52,pMaxW:108,gapMin:90,gapMax:148,branchCount:7,enemyN:14,flyerN:5,walkerHp:4,flyerHp:2,eSpd:2.2,bg:'#1a0a3a',bg2:'#0a0518',ground:'#3d1f6e',grass:'#5a2d8f',paths:'≥5条路径',pathsEn:'≥5 paths',xpBase:900,requires:'double_jump'},
+  d5:{name:'D5 地狱',nameEn:'D5 Hell',levelW:4800,pMinW:38,pMaxW:80,gapMin:115,gapMax:165,branchCount:4,enemyN:22,flyerN:8,walkerHp:5,flyerHp:3,eSpd:3.0,bg:'#1a0000',bg2:'#080000',ground:'#4a0f0f',grass:'#7a1a1a',paths:'≥3条路径',pathsEn:'≥3 paths',xpBase:1500,requires:'double_jump'},
+};
+
+// ─── skill definitions ────────────────────────────────────────
+const SKILLS={
+  double_jump:{name:'二段跳',nameEn:'Double Jump',icon:'🦅',desc:'空中再跳一次',descEn:'Extra jump in air',cost:1,requires:null},
+  triple_jump: {name:'三段跳',nameEn:'Triple Jump',icon:'🦋',desc:'空中再跳两次',descEn:'Two extra air jumps',cost:2,requires:'double_jump'},
+  glide:       {name:'滑翔',nameEn:'Glide',  icon:'🪶',desc:'按住空格缓速下落',descEn:'Hold Space to slow fall',cost:1,requires:null},
+  high_jump_1: {name:'跳跃强化Ⅰ',nameEn:'Jump Boost I', icon:'⬆',desc:'跳跃高度+15%',descEn:'Jump height +15%',cost:1,requires:null},
+  high_jump_2: {name:'跳跃强化Ⅱ',nameEn:'Jump Boost II', icon:'⬆',desc:'跳跃高度+15%',descEn:'Jump height +15%',cost:1,requires:'high_jump_1'},
+  high_jump_3: {name:'跳跃强化Ⅲ',nameEn:'Jump Boost III',icon:'⬆',desc:'跳跃高度+15%',descEn:'Jump height +15%',cost:1,requires:'high_jump_2'},
+  melee_dmg_1:   {name:'近战强化Ⅰ',nameEn:'Melee Boost I', icon:'⚔️', desc:'近战伤害+1（当前3→4）',descEn:'Melee dmg +1 (3→4)', cost:1, requires:null},
+  melee_dmg_2:   {name:'近战强化Ⅱ',nameEn:'Melee Boost II', icon:'⚔️', desc:'近战伤害+1（共+2）',descEn:'Melee dmg +1 (total +2)', cost:2, requires:'melee_dmg_1'},
+  melee_range_1: {name:'攻击范围Ⅰ',nameEn:'Atk Range I', icon:'↔️', desc:'近战范围+25%',descEn:'Melee range +25%', cost:1, requires:null},
+  melee_range_2: {name:'攻击范围Ⅱ',nameEn:'Atk Range II', icon:'↔️', desc:'近战范围再+25%',descEn:'Melee range +25% more', cost:2, requires:'melee_range_1'},
+  bullet_count_1:{name:'多重射击Ⅰ',nameEn:'Multi-Shot I', icon:'🏹', desc:'射击额外+1发（共2发）',descEn:'+1 bullet (2 total)', cost:1, requires:null},
+  bullet_count_2:{name:'多重射击Ⅱ',nameEn:'Multi-Shot II', icon:'🏹', desc:'射击额外+1发（共3发）',descEn:'+1 bullet (3 total)', cost:2, requires:'bullet_count_1'},
+  bullet_spread_1:{name:'扇形射击',nameEn:'Spread Shot', icon:'🌊', desc:'同时射出2颗子弹，夹角8°（局内同样生效）',descEn:'Fire 2 bullets at 8° spread (works in dungeon)', cost:1, requires:null},
+  bullet_dmg_1:  {name:'弹药强化Ⅰ',nameEn:'Bullet Boost I', icon:'💥', desc:'子弹伤害+1',descEn:'Bullet dmg +1', cost:1, requires:null},
+  bullet_dmg_2:  {name:'弹药强化Ⅱ',nameEn:'Bullet Boost II', icon:'💥', desc:'子弹伤害再+1',descEn:'Bullet dmg +1 more', cost:2, requires:'bullet_dmg_1'},
+  atk_speed_1:   {name:'攻速强化Ⅰ',nameEn:'Atk Speed I', icon:'⚡', desc:'射击冷却-25%',descEn:'Shoot CD -25%', cost:1, requires:null},
+  atk_speed_2:   {name:'攻速强化Ⅱ',nameEn:'Atk Speed II', icon:'⚡', desc:'射击冷却再-25%',descEn:'Shoot CD -25% more', cost:2, requires:'atk_speed_1'},
+  q_shield_1:{name:'护盾强化Ⅰ',nameEn:'Shield Boost I',  icon:'🛡️',desc:'护盾持续5s，冷却8s',descEn:'Shield 5s duration, 8s CD',cost:1,requires:null},
+  q_shield_2:{name:'护盾强化Ⅱ',nameEn:'Shield Boost II', icon:'🛡️',desc:'护盾持续9s，冷却8s',descEn:'Shield 9s duration, 8s CD',cost:2,requires:'q_shield_1'},
+  q_shield_3:{name:'护盾强化Ⅲ',nameEn:'Shield Boost III',icon:'🛡️',desc:'护盾持续10s，结束时范围爆炸；护盾期间持续击退并伤害周围敌人',descEn:'Shield 10s, AOE blast on expiry; continuously repels & damages nearby enemies',cost:2,requires:'q_shield_2'},
+  q_barrage_1:{name:'弹幕强化Ⅰ',nameEn:'Barrage Boost I',  icon:'💥',desc:'弹幕持续4s，冷却8s',descEn:'Barrage 4s duration, 8s CD',cost:1,requires:null},
+  q_barrage_2:{name:'弹幕强化Ⅱ',nameEn:'Barrage Boost II', icon:'💥',desc:'弹幕持续6s，冷却8s',descEn:'Barrage 6s duration, 8s CD',cost:2,requires:'q_barrage_1'},
+  q_barrage_3:{name:'弹幕强化Ⅲ',nameEn:'Barrage Boost III',icon:'💥',desc:'弹幕持续7s，子弹可反弹',descEn:'Barrage 7s, bullets bounce off walls',cost:2,requires:'q_barrage_2'},
+  q_minion_1:{name:'随从强化Ⅰ',nameEn:'Minion Boost I',  icon:'🔮',desc:'随从血量提升（3→6）',descEn:'Minion HP increased (3→6)',cost:1,requires:null},
+  q_minion_2:{name:'随从强化Ⅱ',nameEn:'Minion Boost II', icon:'🔮',desc:'随从攻击力提升；Q技能一次召唤3个随从',descEn:'Minion damage increased; Q skill summons 3 minions at once',cost:2,requires:'q_minion_1'},
+  q_minion_3:{name:'随从强化Ⅲ',nameEn:'Minion Boost III',icon:'🔮',desc:'随从上限50个，Q冷却降至3s',descEn:'Minion cap 50, Q CD reduced to 3s',cost:2,requires:'q_minion_2'},
+};
+
+// ─── achievement definitions ──────────────────────────────────
+const ACHIEVEMENTS={
+  first_clear: {name:'初次探险',nameEn:'First Adventure', icon:'🗺', desc:'通关任意难度',descEn:'Clear any difficulty'},
+  clear_d4:    {name:'地狱前奏',nameEn:'Hell Prelude',    icon:'💀', desc:'通关D4困难',  descEn:'Clear D4 Hard'},
+  clear_d5:    {name:'征服地狱',nameEn:'Hell Conqueror',  icon:'☠',  desc:'通关D5地狱', descEn:'Clear D5 Hell'},
+  no_damage:   {name:'无伤英雄',nameEn:'Untouched Hero',  icon:'🛡',  desc:'无伤通关任意难度',descEn:'Clear any difficulty without damage'},
+  no_damage_d5:{name:'地狱无伤',nameEn:'Infernal Flawless',icon:'💎',desc:'无伤通关D5地狱',descEn:'Clear D5 Hell without damage'},
+  all_skills:  {name:'技能大师',nameEn:'Skill Master',    icon:'🌟', desc:'解锁全部技能',descEn:'Unlock all skills'},
+};
+
+// ─── save slots ───────────────────────────────────────────────
+const SAVE_SLOTS=['platform_save_1','platform_save_2','platform_save_3'];
+let currentSlot=null; // set by slot select UI
+
+function defaultMeta(){
+  return{level:1,xp:0,sp:0,endlessSave:null,
+    skills:{double_jump:false,triple_jump:false,glide:false,high_jump_1:false,high_jump_2:false,high_jump_3:false,melee_dmg_1:false,melee_dmg_2:false,melee_range_1:false,melee_range_2:false,bullet_count_1:false,bullet_count_2:false,bullet_spread_1:false,bullet_dmg_1:false,bullet_dmg_2:false,atk_speed_1:false,atk_speed_2:false,q_shield_1:false,q_shield_2:false,q_shield_3:false,q_barrage_1:false,q_barrage_2:false,q_barrage_3:false,q_minion_1:false,q_minion_2:false,q_minion_3:false},
+    achievements:{first_clear:false,clear_d4:false,clear_d5:false,no_damage:false,no_damage_d5:false,all_skills:false}};
+}
+function loadMeta(){
+  try{const d=JSON.parse(localStorage.getItem(currentSlot));const def=defaultMeta();
+    return d&&d.level?{...def,...d,skills:{...def.skills,...(d.skills||{})},achievements:{...def.achievements,...(d.achievements||{})}}:def;
+  }catch{return defaultMeta()}
+}
+function saveMeta(m){if(currentSlot)localStorage.setItem(currentSlot,JSON.stringify(m));}
+function slotData(key){try{const d=JSON.parse(localStorage.getItem(key));return d&&d.level?d:null;}catch{return null;}}
+function deleteSlot(key){localStorage.removeItem(key);}
+
+function buildSlotMenu(){
+  const wrap=document.getElementById('slot-cards');
+  wrap.innerHTML='';
+  SAVE_SLOTS.forEach((key,i)=>{
+    const d=slotData(key);
+    const card=document.createElement('div');
+    card.className='slot-card'+(d?' slot-has':'');
+    const skillCount=d?Object.values(d.skills||{}).filter(Boolean).length:0;
+    const achCount=d?Object.values(d.achievements||{}).filter(Boolean).length:0;
+    card.innerHTML=`
+      <div class="slot-num">${L('slotNum')} ${i+1}</div>
+      <div class="slot-lv">${d?`Lv.${d.level}`:L('slotEmpty')}</div>
+      <div class="slot-detail">${d?`${L('slotSkills')} ${skillCount}/${Object.keys(SKILLS).length}<br>${L('slotAch')} ${achCount}/6<br>XP ${d.xp||0}`:L('slotNoSave')}</div>
+      <div class="slot-btns">
+        ${d?`<button class="slot-play" onclick="selectSlot('${key}')">${L('slotContinue')}</button>`
+            :`<button class="slot-new" onclick="selectSlot('${key}')">${L('slotNew')}</button>`}
+      </div>
+      ${d?`<div><button class="slot-del" onclick="confirmDelSlot('${key}',${i+1})">${L('slotDelete')}</button></div>`:''}
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function selectSlot(key){
+  currentSlot=key;
+  document.getElementById('slotMenu').style.display='none';
+  document.getElementById('menu').style.display='flex';
+  updateMenuUI();
+  setGameType(selectedGameType);
+}
+
+function confirmDelSlot(key,num){
+  if(!confirm(L('confirmDeleteSlot',{num})))return;
+  deleteSlot(key);
+  buildSlotMenu();
+}
+
+function openSlotMenu(){
+  // pause / hide game if running
+  if(G){G.destroy();G=null;}
+  document.getElementById('menu').style.display='none';
+  document.getElementById('gameWrap').style.display='none';
+  buildSlotMenu();
+  document.getElementById('slotMenu').style.display='flex';
+}
+function xpNeeded(lv){return Math.floor(100*Math.pow(lv,1.4))}
+
+// ─── utils ───────────────────────────────────────────────────
+const rng=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rng(a,b+1));
+function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function shade(hex,d){
+  let r=parseInt(hex.slice(1,3),16)||0,g=parseInt(hex.slice(3,5),16)||0,b2=parseInt(hex.slice(5,7),16)||0;
+  return'#'+[r+d,g+d,b2+d].map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join('');
+}
+
+// ─── level generator ─────────────────────────────────────────
+function genLevel(diff){
+  const c=typeof diff==='string'?CFG[diff]:diff,plats=[],enemies=[];
+  const JH=175,JW=155;
+  plats.push({x:0,y:440,w:200,h:20,role:'start'});
+  let sx=220,sy=440;
+  const spine=[plats[0]];
+  while(sx<c.levelW-320){
+    const pw=ri(c.pMinW,c.pMaxW);
+    const maxUp=Math.min(JH*.75,sy-130);
+    const maxDn=Math.min(100,460-sy);
+    sy=Math.max(130,Math.min(455,sy+rng(-maxUp,maxDn*.5)));
+    const gap=ri(c.gapMin,Math.min(c.gapMax,JW-25));
+    const p={x:sx,y:sy,w:pw,h:20,role:'spine'};
+    plats.push(p);spine.push(p);sx+=pw+gap;
+  }
+  const gpy=ri(140,190),gpx=c.levelW-220;
+  const goalRole=c.endless?'spine':'goal';
+  const goalP={x:gpx,y:gpy,w:220,h:20,role:goalRole};
+  plats.push(goalP);
+  const last=spine[spine.length-1];
+  const dx=gpx-(last.x+last.w),dy=Math.abs(gpy-last.y);
+  const steps=Math.ceil(Math.max(dx/JW,dy/JH));
+  if(steps>1){
+    for(let i=1;i<steps;i++){
+      const t=i/steps;
+      plats.push({x:last.x+last.w+t*dx-50,y:last.y+t*(gpy-last.y),w:ri(90,130),h:20,role:'bridge'});
+    }
+  }
+  for(let i=0;i<c.branchCount;i++){
+    const idx=ri(0,spine.length-2);
+    const ref=spine[idx],nxt=spine[idx+1]||goalP;
+    const bx=ref.x+ref.w+rng(15,(nxt.x-ref.x-ref.w)*.85);
+    const by=ref.y+rng(-JH*.65,55);
+    const bw=ri(c.pMinW,c.pMaxW);
+    if(bx>50&&bx<c.levelW-100&&by>110&&by<462)
+      plats.push({x:bx,y:Math.max(110,Math.min(455,by)),w:bw,h:20,role:'branch'});
+  }
+  const eligible=plats.filter(p=>p.role==='branch'&&p.w>=80).sort(()=>Math.random()-.5);
+  const eCount=Math.min(c.enemyN,eligible.length);
+  for(let i=0;i<eCount;i++){
+    const p=eligible[i];const spd=c.eSpd*(Math.random()<.5?1:-1);
+    enemies.push({type:'walk',x:p.x+p.w/2-11,y:p.y-33,w:22,h:32,vx:spd,vy:0,
+      hp:c.walkerHp,maxHp:c.walkerHp,alive:true,plat:p,col:`hsl(${ri(0,35)},75%,38%)`});
+  }
+  // Flying enemies: spawn at random X positions, floating height
+  const flyCount=c.flyerN||0;
+  for(let i=0;i<flyCount;i++){
+    const fx=ri(400,c.levelW-400);
+    const fy=ri(80,220);
+    const fspd=c.eSpd*.6*(Math.random()<.5?1:-1);
+    enemies.push({type:'fly',x:fx,y:fy,w:24,h:20,vx:fspd,vy:0,
+      hp:c.flyerHp,maxHp:c.flyerHp,alive:true,plat:null,
+      floatBaseY:fy,floatPhase:Math.random()*Math.PI*2,
+      col:`hsl(${ri(200,280)},80%,55%)`});
+  }
+  return{plats,enemies,start:{x:80,y:406},goal:{x:gpx+90,y:gpy-44},levelW:c.levelW};
+}
+
+// ─── mode selection ──────────────────────────────────────────
+let selectedMode='dungeon';
+let selectedGameType='dungeon';
+let selectedPlatformMode='parkour';
+let selectedActiveSkill='shield'; // 'none'|'shield'|'barrage'|'minion'
+const ACTIVE_SKILLS=[
+  {id:'none',  icon:'✕', cdMs:0},
+  {id:'shield',icon:'🛡️',cdMs:8000},
+  {id:'barrage',icon:'💥',cdMs:7000},
+  {id:'minion',icon:'🔮',cdMs:5000},
+];
+function setGameType(type){
+  if(type==='rhythm'){showToast(lang==='en'?'🎵 Coming Soon!':'🎵 即将上线！');return;}
+  selectedGameType=type;
+  ['rhythm','dungeon','platform'].forEach(t=>{
+    const el=document.getElementById('tc-'+t);if(el)el.classList.toggle('active',t===type);
+  });
+  const sub=document.getElementById('sub-mode-section');
+  if(type==='platform'){
+    sub.style.display='block';
+    setMode(selectedPlatformMode||'parkour');
+  }else{
+    sub.style.display='none';
+    setMode('dungeon');
+  }
+}
+function setMode(m){
+  selectedMode=m;
+  if(m==='parkour'||m==='roguelite')selectedPlatformMode=m;
+  document.getElementById('mc-parkour').classList.toggle('active',m==='parkour');
+  document.getElementById('mc-roguelite').classList.toggle('active',m==='roguelite');
+  document.getElementById('btn-endless').style.display=(m==='roguelite'||m==='dungeon')?'inline-block':'none';
+  const hintKey={parkour:'modeHintParkour',roguelite:'modeHintRoguelite',dungeon:'modeHintDungeon'};
+  document.getElementById('mode-hint').textContent=L(hintKey[m]||'modeHintParkour');
+  const ctrlKey={parkour:'ctrlParkour',roguelite:'ctrlRoguelite',dungeon:'ctrlDungeon'};
+  document.getElementById('ctrl-hint').innerHTML=L(ctrlKey[m]||'ctrlParkour');
+  if(m==='roguelite'){
+    updateMenuUI();
+  } else {
+    const dTags=lang==='en'?{d1:'2 enemies/room',d2:'3/room',d3:'5/room',d4:'7/room',d5:'10/room'}:{d1:'2敌/房',d2:'3敌/房',d3:'5敌/房',d4:'7敌/房',d5:'10敌/房'};
+    const pTags=lang==='en'?{d1:'Beginner',d2:'Easy',d3:'Medium',d4:'Hard',d5:'Hell'}:{d1:'新手友好',d2:'适合入门',d3:'需要技巧',d4:'高手挑战',d5:'极限'};
+    document.querySelectorAll('.diff-btn').forEach(b=>{
+      b.classList.remove('locked');
+      const tag=b.querySelector('.lock-tag');
+      const key=b.id.replace('btn-','');
+      if(tag)tag.textContent=m==='dungeon'?dTags[key]||'':pTags[key]||'';
+    });
+  }
+  // show active skill picker for dungeon only
+  const asp=document.getElementById('active-skill-picker');
+  const showPicker=(m==='dungeon');
+  asp.style.display=showPicker?'block':'none';
+  if(showPicker) _renderActiveSkillCards();
+}
+
+function _renderActiveSkillCards(){
+  document.getElementById('ask-label').textContent=L('askLabel');
+  const wrap=document.getElementById('ask-cards');
+  wrap.innerHTML='';
+  ACTIVE_SKILLS.forEach(sk=>{
+    const nameKey='ask'+sk.id.charAt(0).toUpperCase()+sk.id.slice(1);
+    const descKey=nameKey+'Desc';
+    const card=document.createElement('div');
+    card.className='ask-card'+(selectedActiveSkill===sk.id?' ask-active':'');
+    card.innerHTML=`<div class="ask-icon">${sk.icon}</div><div class="ask-name">${L(nameKey)}</div><div class="ask-desc">${(L(descKey)||'').replace(/\n/g,'<br>')}</div>`;
+    card.onclick=()=>{selectedActiveSkill=sk.id;_renderActiveSkillCards();};
+    wrap.appendChild(card);
+  });
+}
+
+// ─── game class ──────────────────────────────────────────────
+let G=null,lastDiff='d2';
+
+class Game{
+  constructor(diff, opts={}){
+    this.diff=diff;this.cfg=CFG[diff];
+    this.mode=opts.mode||'roguelite';
+    this.meta=loadMeta(); // all modes respect unlocked skills
+    this.canvas=document.getElementById('gc');
+    this.ctx=this.canvas.getContext('2d');
+    this.keys={};this.mx=0;this.my=0;
+    this.atkTimer=0;this.rangedCooldown=0;this.bullets=[];
+    this.atkMode='melee';
+    this.mouseHeld=false;
+    this.score=0;this.state='play';
+    this._dead=false;this._spaceWas=false;this.gliding=false;this.noDamageRun=true;
+    this.endless=opts.endless||false;
+    this.wave=opts.wave||1;
+    this.waveClearTimer=0;
+    this.waveClearPending=false;
+
+    const lv=genLevel(diff);
+    this.plats=lv.plats;
+    this.enemies=this.mode==='parkour'?[]:lv.enemies; // parkour: no enemies
+    this.levelW=lv.levelW;this.goalPos=lv.goal;
+
+    this.p={x:lv.start.x,y:lv.start.y,w:PW,h:PH,vx:0,vy:0,onGnd:false,dir:1,hp:3,iframes:0,frame:0,fTimer:0,airJumps:0};
+    this.camX=0;this.parts=[];
+    this.clouds=Array.from({length:14},()=>({x:rng(0,this.levelW),y:rng(25,140),w:rng(90,200),spd:rng(.08,.3)}));
+    this.flagPhase=0;
+
+    this._kd=e=>{
+      this.keys[e.code]=true;
+      if(e.code==='Space')e.preventDefault();
+      if(e.code==='KeyE'&&this.state==='play'){
+        this.atkMode=this.atkMode==='melee'?'ranged':'melee';
+      }
+      if(e.code==='KeyP'){
+        if(this.state==='play'){
+          this.state='paused';
+          cancelAnimationFrame(this._rafId);
+          const po=document.getElementById('pauseOverlay');
+          document.getElementById('pause-title').textContent=L('pauseTitle');
+          po.style.display='flex';
+        } else if(this.state==='paused'&&document.getElementById('pauseOverlay').style.display!=='none'){
+          this.resumeGame();
+        }
+      }
+    };
+    this._ku=e=>{this.keys[e.code]=false};
+    this._mm=e=>{const r=this.canvas.getBoundingClientRect();this.mx=e.clientX-r.left;this.my=e.clientY-r.top};
+    this._mc=e=>{
+      if(e.button!==0||this.state!=='play')return;
+      this.mouseHeld=true;
+      if(this.atkMode==='melee')this.atkTimer=ATK_MS;
+      else this._shoot();
+    };
+    this._mu=e=>{if(e.button===0)this.mouseHeld=false;};
+    document.addEventListener('keydown',this._kd);
+    document.addEventListener('keyup',this._ku);
+    this.canvas.addEventListener('mousemove',this._mm);
+    this.canvas.addEventListener('mousedown',this._mc);
+    this.canvas.addEventListener('mouseup',this._mu);
+    this._raf=this._loop.bind(this);this._lt=performance.now();
+    requestAnimationFrame(this._raf);
+  }
+
+  get _jumpV(){
+    let v=JUMP_V;const sk=this.meta.skills;
+    if(sk.high_jump_3)v*=1.45;
+    else if(sk.high_jump_2)v*=1.30;
+    else if(sk.high_jump_1)v*=1.15;
+    return v;
+  }
+  get _maxAirJumps(){
+    const sk=this.meta.skills;
+    if(sk.triple_jump)return 2;
+    if(sk.double_jump)return 1;
+    return 0;
+  }
+  get _meleeDmg(){
+    let d=MELEE_DMG;const sk=this.meta.skills;
+    if(sk.melee_dmg_2)d+=2;else if(sk.melee_dmg_1)d+=1;
+    return d;
+  }
+  get _atkRange(){
+    let r=ATK_RANGE;const sk=this.meta.skills;
+    if(sk.melee_range_2)r*=1.5;else if(sk.melee_range_1)r*=1.25;
+    return r;
+  }
+  get _bulletCount(){
+    const sk=this.meta.skills;
+    const base=sk.bullet_count_2?3:sk.bullet_count_1?2:1;
+    return sk.bullet_spread_1?Math.max(2,base):base;
+  }
+  get _bulletSpread(){return this.meta.skills.bullet_spread_1?Math.PI/45:0;}// 4° half-gap = 8° total
+  get _bulletDmg(){
+    const sk=this.meta.skills;
+    if(sk.bullet_dmg_2)return BULLET_DMG+2;
+    if(sk.bullet_dmg_1)return BULLET_DMG+1;
+    return BULLET_DMG;
+  }
+  get _rangedCD(){
+    const sk=this.meta.skills;
+    if(sk.atk_speed_2)return RANGED_CD*.5;
+    if(sk.atk_speed_1)return RANGED_CD*.75;
+    return RANGED_CD;
+  }
+
+  destroy(){
+    this._dead=true;
+    document.removeEventListener('keydown',this._kd);
+    document.removeEventListener('keyup',this._ku);
+    this.canvas.removeEventListener('mousemove',this._mm);
+    this.canvas.removeEventListener('mousedown',this._mc);
+    this.canvas.removeEventListener('mouseup',this._mu);
+  }
+
+  resumeGame(){
+    if(this.state!=='paused')return;
+    document.getElementById('pauseOverlay').style.display='none';
+    this.state='play';this._lt=performance.now();
+    this._rafId=requestAnimationFrame(t=>this._loop(t));
+  }
+
+  _loop(ts){
+    if(this._dead)return;
+    const dt=Math.min(ts-this._lt,50);this._lt=ts;
+    if(this.state==='play')this._update(dt);
+    this._draw();
+    requestAnimationFrame(this._raf);
+  }
+
+  _update(dt){
+    const p=this.p,c=this.cfg,sk=this.meta.skills;
+    const left=this.keys['ArrowLeft']||this.keys['KeyA'];
+    const right=this.keys['ArrowRight']||this.keys['KeyD'];
+    const spaceHeld=!!(this.keys['Space']||this.keys['ArrowUp']||this.keys['KeyW']);
+    const spaceJust=spaceHeld&&!this._spaceWas;
+    this._spaceWas=spaceHeld;
+
+    if(left){p.vx=-SPD;p.dir=-1}
+    else if(right){p.vx=SPD;p.dir=1}
+    else p.vx*=.78;
+
+    // Jump logic
+    if(spaceJust){
+      if(p.onGnd){
+        p.vy=this._jumpV;p.onGnd=false;p.airJumps=0;
+        this._burst(p.x+p.w/2,p.y+p.h,'#fff',5);
+      } else if(p.airJumps<this._maxAirJumps){
+        p.vy=this._jumpV*.88;p.airJumps++;
+        this._burst(p.x+p.w/2,p.y+p.h/2,'#4af',9);
+      }
+    }
+
+    // Gravity (glide reduces it when falling)
+    this.gliding=sk.glide&&spaceHeld&&!p.onGnd&&p.vy>0;
+    if(this.gliding){
+      p.vy=Math.min(p.vy+GRAV*.12,3);
+      if(Math.random()<.35)this._burst(p.x+rng(0,p.w),p.y+p.h,'#aef',1);
+    } else {
+      p.vy=Math.min(p.vy+GRAV,18);
+    }
+
+    // X collide
+    p.x+=p.vx;p.x=Math.max(0,Math.min(p.x,this.levelW-p.w));
+    for(const pl of this.plats){
+      if(p.x<pl.x+pl.w&&p.x+p.w>pl.x&&p.y<pl.y+pl.h&&p.y+p.h>pl.y){
+        if(p.vx>0)p.x=pl.x-p.w;else p.x=pl.x+pl.w;p.vx=0;
+      }
+    }
+
+    // Y collide
+    p.y+=p.vy;p.onGnd=false;
+    for(const pl of this.plats){
+      if(p.x<pl.x+pl.w&&p.x+p.w>pl.x&&p.y<pl.y+pl.h&&p.y+p.h>pl.y){
+        if(p.vy>=0){p.y=pl.y-p.h;p.vy=0;p.onGnd=true;p.airJumps=0}
+        else{p.y=pl.y+pl.h;p.vy=0}
+      }
+    }
+
+    // Fall off
+    if(p.y>H+80){
+      p.hp--;this.noDamageRun=false;this._burst(p.x,p.y-50,'#f55',12);
+      if(p.hp<=0){this._end(false);return}
+      p.x=80;p.y=380;p.vx=0;p.vy=0;p.iframes=1800;
+    }
+    if(p.iframes>0)p.iframes-=dt;
+
+    // Melee Attack
+    if(this.atkTimer>0){
+      this.atkTimer-=dt;
+      const ax=p.dir===1?p.x+p.w:p.x-this._atkRange;
+      const ab={x:ax,y:p.y,w:this._atkRange,h:p.h};
+      for(const e of this.enemies){
+        if(!e.alive||e._mhit)continue;
+        if(overlap(ab,e)){
+          e._mhit=true; // hit once per swing
+          e.hp-=this._meleeDmg;
+          this._burst(e.x+e.w/2,e.y+e.h/2,'#fa0',8);
+          if(e.hp<=0){e.alive=false;this.score+=10+(e.maxHp-1)*5;this._burst(e.x+e.w/2,e.y+e.h/2,'#f80',14);}
+        }
+      }
+    } else {
+      for(const e of this.enemies)e._mhit=false; // reset each swing
+    }
+
+    // Ranged cooldown + auto-fire when held
+    if(this.rangedCooldown>0)this.rangedCooldown-=dt;
+    if(this.mouseHeld&&this.atkMode==='ranged')this._shoot();
+
+    // Bullets update
+    this.bullets=this.bullets.filter(b=>{
+      b.x+=b.vx; b.y+=b.vy;
+      if(b.x<0||b.x>this.levelW||b.y<-50||b.y>H+50)return false;
+      for(const e of this.enemies){
+        if(!e.alive)continue;
+        if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
+          e.hp-=b.dmg;
+          this._burst(b.x,b.y,'#4af',5);
+          if(e.hp<=0){e.alive=false;this.score+=10+(e.maxHp-1)*5;this._burst(e.x+e.w/2,e.y+e.h/2,'#4af',12);}
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // Enemies
+    for(const e of this.enemies){
+      if(!e.alive)continue;
+      if(e.type==='fly'){
+        // Floating: sine wave vertical + slow horizontal chase
+        e.floatPhase+=dt*.0025;
+        e.y=e.floatBaseY+Math.sin(e.floatPhase)*38;
+        const dx=p.x-e.x;
+        if(Math.abs(dx)>60)e.vx+=Math.sign(dx)*0.04*dt*.06;
+        e.vx=Math.max(-this.cfg.eSpd*.9,Math.min(this.cfg.eSpd*.9,e.vx));
+        e.x+=e.vx;
+        e.x=Math.max(0,Math.min(e.x,this.levelW-e.w));
+      } else {
+        // Walker physics
+        e.vy=Math.min(e.vy+GRAV,18);e.y+=e.vy;e.x+=e.vx;
+        if(e.plat){
+          if(e.x<e.plat.x){e.x=e.plat.x;e.vx*=-1}
+          if(e.x+e.w>e.plat.x+e.plat.w){e.x=e.plat.x+e.plat.w-e.w;e.vx*=-1}
+        }
+        for(const pl of this.plats){
+          if(e.x<pl.x+pl.w&&e.x+e.w>pl.x&&e.y<pl.y+pl.h&&e.y+e.h>pl.y){
+            if(e.vy>=0){e.y=pl.y-e.h;e.vy=0}else{e.y=pl.y+pl.h;e.vy=0}
+          }
+        }
+        if(e.y>H+60&&e.plat){e.x=e.plat.x+e.plat.w/2-e.w/2;e.y=e.plat.y-e.h;e.vy=0}
+      }
+      if(p.iframes<=0&&overlap(p,e)){
+        p.hp--;p.iframes=1400;p.vy=-7;p.vx=(p.x<e.x?-5:5);
+        this.noDamageRun=false;
+        this._burst(p.x+p.w/2,p.y,'#f55',8);
+        if(p.hp<=0){this._end(false);return}
+      }
+    }
+
+    // Endless wave clear check
+    if(this.endless&&!this.waveClearPending&&this.enemies.length>0&&this.enemies.every(e=>!e.alive)){
+      this.waveClearPending=true;
+      this.waveClearTimer=2500;
+    }
+    if(this.waveClearPending){
+      this.waveClearTimer-=dt;
+      if(this.waveClearTimer<=0){
+        this.waveClearPending=false;
+        this._nextWave();return;
+      }
+    }
+
+    // Win condition
+    const gbox={x:this.goalPos.x-22,y:this.goalPos.y-55,w:58,h:80};
+    if(!this.endless){
+      if(this.mode==='parkour'&&overlap(p,gbox)){this._end(true);return;}
+      if(this.mode==='roguelite'&&this.enemies.length>0&&this.enemies.every(e=>!e.alive)){this._end(true);return;}
+    }
+
+    // Camera
+    this.camX=Math.max(0,Math.min(p.x-W*.33,this.levelW-W));
+
+    // Particles
+    this.parts=this.parts.filter(pt=>pt.l>0);
+    for(const pt of this.parts){pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=.25;pt.l-=dt/16}
+
+    // Clouds
+    for(const cl of this.clouds){cl.x-=cl.spd;if(cl.x+cl.w<0)cl.x=this.levelW+50}
+
+    // Walk anim
+    if(Math.abs(p.vx)>.4&&p.onGnd){p.fTimer+=dt;if(p.fTimer>90){p.frame=(p.frame+1)%4;p.fTimer=0}}
+    else if(!p.onGnd)p.frame=2;else{p.frame=0;p.fTimer=0}
+    this.flagPhase+=dt*.003;
+
+    // HUD
+    const h=p.hp,m=h<2?'#f55':h<3?'#fa0':'#f88';
+    document.getElementById('hud-hp').innerHTML=`<span style="color:${m}">❤️ ${'♥'.repeat(Math.max(0,h))}${'♡'.repeat(Math.max(0,3-h))}</span>`;
+
+    const maxAJ=this._maxAirJumps;
+    if(maxAJ>0){
+      const avail=p.onGnd?maxAJ:Math.max(0,maxAJ-p.airJumps);
+      const dots=Array.from({length:maxAJ},(_,i)=>i<avail?'●':'○').join(' ');
+      document.getElementById('hud-jumps').textContent=`${L(sk.triple_jump?'jumpTriple':'jumpDouble')}: ${dots}${sk.glide?'  🪶':''}`;
+    } else {
+      document.getElementById('hud-jumps').textContent=sk.glide?L('glideUnlock'):'';
+    }
+    const modeLabel=this.atkMode==='melee'?L('atkMelee'):L('atkRanged');
+    if(this.mode==='parkour'){
+      document.getElementById('hud-info').textContent=`${L('hudParkour')}  ${L('hudDiff')}: ${c.name}  ${L('scoreLabel')}: ${this.score}`;
+    } else if(this.endless){
+      document.getElementById('hud-info').textContent=`Wave ${this.wave}  ${L('remainingLabel')}: ${this.enemies.filter(e=>e.alive).length}${L('hudEnemySuffix')}  [E:${modeLabel}]`;
+    } else {
+      const alive=this.enemies.filter(e=>e.alive).length;
+      document.getElementById('hud-info').textContent=`${L('hudDiff')}: ${c.name}  ${L('enemiesLabel')}: ${alive}  [E:${modeLabel}]`;
+    }
+  }
+
+  _shoot(){
+    if(this.rangedCooldown>0)return;
+    const p=this.p;
+    this.rangedCooldown=this._rangedCD;
+    const px=p.x-this.camX+p.w/2, py=p.y+p.h/2;
+    let dx=this.mx-px, dy=this.my-py;
+    const len=Math.sqrt(dx*dx+dy*dy)||1;
+    const baseAngle=Math.atan2(dy,dx);
+    const count=this._bulletCount;
+    const spread=this._bulletSpread;
+    const dmg=this._bulletDmg;
+    for(let i=0;i<count;i++){
+      let angle=baseAngle;
+      if(count>1)angle+=spread*(i-(count-1)/2)*2/(count-1||1);
+      const vx=Math.cos(angle)*BULLET_SPD;
+      const vy=Math.sin(angle)*BULLET_SPD;
+      this.bullets.push({x:p.x+p.w/2,y:p.y+p.h/2,vx,vy,dmg});
+    }
+    this._burst(p.x+p.w/2,p.y+p.h/2,'#4af',3);
+  }
+
+  _nextWave(){
+    this.wave++;
+    this.waveClearPending=false;
+    this.waveClearTimer=0;
+    // HP recovery: every 2 waves +1 HP, max 3
+    if(this.wave%2===0&&this.p.hp<3){this.p.hp++;this._burst(this.p.x,this.p.y,'#ff88aa',12);}
+    const lv=genLevel(this._endlessCfg());
+    this.plats=lv.plats;this.enemies=lv.enemies;
+    this.levelW=lv.levelW;this.goalPos=lv.goal;
+    this.bullets=[];this.parts=[];
+    this.clouds=Array.from({length:14},()=>({x:rng(0,lv.levelW),y:rng(25,140),w:rng(90,200),spd:rng(.08,.3)}));
+    this.camX=0;this.p.x=lv.start.x;this.p.y=lv.start.y;this.p.vx=0;this.p.vy=0;this.p.onGnd=true;this.p.airJumps=0;
+  }
+  _endlessCfg(){
+    const w=this.wave;
+    return{
+      endless:true,
+      levelW:2400,pMinW:80,pMaxW:180,gapMin:40,gapMax:110,branchCount:18,
+      enemyN:4+w*2,flyerN:Math.max(0,w-1),
+      walkerHp:Math.ceil(w/2),flyerHp:Math.max(1,Math.ceil(w/3)),
+      eSpd:Math.min(0.8+w*0.12,3.5),
+      bg:'#1a0a2a',bg2:'#0a0515',ground:'#2a1a4a',grass:'#5a3a8f',
+      name:`Wave ${w}`,paths:'',xpBase:w*60
+    };
+  }
+
+  _burst(x,y,col,n){
+    for(let i=0;i<n;i++)this.parts.push({x,y,col,vx:rng(-3,3),vy:rng(-5,-1),l:rng(12,28)});
+  }
+
+  _end(won){
+    this.state=won?'won':'dead';
+    if(won)this.score+=100+Math.floor(this.p.hp*30);
+    document.getElementById('ov-title').textContent=won?L('winTitleStr'):L('loseTitleStr');
+    document.getElementById('ov-sub').textContent=`${L('scoreLabel')}: ${this.score}  ${L('hpLeftLabel')}: ${won?this.p.hp:0}`;
+    if(this.endless)document.getElementById('ov-sub').textContent+=`  ${L('endlessWaveLabel')} ${this.wave}`;
+
+    let xpGain=0,lvlUp=false,newLv=1;
+    if(won){
+      xpGain=Math.floor((this.cfg.xpBase+this.score*1.0)*2); // x2 XP
+      const meta=loadMeta();
+      meta.xp+=xpGain;
+      while(meta.xp>=xpNeeded(meta.level)){
+        meta.xp-=xpNeeded(meta.level);
+        meta.level++;meta.sp++;lvlUp=true;
+      }
+      newLv=meta.level;
+
+      // ── achievement checks ──
+      const ach=meta.achievements;
+      const newAch=[];
+      if(!ach.first_clear){ach.first_clear=true;newAch.push('first_clear')}
+      if(this.diff==='d4'&&!ach.clear_d4){ach.clear_d4=true;newAch.push('clear_d4')}
+      if(this.diff==='d5'&&!ach.clear_d5){ach.clear_d5=true;newAch.push('clear_d5')}
+      if(this.noDamageRun&&!ach.no_damage){ach.no_damage=true;newAch.push('no_damage')}
+      if(this.noDamageRun&&this.diff==='d5'&&!ach.no_damage_d5){ach.no_damage_d5=true;newAch.push('no_damage_d5')}
+      if(Object.keys(SKILLS).every(k=>meta.skills[k])&&!ach.all_skills){ach.all_skills=true;newAch.push('all_skills')}
+      newAch.forEach((k,i)=>setTimeout(()=>{const a=ACHIEVEMENTS[k];showToast(L('toastAchUnlock',{text:`${a.icon} ${lang==='en'?(a.nameEn||a.name):a.name}`}));},i*2600));
+
+      saveMeta(meta);this.meta=meta;
+      updateMenuUI();
+    }
+    document.getElementById('ov-xp').textContent=won?`+${xpGain} XP 🌟${this.noDamageRun?L('noDmgRun'):''}`:'' ;
+    const lvlEl=document.getElementById('ov-lvlup');
+    if(lvlUp){lvlEl.style.display='block';lvlEl.textContent=`${L('lvUpTitle',{lv:newLv})} · ${L('lvUpSp')}`}
+    else lvlEl.style.display='none';
+    document.getElementById('overlay').style.display='flex';
+  }
+
+  _draw(){
+    const ctx=this.ctx,c=this.cfg,cx=Math.floor(this.camX);
+    const bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,c.bg);bg.addColorStop(1,c.bg2);
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle='rgba(0,0,0,.15)';
+    for(let i=0;i<8;i++){const hx=(i*350-(cx*.2))%W-100;ctx.beginPath();ctx.arc(hx+100,H+30,120,0,Math.PI*2);ctx.fill()}
+
+    for(const cl of this.clouds){const cx2=cl.x-cx;if(cx2>-cl.w&&cx2<W+10)this._cloud(ctx,cx2,cl.y,cl.w)}
+
+    for(const pl of this.plats){
+      const px=pl.x-cx;
+      if(px>W+10||px+pl.w<-10)continue;
+      if(pl.role==='goal'){
+        const gr=ctx.createLinearGradient(0,pl.y,0,pl.y+pl.h);
+        gr.addColorStop(0,'#ffd740');gr.addColorStop(1,'#ff6f00');
+        ctx.fillStyle=gr;ctx.fillRect(px,pl.y,pl.w,pl.h);
+        ctx.fillStyle='#888';ctx.fillRect(px+pl.w/2-2,pl.y-65,4,65);
+        ctx.fillStyle='#e94560';
+        ctx.beginPath();
+        const fw=30+Math.sin(this.flagPhase)*6;
+        ctx.moveTo(px+pl.w/2+2,pl.y-65);
+        ctx.lineTo(px+pl.w/2+2+fw,pl.y-55+Math.sin(this.flagPhase+.5)*3);
+        ctx.lineTo(px+pl.w/2+2,pl.y-42);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 11px Arial';ctx.textAlign='center';
+        ctx.fillText('GOAL',px+pl.w/2,pl.y-8);ctx.textAlign='left';
+      } else {
+        const topColor=pl.role==='bridge'?shade(c.ground,15):c.ground;
+        ctx.fillStyle=topColor;ctx.fillRect(px,pl.y,pl.w,pl.h);
+        ctx.fillStyle=c.grass;ctx.fillRect(px,pl.y,pl.w,5);
+        ctx.fillStyle=shade(c.grass,20);
+        for(let gx=px+3;gx<px+pl.w-3;gx+=9){ctx.fillRect(gx,pl.y-3,2,4)}
+        ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(px,pl.y+pl.h-3,pl.w,3);
+      }
+    }
+
+    const gx=this.goalPos.x-cx,gy=this.goalPos.y;
+    ctx.save();ctx.globalAlpha=.25+Math.sin(this.flagPhase*2)*.08;
+    const aura=ctx.createRadialGradient(gx,gy,4,gx,gy,55);
+    aura.addColorStop(0,'#ffd740');aura.addColorStop(1,'transparent');
+    ctx.fillStyle=aura;ctx.beginPath();ctx.arc(gx,gy,55,0,Math.PI*2);ctx.fill();ctx.restore();
+
+    for(const e of this.enemies){
+      if(!e.alive)continue;
+      const ex=e.x-cx;if(ex<-30||ex>W+30)continue;
+      if(e.type==='fly')this._drawFlyer(ctx,ex,e.y,e.w,e.h,e.col,e.vx,e.floatPhase);
+      else this._drawEnemy(ctx,ex,e.y,e.w,e.h,e.col,e.vx);
+      // HP bar
+      if(e.maxHp>1){
+        const bw=e.w+8, bx=ex-4, by=e.y-10;
+        ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx,by,bw,5);
+        const pct=Math.max(0,e.hp/e.maxHp);
+        const hcol=pct>.6?'#44dd44':pct>.3?'#ffaa00':'#ff3333';
+        ctx.fillStyle=hcol;ctx.fillRect(bx,by,Math.round(bw*pct),5);
+        ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=.5;ctx.strokeRect(bx,by,bw,5);
+      }
+    }
+
+    // Bullets
+    for(const b of this.bullets){
+      const bx=b.x-cx;
+      if(bx<-10||bx>W+10)continue;
+      ctx.save();
+      ctx.fillStyle='#88ddff';
+      ctx.shadowColor='#4af';ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(bx,b.y,5,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+
+    const p=this.p;
+    if(this.gliding){
+      ctx.save();ctx.globalAlpha=.5;ctx.fillStyle='#aef';
+      ctx.beginPath();ctx.ellipse(p.x-cx-10,p.y+p.h*.4,20,6,-.4,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(p.x-cx+p.w+10,p.y+p.h*.4,20,6,.4,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+
+    this._drawPlayer(ctx,p.x-cx,p.y,p.dir,p.frame,p.iframes>0,this.atkTimer>0);
+
+    if(this.atkTimer>0){
+      ctx.save();ctx.globalAlpha=.35;ctx.strokeStyle='#ffd740';ctx.lineWidth=3;
+      const ax=p.dir===1?p.x-cx+p.w:p.x-cx;
+      ctx.beginPath();ctx.arc(ax,p.y+p.h/2,this._atkRange,-Math.PI*.6,Math.PI*.6,p.dir===-1);
+      ctx.stroke();ctx.restore();
+    }
+
+    for(const pt of this.parts){
+      ctx.globalAlpha=Math.max(0,pt.l/25);ctx.fillStyle=pt.col;ctx.fillRect(pt.x-cx,pt.y,4,4);
+    }
+    ctx.globalAlpha=1;
+    this._minimap(ctx,cx);
+
+    // Wave clear flash
+    if(this.waveClearPending){
+      ctx.save();ctx.globalAlpha=Math.min(1,(this.waveClearTimer/2500)*2);
+      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,H/2-50,W,100);
+      ctx.fillStyle='#ffd740';ctx.font='bold 42px Arial';ctx.textAlign='center';
+      ctx.fillText(L('wavePass',{n:this.wave}),W/2,H/2-5);
+      ctx.fillStyle='#aaa';ctx.font='20px Arial';
+      ctx.fillText(L('wavePrepare',{n:this.wave+1}),W/2,H/2+32);
+      ctx.textAlign='left';ctx.restore();
+    }
+  }
+
+  _drawPlayer(ctx,x,y,dir,fr,inv,atk){
+    if(inv&&Math.floor(Date.now()/75)%2)return;
+    ctx.save();ctx.translate(x+PW/2,y+PH/2);ctx.scale(dir,1);
+    const lo=[0,4,0,-4][fr]||0;
+    // shadow
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(-9,15,18,4);
+    // legs
+    ctx.fillStyle='#28283e';ctx.fillRect(-7,4,5,12+lo);ctx.fillRect(2,4,5,12-lo);
+    // shoes
+    ctx.fillStyle='#111';ctx.fillRect(-8,16+lo,7,3);ctx.fillRect(1,16-lo,7,3);
+    // body
+    ctx.fillStyle='#4477cc';ctx.fillRect(-8,-6,16,12);
+    ctx.fillStyle='#2255aa';ctx.fillRect(-8,-6,4,12);
+    // arms
+    ctx.fillStyle='#4477cc';
+    if(atk){ctx.fillRect(-13,-5,5,8);ctx.fillRect(8,-5,8,5);ctx.fillStyle='#ffcc88';ctx.fillRect(15,-5,4,5);}
+    else{ctx.fillRect(-13,-5,5,8);ctx.fillRect(8,-5,5,8);}
+    // head
+    ctx.fillStyle='#ffcc88';ctx.fillRect(-6,-16,12,11);
+    // hair
+    ctx.fillStyle='#3a2818';ctx.fillRect(-6,-16,12,4);
+    // eyes
+    ctx.fillStyle='#1a1a30';ctx.fillRect(-4,-11,3,3);ctx.fillRect(1,-11,3,3);
+    ctx.fillStyle='#fff';ctx.fillRect(-4,-11,1,1);ctx.fillRect(1,-11,1,1);
+    ctx.restore();
+  }
+
+  _drawEnemy(ctx,x,y,w,h,col,vx){
+    ctx.save();ctx.translate(x+w/2,y+h/2);ctx.scale(vx>0?1:-1,1);
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(0,h/2+2,9,3,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=shade(col,-20);ctx.fillRect(-9,8,7,10);ctx.fillRect(2,8,7,10);
+    ctx.fillStyle=col;ctx.fillRect(-9,-4,18,14);
+    ctx.fillStyle=shade(col,25);ctx.beginPath();ctx.arc(0,-11,10,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1a1a1a';
+    [[-5,-19,-3,-27,-1,-19],[1,-19,3,-27,5,-19]].forEach(([x1,y1,x2,y2,x3,y3])=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.fill()});
+    ctx.fillStyle='#ff2200';ctx.fillRect(3,-14,4,4);
+    ctx.fillStyle='rgba(255,0,0,.3)';ctx.beginPath();ctx.arc(5,-12,6,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  _drawFlyer(ctx,x,y,w,h,col,vx,phase){
+    ctx.save();ctx.translate(x+w/2,y+h/2);ctx.scale(vx>=0?1:-1,1);
+    // wing flap
+    const flap=Math.sin(phase*6)*0.4;
+    ctx.save();ctx.globalAlpha=.75;
+    // left wing
+    ctx.fillStyle=shade(col,-15);
+    ctx.beginPath();ctx.moveTo(-2,0);ctx.quadraticCurveTo(-14,-8+flap*8,-20,2+flap*4);ctx.quadraticCurveTo(-10,6,-2,2);ctx.fill();
+    // right wing
+    ctx.beginPath();ctx.moveTo(2,0);ctx.quadraticCurveTo(14,-8+flap*8,20,2+flap*4);ctx.quadraticCurveTo(10,6,2,2);ctx.fill();
+    ctx.restore();
+    // body (smaller, bat-like)
+    const bg2=ctx.createRadialGradient(0,-2,1,0,-2,9);
+    bg2.addColorStop(0,shade(col,30));bg2.addColorStop(1,col);
+    ctx.fillStyle=bg2;ctx.beginPath();ctx.ellipse(0,0,8,10,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=shade(col,40);ctx.lineWidth=1;ctx.stroke();
+    // eyes (glowing red)
+    ctx.fillStyle='#ff2200';ctx.beginPath();ctx.arc(3,-4,2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,0,0,.4)';ctx.beginPath();ctx.arc(3,-4,5,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  _cloud(ctx,x,y,w){
+    ctx.save();ctx.globalAlpha=.65;ctx.fillStyle='#fff';
+    [.25,.5,.75].forEach((t,i)=>{ctx.beginPath();ctx.arc(x+w*t,y-[0,w*.08,0][i],w*[.18,.22,.18][i],0,Math.PI*2);ctx.fill()});
+    ctx.fillRect(x+w*.1,y,w*.8,w*.12);ctx.restore();
+  }
+
+  _minimap(ctx,cx){
+    const mw=160,mh=38,mx=W-mw-8,my=8,sc=mw/this.levelW;
+    ctx.fillStyle='rgba(0,0,0,.55)';ctx.beginPath();ctx.roundRect(mx-2,my-2,mw+4,mh+4,4);ctx.fill();
+    for(const pl of this.plats){
+      ctx.fillStyle=pl.role==='goal'?'#ffd740':pl.role==='spine'?'#6ec26e':'#5a9a5a';
+      ctx.fillRect(mx+pl.x*sc,my+pl.y/(H/mh),Math.max(2,pl.w*sc),2);
+    }
+    for(const e of this.enemies){
+      if(!e.alive)continue;
+      ctx.fillStyle=e.type==='fly'?'#cc44ff':'#f55';
+      ctx.fillRect(mx+e.x*sc,my+e.y/(H/mh),3,3);
+    }
+    const p=this.p;
+    ctx.fillStyle='#4af';ctx.fillRect(mx+p.x*sc-1.5,my+4,4,6);
+    ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=1;
+    ctx.strokeRect(mx+cx*sc,my,W*sc,mh);
+  }
+}
+
+// ─── UI helpers ───────────────────────────────────────────────
+function updateMenuUI(){
+  const meta=loadMeta();
+  const needed=xpNeeded(meta.level);
+  const pct=Math.min(100,meta.xp/needed*100);
+  document.getElementById('meta-level').textContent=`Lv.${meta.level}`;
+  document.getElementById('meta-xp-label').textContent=`${meta.xp} / ${needed} XP`;
+  document.getElementById('meta-xp-fill').style.width=pct+'%';
+  document.getElementById('meta-sp').textContent=L('spDisplay',{n:meta.sp});
+  Object.entries(CFG).forEach(([key,c])=>{
+    const btn=document.getElementById(`btn-${key}`);if(!btn)return;
+    const locked=selectedMode==='roguelite'&&!!(c.requires&&!meta.skills[c.requires]);
+    btn.classList.toggle('locked',locked);
+    const tag=btn.querySelector('.lock-tag');
+    const reqSk=c.requires?SKILLS[c.requires]:null;
+    const reqName=reqSk?(lang==='en'?reqSk.nameEn:reqSk.name):'';
+    const pathsTxt=lang==='en'?(c.pathsEn||c.paths):c.paths;
+    if(tag)tag.textContent=locked?`${L('lockNeedUnlock')} ${reqName}`:pathsTxt;
+  });
+}
+
+const SK_GROUPS={
+  jump:  ['double_jump','triple_jump','glide','high_jump_1','high_jump_2','high_jump_3'],
+  melee: ['melee_dmg_1','melee_dmg_2','melee_range_1','melee_range_2'],
+  ranged:['bullet_count_1','bullet_count_2','bullet_spread_1','bullet_dmg_1','bullet_dmg_2','atk_speed_1','atk_speed_2'],
+  qskill:['q_shield_1','q_shield_2','q_shield_3','q_barrage_1','q_barrage_2','q_barrage_3','q_minion_1','q_minion_2','q_minion_3'],
+};
+let _skTab='jump';
+
+function switchSkTab(tab){
+  _skTab=tab;
+  document.querySelectorAll('.sk-tab').forEach(b=>b.classList.remove('active'));
+  const idx={jump:0,melee:1,ranged:2,qskill:3,ach:4}[tab];
+  document.querySelectorAll('.sk-tab')[idx].classList.add('active');
+  _renderSkGrid(loadMeta());
+}
+
+function _renderSkGrid(meta){
+  const grid=document.getElementById('skill-grid');
+  grid.innerHTML='';
+  if(_skTab==='ach'){
+    // achievement cards — override grid columns to 3
+    grid.style.gridTemplateColumns='repeat(3,1fr)';
+    Object.entries(ACHIEVEMENTS).forEach(([key,ach])=>{
+      const got=meta.achievements[key];
+      const card=document.createElement('div');
+      card.className='skill-card'+(got?' sk-ach-got':'');
+      card.style.opacity=got?'1':'.4';
+      const achName=lang==='en'?(ach.nameEn||ach.name):ach.name;
+      const achDesc=lang==='en'?(ach.descEn||ach.desc):ach.desc;
+      card.innerHTML=`<div class="sk-icon">${ach.icon}</div><div class="sk-name" style="color:${got?'#ffd740':'#aaa'}">${achName}</div><div class="sk-desc">${achDesc}</div>${got?`<div style="font-size:.72em;color:#ffd740;margin-top:4px">${L('achGot')}</div>`:`<div style="font-size:.72em;color:#444;margin-top:4px">${L('achNotGot')}</div>`}`;
+      grid.appendChild(card);
+    });
+    return;
+  }
+  const keys=SK_GROUPS[_skTab];
+  // dynamic columns: ≤4 → 2col, else 3col
+  grid.style.gridTemplateColumns=keys.length<=4?'repeat(2,1fr)':'repeat(3,1fr)';
+  keys.forEach(key=>{
+    const sk=SKILLS[key];
+    const owned=meta.skills[key];
+    const reqOk=!sk.requires||meta.skills[sk.requires];
+    const canBuy=!owned&&reqOk&&meta.sp>=sk.cost;
+    const cls=owned?'sk-owned':canBuy?'sk-avail':'sk-locked';
+    let btn='';
+    const skName=lang==='en'?(sk.nameEn||sk.name):sk.name;
+    const skDesc=lang==='en'?(sk.descEn||sk.desc):sk.desc;
+    const reqSkName=sk.requires?(lang==='en'?(SKILLS[sk.requires].nameEn||SKILLS[sk.requires].name):SKILLS[sk.requires].name):'';
+    if(owned)btn=`<button class="sk-btn got" disabled>${L('skillGot')}</button>`;
+    else if(!reqOk)btn=`<button class="sk-btn cant" disabled>${L('skillNeed')} ${reqSkName}</button>`;
+    else if(meta.sp<sk.cost)btn=`<button class="sk-btn cant" disabled>${L('skillCost',{n:sk.cost})}</button>`;
+    else btn=`<button class="sk-btn buy" onclick="buySkill('${key}')">${L('skillUnlock',{n:sk.cost})}</button>`;
+    const card=document.createElement('div');
+    card.className=`skill-card ${cls}`;
+    card.innerHTML=`<div class="sk-icon">${sk.icon}</div><div class="sk-name">${skName}</div><div class="sk-desc">${skDesc}</div>${btn}`;
+    grid.appendChild(card);
+  });
+}
+
+function showSkillTree(){
+  const meta=loadMeta();
+  const needed=xpNeeded(meta.level);
+  document.getElementById('skill-meta-info').textContent=`Lv.${meta.level} · ${meta.xp}/${needed} XP · ${L('spLabel',{n:meta.sp})}`;
+  const isDungeon=selectedMode==='dungeon';
+  const tabs=document.querySelectorAll('.sk-tab');
+  tabs[0].style.display=isDungeon?'none':''; // hide jump tab in dungeon
+  if(isDungeon&&_skTab==='jump'){_skTab='melee';tabs.forEach(t=>t.classList.remove('active'));tabs[1].classList.add('active');}
+  const old=document.getElementById('ach-section');if(old)old.remove();
+  _renderSkGrid(meta);
+  document.getElementById('skillMenu').style.display='flex';
+}
+
+function buySkill(key){
+  const meta=loadMeta(),sk=SKILLS[key];
+  if(meta.skills[key]||meta.sp<sk.cost)return;
+  if(sk.requires&&!meta.skills[sk.requires])return;
+  meta.skills[key]=true;meta.sp-=sk.cost;
+  saveMeta(meta);updateMenuUI();
+  document.getElementById('skill-meta-info').textContent=`Lv.${meta.level} · ${xpNeeded(meta.level)} XP · ${L('spDisplay',{n:meta.sp})}`;
+  _renderSkGrid(meta);
+}
+
+function closeSkillTree(){document.getElementById('skillMenu').style.display='none'}
+
+// ─── dungeon perks ────────────────────────────────────────────
+const DUNGEON_PERKS=[
+  {id:'maxHp',   icon:'❤️', max:6},
+  {id:'lifesteal',icon:'🩸',max:1},
+  {id:'meleeDmg',icon:'⚔️', max:6},
+  {id:'rangedDmg',icon:'🏹',max:6},
+  {id:'rangedSpd',icon:'⚡', max:4},
+  {id:'multiShot',icon:'🌊',max:3},
+  {id:'moveSpd', icon:'💨', max:4},
+];
+const EMPTY_PERKS=()=>({maxHp:0,lifesteal:0,meleeDmg:0,rangedDmg:0,rangedSpd:0,multiShot:0,moveSpd:0});
+
+// ─── dungeon mode ─────────────────────────────────────────────
+const DTZ=40;
+const DT_EMPTY=0,DT_WALL=1,DT_SOFT=2;
+const RW=19,RH=11;   // room size in tiles
+const CW=24,CH=15;   // grid cell size (room + corridor gap)
+const GW=5,GH=4;     // dungeon grid dimensions
+const DUN_W=(GW-1)*CW+RW;  // 115 tiles wide
+const DUN_H=(GH-1)*CH+RH;  // 56 tiles tall
+const DCFG={
+  d1:{eN:2,eHp:40,eDmg:8,eSpd:1.3,eSh:false},
+  d2:{eN:3,eHp:65,eDmg:14,eSpd:1.6,eSh:false},
+  d3:{eN:5,eHp:90,eDmg:20,eSpd:1.9,eSh:true},
+  d4:{eN:7,eHp:130,eDmg:30,eSpd:2.3,eSh:true},
+  d5:{eN:10,eHp:200,eDmg:45,eSpd:2.8,eSh:true},
+};
+
+class DungeonGame{
+  constructor(diff,opts={}){
+    this.diff=diff;
+    this.dLevel=opts.dLevel||1;
+    this.endless=opts.endless||false;
+    this.perks=opts.perks||EMPTY_PERKS();
+    this.metaSkills=opts.metaSkills||loadMeta().skills;
+    this.activeSkill=opts.activeSkill||'none';
+    this.activeCd=0;      // ms remaining cooldown
+    this.activeTimer=0;   // ms remaining effect duration
+    this.shieldTimer=0;
+    this.barrageFireCd=0;
+    this.minions=[];      // [{angle, atkCd}]
+    this._qWas=false;
+    this.dc=this._getDC();
+    this.dungeonXP=0;
+    this.canvas=document.getElementById('gc');this.ctx=this.canvas.getContext('2d');
+    this.keys={};this.mx=400;this.my=250;this.state='play';
+    this._mouseHeld=false;this.combatMode='ranged';this._eWas=false;
+    this.camX=0;this.camY=0;
+    this._genDungeon();
+    const sr=this.rooms[this.sid];
+    const pk=this.perks;
+    const baseHp=200+pk.maxHp*40;
+    this.p={x:(sr.gx*CW+RW/2)*DTZ,y:(sr.gy*CH+RH/2)*DTZ,
+      hp:baseHp,maxHp:baseHp,r:13,spd:3.5+pk.moveSpd*0.4,
+      meleeCd:0,shootCd:0,invTimer:0,atkFlash:0,dir:{x:1,y:0}};
+    this.bullets=[];this.eBullets=[];this.parts=[];
+    // derived perk stats (recalculated in _applyPerks)
+    this.dMeleeDmg=40+pk.meleeDmg*15;
+    this.dRangedDmg=25+pk.rangedDmg*8;
+    this.dRangedCD=Math.max(80,260-pk.rangedSpd*50);
+    this.dBullets=Math.min(4,1+pk.multiShot);
+    this._kd=e=>{
+      this.keys[e.code]=true;
+      if(e.code==='Space')e.preventDefault();
+      if(e.code==='KeyP'){
+        if(this.state==='play'){
+          this.state='paused';
+          cancelAnimationFrame(this._rafId);
+          const po=document.getElementById('pauseOverlay');
+          document.getElementById('pause-title').textContent=L('pauseTitle');
+          po.style.display='flex';
+        } else if(this.state==='paused'&&document.getElementById('pauseOverlay').style.display!=='none'){
+          this.resumeGame();
+        }
+      }
+      if(e.code==='KeyQ'){ this._qWas=false; /* trigger on keydown */
+        if(this.state==='play'&&this.activeCd<=0&&this.activeSkill!=='none') this._activateSkill();
+      }
+    };
+    this._ku=e=>{this.keys[e.code]=false;};
+    this._mm=e=>{const r=this.canvas.getBoundingClientRect();this.mx=e.clientX-r.left;this.my=e.clientY-r.top;};
+    this._md=e=>{if(e.button===0&&this.state==='play'){this._mouseHeld=true;if(this.combatMode==='ranged'&&this.p.shootCd<=0)this._shoot();else if(this.combatMode==='melee'&&this.p.meleeCd<=0)this._melee();}};
+    this._mu=e=>{if(e.button===0)this._mouseHeld=false;};
+    document.addEventListener('keydown',this._kd);document.addEventListener('keyup',this._ku);
+    this.canvas.addEventListener('mousemove',this._mm);
+    this.canvas.addEventListener('mousedown',this._md);this.canvas.addEventListener('mouseup',this._mu);
+    this._lt=performance.now();this._rafId=requestAnimationFrame(t=>this._loop(t));
+  }
+
+  _getDC(){
+    const b=DCFG[this.diff]||DCFG.d2;
+    const n=this.dLevel-1;
+    return{
+      eN:Math.round(b.eN*(1+0.2*n)),
+      eHp:Math.round(b.eHp*(1+0.3*n)),
+      eDmg:Math.round(b.eDmg*(1+0.25*n)),
+      eSpd:Math.min(b.eSpd*(1+0.08*n),4.5),
+      eSh:n>0||b.eSh,
+    };
+  }
+
+  _applyPerks(){
+    const pk=this.perks,p=this.p;
+    p.maxHp=200+pk.maxHp*40;
+    p.hp=Math.min(p.maxHp,p.hp+pk.maxHp*40); // heal on maxHp upgrade
+    p.spd=3.5+pk.moveSpd*0.4;
+    this.dMeleeDmg=40+pk.meleeDmg*15;
+    this.dRangedDmg=25+pk.rangedDmg*8;
+    this.dRangedCD=Math.max(80,260-pk.rangedSpd*50);
+    this.dBullets=Math.min(4,1+pk.multiShot);
+  }
+
+  _genDungeon(){
+    // Random walk to generate room positions
+    const vis=new Set();
+    let cx=2,cy=1;vis.add(`${cx},${cy}`);
+    for(let i=0;i<12;i++){
+      const d=[[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)];
+      cx=Math.max(0,Math.min(GW-1,cx+d[0]));cy=Math.max(0,Math.min(GH-1,cy+d[1]));
+      vis.add(`${cx},${cy}`);
+    }
+    // Build room list
+    const rooms=[];const ridx={};let sid=0;
+    [...vis].sort().forEach(k=>{
+      const[gx,gy]=k.split(',').map(Number);const id=rooms.length;ridx[k]=id;
+      if(gx===2&&gy===1)sid=id;
+      rooms.push({gx,gy,conn:{},cleared:false,visited:false});
+    });
+    // Build connections
+    [...vis].forEach(k=>{
+      const[gx,gy]=k.split(',').map(Number);const id=ridx[k];
+      [[1,0,'E'],[-1,0,'W'],[0,1,'S'],[0,-1,'N']].forEach(([dx,dy,d])=>{
+        const nk=`${gx+dx},${gy+dy}`;if(vis.has(nk))rooms[id].conn[d]=ridx[nk];
+      });
+    });
+    // Create world tile array (all walls)
+    const wt=Array.from({length:DUN_H},()=>Array(DUN_W).fill(DT_WALL));
+    const wsh=Array.from({length:DUN_H},()=>Array(DUN_W).fill(0));
+    // Carve room interiors
+    rooms.forEach(r=>{
+      const rx=r.gx*CW,ry=r.gy*CH;
+      for(let ty=ry+1;ty<ry+RH-1;ty++)for(let tx=rx+1;tx<rx+RW-1;tx++){
+        const t=Math.random()<.14?DT_SOFT:DT_EMPTY;
+        wt[ty][tx]=t;if(t===DT_SOFT)wsh[ty][tx]=3;
+      }
+    });
+    // Carve corridors (E and S only; W/N are mirrors of neighbour's E/S)
+    rooms.forEach(r=>{
+      const rx=r.gx*CW,ry=r.gy*CH;
+      if(r.conn.E!==undefined)for(let tx=rx+RW-1;tx<=rx+CW;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.S!==undefined)for(let ty=ry+RH-1;ty<=ry+CH;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
+    });
+    // BFS to find farthest room for portal
+    const dist=new Map();dist.set(sid,0);
+    const q=[sid];let farthest=sid;
+    while(q.length){
+      const cur=q.shift();
+      Object.values(rooms[cur].conn).forEach(nid=>{
+        if(!dist.has(nid)){dist.set(nid,dist.get(cur)+1);q.push(nid);
+          if(dist.get(nid)>dist.get(farthest))farthest=nid;}
+      });
+    }
+    const pr=rooms[farthest];
+    this.portal={x:(pr.gx*CW+RW/2)*DTZ,y:(pr.gy*CH+RH/2)*DTZ,r:22,roomId:farthest};
+    // Place enemies in all non-start rooms
+    const allEnemies=[];
+    rooms.forEach((r,i)=>{
+      if(i===sid)return;
+      const rx=r.gx*CW,ry=r.gy*CH;
+      const n=this.dc.eN+Math.floor(Math.random()*2);
+      for(let j=0;j<n;j++){
+        let ex=rx+2+Math.floor(Math.random()*(RW-4)),ey=ry+2+Math.floor(Math.random()*(RH-4)),tries=0;
+        while(wt[ey]&&wt[ey][ex]!==DT_EMPTY&&tries++<30){ex=rx+2+Math.floor(Math.random()*(RW-4));ey=ry+2+Math.floor(Math.random()*(RH-4));}
+        const sh=this.dc.eSh&&Math.random()<.4;
+        allEnemies.push({x:(ex+.5)*DTZ,y:(ey+.5)*DTZ,hp:this.dc.eHp,maxHp:this.dc.eHp,
+          r:14,spd:this.dc.eSpd+(Math.random()-.5)*.3,type:sh?'shoot':'charge',
+          shootCd:1000+Math.random()*1500,alive:true,roomId:i});
+      }
+      // Special enemies based on difficulty
+      const dNum=parseInt(this.diff.slice(1));
+      const rand=Math.random;
+      const _spawnAt=(type,hp,spd,r,extra={})=>{
+        let ex2=rx+2+Math.floor(rand()*(RW-4)),ey2=ry+2+Math.floor(rand()*(RH-4)),t2=0;
+        while(wt[ey2]&&wt[ey2][ex2]!==DT_EMPTY&&t2++<30){ex2=rx+2+Math.floor(rand()*(RW-4));ey2=ry+2+Math.floor(rand()*(RH-4));}
+        allEnemies.push({x:(ex2+.5)*DTZ,y:(ey2+.5)*DTZ,hp,maxHp:hp,r,spd,type,alive:true,roomId:i,...extra});
+      };
+      // Split enemy (d2+): 30% / 45% / 60% per room
+      if(dNum>=2&&rand()<[0,.3,.45,.6,.75][dNum-1]){
+        const sh=Math.round(this.dc.eHp*1.8);
+        _spawnAt('split',sh,this.dc.eSpd*.85,18);
+      }
+      // Summoner (d3+): 25% / 40% / 55%
+      if(dNum>=3&&rand()<[0,0,.25,.4,.55][dNum-1]){
+        const sh=Math.round(this.dc.eHp*2.5);
+        _spawnAt('summoner',sh,this.dc.eSpd*.5,18,{summonCd:3500,summonTimer:3500+rand()*2000,shootCd:9999});
+      }
+      // Elite (d4+): 20% / 35%
+      if(dNum>=4&&rand()<[0,0,0,.2,.35][dNum-1]){
+        const eh=Math.round(this.dc.eHp*4);
+        _spawnAt('elite',eh,this.dc.eSpd*.6,22,{summonCd:5000,summonTimer:5000+rand()*2000,shootCd:9999});
+      }
+    });
+    rooms[sid].visited=true;rooms[sid].cleared=true;
+    this.rooms=rooms;this.sid=sid;this.portalRoomId=farthest;
+    this.worldTiles=wt;this.worldSoftHp=wsh;this.allEnemies=allEnemies;
+    // Place chests in 2-3 random rooms (not start, not portal)
+    const chestRooms=rooms.filter((_,i)=>i!==sid&&i!==farthest).sort(()=>Math.random()-.5).slice(0,2+Math.floor(Math.random()*2));
+    this.chests=chestRooms.map(r=>({
+      x:(r.gx*CW+RW/2)*DTZ, y:(r.gy*CH+RH/2)*DTZ+(DTZ*1.5),
+      r:14, opened:false
+    }));
+  }
+
+  _getCurrentRoom(){
+    const tx=Math.floor(this.p.x/DTZ),ty=Math.floor(this.p.y/DTZ);
+    for(let i=0;i<this.rooms.length;i++){
+      const r=this.rooms[i],rx=r.gx*CW,ry=r.gy*CH;
+      if(tx>=rx&&tx<rx+RW&&ty>=ry&&ty<ry+RH)return i;
+    }
+    return -1;
+  }
+
+  _solid(wx,wy){
+    const tx=Math.floor(wx/DTZ),ty=Math.floor(wy/DTZ);
+    if(tx<0||ty<0||tx>=DUN_W||ty>=DUN_H)return true;
+    return this.worldTiles[ty][tx]!==DT_EMPTY;
+  }
+
+  _move(obj,dx,dy){
+    const r=obj.r-2,ys=[obj.y-r,obj.y,obj.y+r],xs=[obj.x-r,obj.x,obj.x+r];
+    obj.x+=dx;
+    if(ys.some(y=>this._solid(obj.x-r,y)||this._solid(obj.x+r,y)))obj.x-=dx;
+    obj.y+=dy;
+    if(xs.some(x=>this._solid(x,obj.y-r)||this._solid(x,obj.y+r)))obj.y-=dy;
+  }
+
+  _shoot(){
+    if(this.p.shootCd>0)return;
+    this.p.shootCd=this.dRangedCD;
+    const p=this.p,dx=this.mx+this.camX-p.x,dy=this.my+this.camY-p.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+    const base=Math.atan2(dy,dx);
+    const hasSpread=this.metaSkills.bullet_spread_1;
+    const cnt=hasSpread?Math.max(2,this.dBullets):this.dBullets;
+    const spread=cnt>1?(hasSpread?Math.PI/45:Math.PI/18):0;
+    for(let i=0;i<cnt;i++){
+      const a=base+(cnt>1?(i-(cnt-1)/2)*spread*2/(cnt-1||1):0);
+      this.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:5,dmg:this.dRangedDmg,life:70});
+    }
+    this._burst(p.x+p.dir.x*14,p.y+p.dir.y*14,'#4af',cnt*2);
+  }
+
+  _melee(){
+    const p=this.p;if(p.meleeCd>0)return;
+    p.meleeCd=520;p.atkFlash=230;
+    this.allEnemies.forEach(e=>{
+      if(!e.alive)return;
+      const dx=e.x-p.x,dy=e.y-p.y;
+      if(dx*dx+dy*dy<58*58){
+        e.hp-=this.dMeleeDmg;
+        if(this.perks.lifesteal)p.hp=Math.min(p.maxHp,p.hp+this.dMeleeDmg*0.05);
+        this._burst(e.x,e.y,'#ffa040',7);
+        if(e.hp<=0)this._killEnemy(e);}
+    });
+  }
+
+  _burst(x,y,col,n){for(let i=0;i<n;i++)this.parts.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:1,col});}
+
+  _loop(ts){
+    if(this.state!=='play')return;
+    this._rafId=requestAnimationFrame(t=>this._loop(t));
+    const dt=Math.min(ts-this._lt,50);this._lt=ts;
+    this._update(dt);this._draw();
+  }
+
+  _update(dt){
+    const p=this.p,k=this.keys;
+    let vx=0,vy=0;
+    if(k.KeyA||k.ArrowLeft)vx-=p.spd;if(k.KeyD||k.ArrowRight)vx+=p.spd;
+    if(k.KeyW||k.ArrowUp)vy-=p.spd;if(k.KeyS||k.ArrowDown)vy+=p.spd;
+    if(vx&&vy){vx*=.707;vy*=.707;}
+    this._move(p,vx,vy);
+    // Aim (mouse screen→world)
+    const adx=this.mx+this.camX-p.x,ady=this.my+this.camY-p.y,al=Math.sqrt(adx*adx+ady*ady)||1;
+    p.dir={x:adx/al,y:ady/al};
+    if(p.meleeCd>0)p.meleeCd-=dt;if(p.shootCd>0)p.shootCd-=dt;
+    if(p.invTimer>0)p.invTimer-=dt;if(p.atkFlash>0)p.atkFlash-=dt;
+    // active skill timers
+    if(this.activeCd>0)this.activeCd-=dt;
+    if(this.activeTimer>0){
+      this.activeTimer-=dt;
+      if(this.activeSkill==='barrage'){
+        this.barrageFireCd-=dt;
+        if(this.barrageFireCd<=0){
+          this.barrageFireCd=80;
+          const bouncy=this._qBarrageLv()>=3;
+          const bLife=bouncy?300:80;
+          for(let i=0;i<12;i++){
+            const a=(i/12)*Math.PI*2;
+            this.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:5,dmg:this.dRangedDmg,life:bLife,bouncy});
+          }
+        }
+      }
+      if(this.activeSkill==='shield'&&this._qShieldLv()>=3&&this.activeTimer>0){
+        this.shieldPulseCd=(this.shieldPulseCd||0)-dt;
+        if(this.shieldPulseCd<=0){
+          this.shieldPulseCd=400;
+          const pulseR=90,pulseDmg=12;
+          this.allEnemies.forEach(e=>{
+            if(!e.alive)return;
+            const dx=e.x-p.x,dy=e.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+            if(d<pulseR){
+              e.hp-=pulseDmg;
+              const push=20*(1-d/pulseR);
+              e.x+=dx/(d||1)*push;e.y+=dy/(d||1)*push;
+              if(e.hp<=0)this._killEnemy(e);
+            }
+          });
+          this._burst(p.x,p.y,'#66aaff',5);
+        }
+      }
+      if(this.activeTimer<=0&&this.activeSkill==='shield'){
+        this.p.shieldActive=false;
+        // Lv3: AOE blast on expiry
+        if(this._qShieldLv()>=3){
+          const blastR=160,blastDmg=80;
+          this.allEnemies.forEach(e=>{
+            if(!e.alive)return;
+            const dx=e.x-p.x,dy=e.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+            if(d<blastR){
+              e.hp-=blastDmg*(1-d/blastR*0.5);
+              e.x+=dx/(d||1)*50*(1-d/blastR);e.y+=dy/(d||1)*50*(1-d/blastR);
+              if(e.hp<=0)this._killEnemy(e);
+            }
+          });
+          this._burst(p.x,p.y,'#88ccff',30);
+        }
+      }
+    }
+    // minion update
+    const MR=55;
+    for(const mn of this.minions){
+      mn.angle+=0.025;
+      mn.x=p.x+Math.cos(mn.angle)*MR;
+      mn.y=p.y+Math.sin(mn.angle)*MR;
+      mn.atkCd=Math.max(0,mn.atkCd-dt);
+      if(mn.atkCd<=0){
+        let nearest=null,nd2=Infinity;
+        for(const e of this.allEnemies){if(!e.alive)continue;const ddx=e.x-mn.x,ddy=e.y-mn.y,d2=ddx*ddx+ddy*ddy;if(d2<nd2){nd2=d2;nearest=e;}}
+        if(nearest&&nd2<220*220){
+          mn.atkCd=700;
+          const ddx=nearest.x-mn.x,ddy=nearest.y-mn.y,l=Math.sqrt(nd2);
+          this.bullets.push({x:mn.x,y:mn.y,vx:ddx/l*8,vy:ddy/l*8,r:4,dmg:this._getMinionDmg(),life:80});
+        }
+      }
+    }
+    // minions block enemy bullets (minions have HP)
+    this.eBullets=this.eBullets.filter(eb=>{
+      for(let mi=this.minions.length-1;mi>=0;mi--){
+        const mn=this.minions[mi];
+        const ddx=eb.x-mn.x,ddy=eb.y-mn.y;
+        if(ddx*ddx+ddy*ddy<mn.r*mn.r){
+          mn.hp=(mn.hp||3)-1;
+          this._burst(mn.x,mn.y,'#cc88ff',3);
+          if(mn.hp<=0)this.minions.splice(mi,1);
+          return false;
+        }
+      }
+      return true;
+    });
+    if(k.KeyE&&!this._eWas){this.combatMode=this.combatMode==='ranged'?'melee':'ranged';this._eWas=true;}
+    if(!k.KeyE)this._eWas=false;
+    if(this._mouseHeld){
+      if(this.combatMode==='ranged'&&p.shootCd<=0)this._shoot();
+      else if(this.combatMode==='melee'&&p.meleeCd<=0)this._melee();
+    }
+    // Player bullets
+    this.bullets=this.bullets.filter(b=>{
+      b.x+=b.vx;b.y+=b.vy;b.life--;
+      if(b.life<=0)return false;
+      if(this._solid(b.x,b.y)){
+        if(b.bouncy){
+          // reflect off wall
+          if(!this._solid(b.x-b.vx,b.y))b.vx=-b.vx;
+          else if(!this._solid(b.x,b.y-b.vy))b.vy=-b.vy;
+          else{b.vx=-b.vx;b.vy=-b.vy;}
+          b.x+=b.vx;b.y+=b.vy;
+          this._burst(b.x,b.y,'#8af',2);
+        }else{
+          const tx=Math.floor(b.x/DTZ),ty=Math.floor(b.y/DTZ);
+          if(tx>=0&&ty>=0&&tx<DUN_W&&ty<DUN_H&&this.worldTiles[ty][tx]===DT_SOFT){
+            this.worldSoftHp[ty][tx]--;if(this.worldSoftHp[ty][tx]<=0)this.worldTiles[ty][tx]=DT_EMPTY;
+          }
+          this._burst(b.x,b.y,'#8af',3);return false;
+        }
+      }
+      let hit=false;
+      this.allEnemies.forEach(e=>{
+        if(!e.alive||hit)return;
+        const dx=b.x-e.x,dy=b.y-e.y;
+        if(dx*dx+dy*dy<(b.r+e.r)*(b.r+e.r)){
+          e.hp-=b.dmg;
+          if(this.perks.lifesteal)p.hp=Math.min(p.maxHp,p.hp+b.dmg*0.05);
+          this._burst(e.x,e.y,'#fa8',5);
+          if(e.hp<=0)this._killEnemy(e);
+          hit=true;}
+      });
+      return !hit;
+    });
+    // Enemy bullets
+    this.eBullets=this.eBullets.filter(b=>{
+      b.x+=b.vx;b.y+=b.vy;b.life--;
+      if(b.life<=0||this._solid(b.x,b.y))return false;
+      if(p.invTimer<=0&&!p.shieldActive){const dx=b.x-p.x,dy=b.y-p.y;if(dx*dx+dy*dy<(b.r+p.r)*(b.r+p.r)){p.hp-=b.dmg;p.invTimer=700;this._burst(p.x,p.y,'#f44',5);return false;}}
+      return true;
+    });
+    // Enemy AI (activate within detection range)
+    const DETECT=350;
+    this.allEnemies.forEach(e=>{
+      if(!e.alive)return;
+      const dx=p.x-e.x,dy=p.y-e.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
+      if(dist>DETECT)return;
+      if(e.type==='charge'||e.type==='split'||e.type==='split_small'||e.type==='minion_enemy'){
+        this._move(e,dx/dist*e.spd,dy/dist*e.spd);
+        if(dist<e.r+p.r+4&&p.invTimer<=0&&!p.shieldActive){p.hp-=this.dc.eDmg*(e.type==='split_small'||e.type==='minion_enemy'?.4:1)*dt/500;p.invTimer=280;}
+      }else if(e.type==='shoot'){
+        const td=180;
+        if(dist<td-20)this._move(e,-dx/dist*e.spd*.6,-dy/dist*e.spd*.6);
+        else if(dist>td+20)this._move(e,dx/dist*e.spd*.7,dy/dist*e.spd*.7);
+        e.shootCd-=dt;
+        if(e.shootCd<=0){e.shootCd=2200+Math.random()*1000;this.eBullets.push({x:e.x,y:e.y,vx:dx/dist*4.5,vy:dy/dist*4.5,r:6,dmg:this.dc.eDmg,life:95});}
+      }else if(e.type==='summoner'){
+        // orbit player at distance
+        const td=200;
+        if(dist<td-30)this._move(e,-dx/dist*e.spd,-dy/dist*e.spd);
+        else if(dist>td+30)this._move(e,dx/dist*e.spd,dy/dist*e.spd);
+        e.summonTimer-=dt;
+        if(e.summonTimer<=0){
+          e.summonTimer=e.summonCd;
+          // count alive minion_enemy in same room
+          const cnt=this.allEnemies.filter(x=>x.alive&&x.type==='minion_enemy'&&x.roomId===e.roomId).length;
+          if(cnt<5){
+            const sa=Math.random()*Math.PI*2;
+            const mhp=Math.round(this.dc.eHp*0.35);
+            this.allEnemies.push({x:e.x+Math.cos(sa)*40,y:e.y+Math.sin(sa)*40,
+              hp:mhp,maxHp:mhp,r:9,spd:this.dc.eSpd*1.3,type:'minion_enemy',alive:true,roomId:e.roomId});
+            this._burst(e.x,e.y,'#aa44ff',8);
+          }
+        }
+      }else if(e.type==='elite'){
+        // slow approach + periodic summon
+        if(dist>e.r+p.r+10)this._move(e,dx/dist*e.spd,dy/dist*e.spd);
+        if(dist<e.r+p.r+4&&p.invTimer<=0&&!p.shieldActive){p.hp-=this.dc.eDmg*1.5*dt/500;p.invTimer=280;}
+        e.summonTimer-=dt;
+        if(e.summonTimer<=0){
+          e.summonTimer=e.summonCd;
+          const sa=Math.random()*Math.PI*2;
+          // summon 1 split + 1 minion_enemy
+          const shp=Math.round(this.dc.eHp*1.8);
+          this.allEnemies.push({x:e.x+Math.cos(sa)*45,y:e.y+Math.sin(sa)*45,
+            hp:shp,maxHp:shp,r:14,spd:this.dc.eSpd*.85,type:'split',alive:true,roomId:e.roomId});
+          const mhp=Math.round(this.dc.eHp*0.35);
+          this.allEnemies.push({x:e.x+Math.cos(sa+Math.PI)*35,y:e.y+Math.sin(sa+Math.PI)*35,
+            hp:mhp,maxHp:mhp,r:9,spd:this.dc.eSpd*1.3,type:'minion_enemy',alive:true,roomId:e.roomId});
+          this._burst(e.x,e.y,'#ffd700',12);
+        }
+      }
+    });
+    // Room visit & clear tracking
+    const curRoom=this._getCurrentRoom();
+    if(curRoom>=0){
+      this.rooms[curRoom].visited=true;
+      if(!this.rooms[curRoom].cleared){
+        const re=this.allEnemies.filter(e=>e.roomId===curRoom);
+        if(re.length===0||re.every(e=>!e.alive))this.rooms[curRoom].cleared=true;
+      }
+    }
+    // Portal check
+    const pdx=p.x-this.portal.x,pdy=p.y-this.portal.y;
+    if(pdx*pdx+pdy*pdy<(p.r+this.portal.r)*(p.r+this.portal.r)){
+      if(this.endless){this.state='paused';this._showUpgradePicker(false);return;}
+      else{this.state='win';this._showEnd(true);return;}
+    }
+    // Chest interaction
+    for(const ch of this.chests){
+      if(ch.opened)continue;
+      const cx=p.x-ch.x,cy=p.y-ch.y;
+      if(cx*cx+cy*cy<(p.r+ch.r)*(p.r+ch.r)){ch.opened=true;this.state='paused';this._showUpgradePicker(true);return;}
+    }
+    if(p.hp<=0){p.hp=0;this.state='dead';this._showEnd(false);}
+    // Camera follows player
+    this.camX=Math.max(0,Math.min(DUN_W*DTZ-W,p.x-W/2));
+    this.camY=Math.max(0,Math.min(DUN_H*DTZ-H,p.y-H/2));
+    this.parts=this.parts.filter(pt=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.l-=dt/480;return pt.l>0;});
+  }
+
+  _showUpgradePicker(isChest){
+    const pool=DUNGEON_PERKS.filter(pk=>{
+      if(this.perks[pk.id]>=pk.max)return false;
+      return true;
+    });
+    const choices=[...pool].sort(()=>Math.random()-.5).slice(0,Math.min(3,pool.length));
+    const wrap=document.getElementById('upgrade-choices');
+    wrap.innerHTML='';
+    choices.forEach(pk=>{
+      const nm=(L('perkNames')||{})[pk.id]||pk.id;
+      const dc=(L('perkDescs')||{})[pk.id]||'';
+      const stacks=this.perks[pk.id];
+      const card=document.createElement('div');
+      card.className='du-card';
+      card.innerHTML=`<div class="du-icon">${pk.icon}</div><div class="du-name">${nm}</div><div class="du-desc">${dc}</div><div class="du-stacks">${stacks>0?'●'.repeat(stacks)+'○'.repeat(pk.max-stacks):''}</div>`;
+      card.onclick=()=>this._pickUpgrade(pk.id,isChest);
+      wrap.appendChild(card);
+    });
+    if(!choices.length)wrap.innerHTML=`<div style="color:#666;padding:20px">${L('allMaxed')}</div>`;
+    document.getElementById('du-title').textContent=L('upgradePick');
+    document.getElementById('du-sub').textContent=isChest?L('upgradeChestSub'):L('upgradePortalSub',{n:this.dLevel});
+    const skipBtn=document.getElementById('du-skip');
+    skipBtn.textContent=L('upgradeSkip');
+    skipBtn.style.display=(!choices.length||isChest)?'inline-block':'none';
+    this._upgradeIsChest=isChest;
+    document.getElementById('dungeonUpgrade').style.display='flex';
+  }
+
+  _pickUpgrade(id,isChest){
+    document.getElementById('dungeonUpgrade').style.display='none';
+    this.perks[id]++;this._applyPerks();
+    if(isChest){
+      this.state='play';this._lt=performance.now();
+      this._rafId=requestAnimationFrame(t=>this._loop(t));
+    } else {
+      const nd=this.dLevel+1,np={...this.perks},d=this.diff,ms=this.metaSkills;
+      this.destroy();
+      G=new DungeonGame(d,{dLevel:nd,perks:np,endless:true,metaSkills:ms,activeSkill:this.activeSkill});
+    }
+  }
+
+  _skipUpgrade(){
+    document.getElementById('dungeonUpgrade').style.display='none';
+    if(this._upgradeIsChest){
+      this.state='play';this._lt=performance.now();
+      this._rafId=requestAnimationFrame(t=>this._loop(t));
+    } else {
+      const nd=this.dLevel+1,np={...this.perks},d=this.diff,ms=this.metaSkills;
+      this.destroy();
+      G=new DungeonGame(d,{dLevel:nd,perks:np,endless:true,metaSkills:ms,activeSkill:this.activeSkill});
+    }
+  }
+
+  resumeGame(){
+    if(this.state!=='paused')return;
+    document.getElementById('pauseOverlay').style.display='none';
+    this.state='play';this._lt=performance.now();
+    this._rafId=requestAnimationFrame(t=>this._loop(t));
+  }
+
+  _qShieldLv(){const m=this.metaSkills;return (m.q_shield_1?1:0)+(m.q_shield_2?1:0)+(m.q_shield_3?1:0);}
+  _qBarrageLv(){const m=this.metaSkills;return (m.q_barrage_1?1:0)+(m.q_barrage_2?1:0)+(m.q_barrage_3?1:0);}
+  _qMinionLv(){const m=this.metaSkills;return (m.q_minion_1?1:0)+(m.q_minion_2?1:0)+(m.q_minion_3?1:0);}
+  _getMinionHp(){return this._qMinionLv()>=1?6:3;}
+  _getMinionDmg(){return Math.floor(this.dRangedDmg*(this._qMinionLv()>=2?0.9:0.6));}
+  _getMinionCap(){return this._qMinionLv()>=3?50:10;}
+
+  _activateSkill(){
+    const sk=this.activeSkill;
+    const cdMap={shield:8000,barrage:7000,minion:5000};
+    this.activeCd=cdMap[sk]||8000;
+    if(sk==='shield'){
+      const lvl=this._qShieldLv();
+      const dur=[3000,5000,9000,10000][Math.min(lvl,3)];
+      this.activeTimer=dur;this.shieldTimer=dur;this.p.shieldActive=true;this.shieldPulseCd=0;
+    }else if(sk==='barrage'){
+      const lvl=this._qBarrageLv();
+      this.activeTimer=[2500,4000,6000,7000][Math.min(lvl,3)];
+      this.barrageFireCd=0;
+    }else if(sk==='minion'){
+      if(this._qMinionLv()>=3) this.activeCd=3000; // Lv3: CD reduced to 3s
+      const cap=this._getMinionCap();
+      const count=this._qMinionLv()>=2?3:1; // Lv2+: summon 3 at once
+      for(let i=0;i<count;i++){
+        if(this.minions.length>=cap)break;
+        const base=this.minions.length>0?this.minions[this.minions.length-1].angle+0.8:Math.random()*Math.PI*2;
+        const a=base+(i*(Math.PI*2/3));
+        this.minions.push({angle:a,atkCd:0,r:12,x:this.p.x,y:this.p.y,hp:this._getMinionHp()});
+      }
+    }
+  }
+
+  _killEnemy(e){
+    e.alive=false;
+    this.dungeonXP+=Math.floor(e.maxHp*0.6);
+    this._burst(e.x,e.y,'#f55',12);
+    // split on death
+    if(e.type==='split'){
+      const n=2+Math.floor(Math.random()*2); // 2-3 fragments
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2+Math.random()*0.5;
+        const shp=Math.round(this.dc.eHp*0.3);
+        this.allEnemies.push({x:e.x+Math.cos(a)*22,y:e.y+Math.sin(a)*22,
+          hp:shp,maxHp:shp,r:9,spd:this.dc.eSpd*1.5,type:'split_small',
+          alive:true,roomId:e.roomId});
+      }
+    }
+  }
+
+  _draw(){
+    const ctx=this.ctx;
+    ctx.fillStyle='#0d0d18';ctx.fillRect(0,0,W,H);
+    ctx.save();
+    ctx.translate(-this.camX,-this.camY);
+    // Draw only visible tiles (culled)
+    const stx=Math.max(0,Math.floor(this.camX/DTZ)-1);
+    const sty=Math.max(0,Math.floor(this.camY/DTZ)-1);
+    const etx=Math.min(DUN_W,Math.ceil((this.camX+W)/DTZ)+1);
+    const ety=Math.min(DUN_H,Math.ceil((this.camY+H)/DTZ)+1);
+    for(let ty=sty;ty<ety;ty++)for(let tx=stx;tx<etx;tx++){
+      const t=this.worldTiles[ty][tx],px=tx*DTZ,py=ty*DTZ;
+      if(t===DT_WALL){
+        ctx.fillStyle='#242438';ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.fillStyle='#32325a';ctx.fillRect(px+1,py+1,DTZ-2,5);
+        ctx.fillStyle='#1a1a2e';ctx.fillRect(px+1,py+DTZ-2,DTZ-2,1);
+      }else if(t===DT_SOFT){
+        const hp=this.worldSoftHp[ty][tx];
+        ctx.fillStyle=['#3a1808','#4a2810','#6a4020'][hp-1]||'#3a1808';ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=2;
+        if(hp<3){ctx.beginPath();ctx.moveTo(px+6,py+6);ctx.lineTo(px+DTZ-6,py+DTZ-6);ctx.stroke();}
+        if(hp<2){ctx.beginPath();ctx.moveTo(px+DTZ-8,py+8);ctx.lineTo(px+8,py+DTZ-8);ctx.stroke();}
+      }else{
+        ctx.fillStyle=((tx+ty)%2===0)?'#13131f':'#11111a';ctx.fillRect(px,py,DTZ,DTZ);
+      }
+    }
+    // Portal (pulsing glow)
+    const pt2=performance.now()/1000,pulse=Math.sin(pt2*2.5)*.35+.65;
+    ctx.save();
+    ctx.globalAlpha=.25*pulse;ctx.fillStyle='#cc44ff';
+    ctx.beginPath();ctx.arc(this.portal.x,this.portal.y,this.portal.r+14*pulse,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;ctx.fillStyle='#8822cc';
+    ctx.beginPath();ctx.arc(this.portal.x,this.portal.y,this.portal.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#cc88ff';ctx.beginPath();ctx.arc(this.portal.x-6,this.portal.y-6,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 16px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('⬡',this.portal.x,this.portal.y);
+    ctx.restore();
+    // Enemy bullets
+    ctx.fillStyle='#ff6020';
+    this.eBullets.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();});
+    // Enemies
+    this.allEnemies.forEach(e=>{
+      if(!e.alive)return;
+      ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(e.x,e.y+e.r,e.r*.8,4,0,0,Math.PI*2);ctx.fill();
+      const eCol={charge:'#cc2222',shoot:'#9933ee',split:'#ff6600',split_small:'#ff8833',
+        summoner:'#aa00ff',minion_enemy:'#cc0066',elite:'#ccaa00'}[e.type]||'#cc2222';
+      ctx.fillStyle=eCol;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
+      // special markers
+      if(e.type==='summoner'||e.type==='elite'){
+        ctx.globalAlpha=0.3+0.2*Math.sin(Date.now()*.004);
+        ctx.beginPath();ctx.arc(e.x,e.y,e.r+8,0,Math.PI*2);
+        ctx.fillStyle=e.type==='elite'?'#ffd700':'#aa44ff';ctx.fill();
+        ctx.globalAlpha=1;
+      }
+      if(e.hp<e.maxHp){
+        const bw=e.r*2,bh=4,bx=e.x-e.r,by=e.y-e.r-8;
+        ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(bx,by,bw,bh);
+        ctx.fillStyle='#f44';ctx.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
+      }
+      ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.arc(e.x-3,e.y-3,5,0,Math.PI*2);ctx.fill();
+    });
+    // Player bullets
+    this.bullets.forEach(b=>{
+      ctx.fillStyle='rgba(136,204,255,.4)';ctx.beginPath();ctx.arc(b.x,b.y,b.r+3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#88ccff';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+    });
+    // Particles
+    this.parts.forEach(pt=>{ctx.globalAlpha=Math.max(0,pt.l);ctx.fillStyle=pt.col;ctx.fillRect(pt.x-2,pt.y-2,4,4);});
+    ctx.globalAlpha=1;
+    // Player
+    const p=this.p,inv=p.invTimer>0&&Math.floor(Date.now()/80)%2;
+    if(!inv){
+      if(p.atkFlash>0){ctx.fillStyle=`rgba(255,200,50,${p.atkFlash/230*.3})`;ctx.beginPath();ctx.arc(p.x,p.y,58,0,Math.PI*2);ctx.fill();}
+      ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(p.x,p.y+p.r,p.r*.8,4,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#4477cc';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#6699ee';ctx.beginPath();ctx.arc(p.x-3,p.y-3,5,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#aad4ff';ctx.lineWidth=3;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(p.x+p.dir.x*p.r,p.y+p.dir.y*p.r);ctx.lineTo(p.x+p.dir.x*26,p.y+p.dir.y*26);ctx.stroke();
+    }
+    // Chests
+    this.chests.forEach(ch=>{
+      if(ch.opened)return;
+      const t2=performance.now()/1000,glow=Math.sin(t2*3)*.2+.8;
+      ctx.save();ctx.globalAlpha=.2*glow;ctx.fillStyle='#ffd740';
+      ctx.beginPath();ctx.arc(ch.x,ch.y,ch.r+8,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+      ctx.fillStyle='#8b6914';ctx.fillRect(ch.x-ch.r,ch.y-ch.r*.7,ch.r*2,ch.r*1.4);
+      ctx.fillStyle='#ffd740';ctx.fillRect(ch.x-ch.r+2,ch.y-ch.r*.7+2,ch.r*2-4,ch.r*.5);
+      ctx.fillStyle='#888';ctx.beginPath();ctx.arc(ch.x,ch.y-ch.r*.1,3,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+    // Shield aura
+    if(this.p.shieldActive&&this.activeTimer>0){
+      const pulse=0.5+0.5*Math.sin(Date.now()*.01);
+      ctx.save();ctx.globalAlpha=0.25+pulse*0.2;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r+14,0,Math.PI*2);
+      ctx.fillStyle='#55aaff';ctx.fill();
+      ctx.globalAlpha=0.7+pulse*0.2;ctx.strokeStyle='#88ccff';ctx.lineWidth=3;ctx.stroke();
+      ctx.restore();
+    }
+    // Minions
+    for(const mn of this.minions){
+      ctx.save();
+      const pulse2=0.5+0.5*Math.sin(Date.now()*.008+mn.angle*2);
+      ctx.beginPath();ctx.arc(mn.x,mn.y,12,0,Math.PI*2);
+      ctx.fillStyle=`rgba(150,80,255,${0.7+pulse2*0.2})`;ctx.fill();
+      ctx.strokeStyle='#cc88ff';ctx.lineWidth=2;ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore(); // end camera transform
+    this._drawHUD(ctx);this._drawMinimap(ctx);
+  }
+
+  _drawHUD(ctx){
+    const p=this.p;
+    ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,24);
+    ctx.fillStyle='#555';ctx.font='11px Arial';ctx.textBaseline='middle';ctx.textAlign='left';
+    const modeLabel=this.combatMode==='ranged'?L('hudRanged'):L('hudMelee');
+    ctx.fillText(`${L('dungeonHUD')} [${modeLabel}]`,8,12);
+    ctx.textAlign='right';ctx.fillStyle='#cc88ff';
+    const floorTxt=this.endless?L('floorLabel',{n:this.dLevel})+' | '+L('hpGoal'):L('hpGoal');
+    ctx.fillText(floorTxt,W-8,12);
+    const bw=200,bh=16,bx=10,by=H-22;
+    ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(bx-3,by-3,bw+6,bh+6);
+    ctx.fillStyle='#220000';ctx.fillRect(bx,by,bw,bh);
+    const pct=Math.max(0,p.hp/p.maxHp);
+    ctx.fillStyle=pct>.6?'#44ff66':pct>.3?'#ffaa00':'#ff3333';ctx.fillRect(bx,by,bw*pct,bh);
+    ctx.fillStyle='#fff';ctx.font='bold 11px Arial';ctx.textBaseline='middle';ctx.textAlign='left';
+    ctx.fillText(`♥ ${Math.ceil(p.hp)} / ${p.maxHp}`,bx+5,by+bh/2);
+    if(p.meleeCd>0){
+      const wb=80,by2=H-22;ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(bx+bw+12,by2+4,wb,6);
+      ctx.fillStyle='#fa0';ctx.fillRect(bx+bw+12,by2+4,wb*(1-p.meleeCd/520),6);
+      ctx.fillStyle='#888';ctx.font='10px Arial';ctx.fillText(L('meleeCdLabel'),bx+bw+14,by2+4);
+    }
+    // Q skill HUD
+    if(this.activeSkill&&this.activeSkill!=='none'){
+      const skInfo=ACTIVE_SKILLS.find(s=>s.id===this.activeSkill);
+      const qx=W-130,qy=H-46;
+      ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(qx,qy,120,36);
+      ctx.fillStyle='#888';ctx.font='10px Arial';ctx.textAlign='left';ctx.textBaseline='top';
+      ctx.fillText('[Q] '+L('ask'+this.activeSkill.charAt(0).toUpperCase()+this.activeSkill.slice(1)),qx+6,qy+4);
+      if(this.activeTimer>0){
+        ctx.fillStyle='#ffdd44';ctx.font='bold 10px Arial';
+        ctx.fillText(L('hudQActive')+' '+(this.activeTimer/1000).toFixed(1)+'s',qx+6,qy+18);
+      } else if(this.activeCd>0){
+        const cdPct=1-this.activeCd/skInfo.cdMs;
+        ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(qx+4,qy+18,112*cdPct,8);
+        ctx.fillStyle='#666';ctx.font='10px Arial';
+        ctx.fillText('CD '+(this.activeCd/1000).toFixed(1)+'s',qx+6,qy+19);
+      } else {
+        ctx.fillStyle='#44ff88';ctx.font='bold 10px Arial';ctx.fillText(L('hudQReady'),qx+6,qy+18);
+      }
+      ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    }
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  }
+
+  _drawMinimap(ctx){
+    const mw=10,mh=8,gap=2;
+    let minGx=99,minGy=99,maxGx=0,maxGy=0;
+    this.rooms.forEach(r=>{minGx=Math.min(minGx,r.gx);minGy=Math.min(minGy,r.gy);maxGx=Math.max(maxGx,r.gx);maxGy=Math.max(maxGy,r.gy);});
+    const cols=maxGx-minGx+1,rows=maxGy-minGy+1;
+    const mapW=cols*(mw+gap)+2,mapH=rows*(mh+gap)+2;
+    const ox=W-mapW-6,oy=30;
+    ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(ox-3,oy-3,mapW+6,mapH+6);
+    const curRoom=this._getCurrentRoom();
+    this.rooms.forEach((r,i)=>{
+      const rx=ox+(r.gx-minGx)*(mw+gap),ry=oy+(r.gy-minGy)*(mh+gap);
+      let col;
+      if(i===curRoom)col='#4af';
+      else if(i===this.portalRoomId)col=r.visited?'#cc44ff':'rgba(160,60,255,.35)';
+      else if(r.cleared)col='rgba(74,170,255,.5)';
+      else if(r.visited)col='rgba(255,255,255,.3)';
+      else col='rgba(255,255,255,.08)';
+      ctx.fillStyle=col;ctx.fillRect(rx,ry,mw,mh);
+      if(i===this.portalRoomId){ctx.fillStyle='#fff';ctx.font='6px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⬡',rx+mw/2,ry+mh/2);}
+    });
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  }
+
+  _showEnd(win){
+    const meta=loadMeta();
+    const floorBonus=this.endless?this.dLevel*80:0; // endless: +80 XP per floor cleared
+    const xpGain=Math.floor((this.dungeonXP+(win?300:50)+floorBonus)*2);
+    meta.xp+=xpGain;
+    let lvlUp=false,newLv=meta.level;
+    while(meta.xp>=xpNeeded(meta.level)){meta.xp-=xpNeeded(meta.level);meta.level++;meta.sp++;lvlUp=true;}
+    newLv=meta.level;meta.endlessSave=null;saveMeta(meta);updateMenuUI();
+    document.getElementById('ov-title').textContent=win?L('dungeonWin'):L('dungeonLose');
+    const floorTxt=this.endless?(lang==='en'?` · Floor ${this.dLevel}`:` · 第${this.dLevel}层`):'';
+    document.getElementById('ov-sub').textContent=(win?L('portalWinSub'):L('portalLoseSub'))+floorTxt;
+    document.getElementById('ov-xp').textContent=`+${xpGain} XP`+(floorBonus>0?(lang==='en'?` (floor ×${this.dLevel})`:` (层数×${this.dLevel})`):'');
+    const lvlEl=document.getElementById('ov-lvlup');
+    if(lvlUp){lvlEl.style.display='block';lvlEl.textContent=`${L('lvUpTitle',{lv:newLv})} · ${L('lvUpSp')}`;}
+    else lvlEl.style.display='none';
+    document.getElementById('overlay').style.display='flex';
+  }
+
+  destroy(){
+    this.state='dead';cancelAnimationFrame(this._rafId);
+    document.removeEventListener('keydown',this._kd);document.removeEventListener('keyup',this._ku);
+    this.canvas.removeEventListener('mousemove',this._mm);
+    this.canvas.removeEventListener('mousedown',this._md);this.canvas.removeEventListener('mouseup',this._mu);
+  }
+}
+
+// ─── game control ─────────────────────────────────────────────
+function _launchDungeon(diff,opts={}){
+  lastDiff=diff;
+  if(G){G.destroy();G=null;}
+  document.getElementById('menu').style.display='none';
+  document.getElementById('gameWrap').style.display='block';
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('dungeonUpgrade').style.display='none';
+  G=new DungeonGame(diff,opts);
+}
+
+function start(diff){
+  if(selectedMode==='dungeon'){
+    _launchDungeon(diff,{endless:false,metaSkills:loadMeta().skills,activeSkill:selectedActiveSkill});
+    return;
+  }
+  if(selectedMode==='roguelite'){
+    const meta=loadMeta(),c=CFG[diff];
+    if(c.requires&&!meta.skills[c.requires]){
+      const _reqN=lang==='en'?(SKILLS[c.requires].nameEn||SKILLS[c.requires].name):SKILLS[c.requires].name;
+      const _diffN=lang==='en'?(c.nameEn||c.name):c.name;
+      showToast(L('toastNeedUnlock',{name:_reqN,diff:_diffN}));return;
+    }
+  }
+  lastDiff=diff;
+  if(G){G.destroy();G=null}
+  document.getElementById('menu').style.display='none';
+  document.getElementById('gameWrap').style.display='block';
+  document.getElementById('overlay').style.display='none';
+  G=new Game(diff,{mode:selectedMode});
+}
+
+function onPauseQuit(){
+  if(G&&G.endless&&G.state==='play'||G&&G.endless&&G.state==='paused'){
+    // show exit choice for endless
+    const floorBonus=G.dLevel*80;
+    const previewXP=Math.floor((G.dungeonXP+50+floorBonus)*2);
+    const lbl=lang==='en'
+      ?`${G.diff.toUpperCase()} · Floor ${G.dLevel} · Estimated +${previewXP} XP`
+      :`${G.diff.toUpperCase()} · 第${G.dLevel}层 · 预计获得 +${previewXP} XP`;
+    document.getElementById('eeo-info').textContent=lbl;
+    document.getElementById('eeo-title').textContent=lang==='en'?'🚪 Exit Endless':'🚪 退出无尽模式';
+    document.getElementById('eeo-settle').textContent=lang==='en'?'🌟 Settle & Leave':'🌟 结算并离开';
+    document.getElementById('eeo-settle-hint').textContent=lang==='en'?'Earn XP from this run, cannot continue':'获得本次战斗经验，不可再继续';
+    document.getElementById('eeo-save').textContent=lang==='en'?'💾 Save & Exit':'💾 保存退出';
+    document.getElementById('eeo-save-hint').textContent=lang==='en'?'Save progress, continue next time (no XP)':'保存当前进度，下次继续（不结算经验）';
+    document.getElementById('eeo-cancel').textContent=lang==='en'?'Cancel':'取消';
+    document.getElementById('pauseOverlay').style.display='none';
+    document.getElementById('endlessExitOverlay').style.display='flex';
+    return;
+  }
+  toMenu();
+}
+function _settleAndLeave(){
+  document.getElementById('endlessExitOverlay').style.display='none';
+  if(!G)return;
+  const meta=loadMeta();
+  const floorBonus=G.dLevel*80;
+  const xpGain=Math.floor((G.dungeonXP+50+floorBonus)*2);
+  meta.xp+=xpGain;
+  let lvlUp=false,newLv=meta.level;
+  while(meta.xp>=xpNeeded(meta.level)){meta.xp-=xpNeeded(meta.level);meta.level++;meta.sp++;lvlUp=true;}
+  newLv=meta.level;meta.endlessSave=null;saveMeta(meta);updateMenuUI();
+  G.destroy();G=null;
+  document.getElementById('menu').style.display='flex';
+  document.getElementById('gameWrap').style.display='none';
+  document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('dungeonUpgrade').style.display='none';
+  const msg=lang==='en'
+    ?`+${xpGain} XP${lvlUp?` · Level Up Lv.${newLv}!`:''}`
+    :`+${xpGain} XP${lvlUp?` · 升级至Lv.${newLv}！`:''}`;
+  showToast(msg);
+}
+function _saveAndLeave(){
+  document.getElementById('endlessExitOverlay').style.display='none';
+  saveEndlessProgress();
+  if(G){G.destroy();G=null;}
+  document.getElementById('menu').style.display='flex';
+  document.getElementById('gameWrap').style.display='none';
+  document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('dungeonUpgrade').style.display='none';
+}
+function toMenu(){
+  if(G&&G.endless)saveEndlessProgress();
+  if(G){G.destroy();G=null}
+  document.getElementById('menu').style.display='flex';
+  document.getElementById('gameWrap').style.display='none';
+  document.getElementById('dungeonUpgrade').style.display='none';
+  document.getElementById('pauseOverlay').style.display='none';
+  setMode(selectedMode);
+  if(selectedMode==='roguelite')updateMenuUI();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._tid);t._tid=setTimeout(()=>{t.style.display='none'},2500);
+}
+
+let _pendingEndlessDiff=null;
+function _showEndlessContinueDialog(save){
+  _pendingEndlessDiff=save.diff;
+  const lbl=lang==='en'?`${save.diff.toUpperCase()} · Floor ${save.dLevel}`:`${save.diff.toUpperCase()} · 第 ${save.dLevel} 层`;
+  document.getElementById('ecs-info').textContent=lbl;
+  document.getElementById('ecs-title').textContent=lang==='en'?'Save Found':'发现无尽存档';
+  document.getElementById('ecs-continue').textContent=lang==='en'?'Continue Save':'继续上次存档';
+  document.getElementById('ecs-new').textContent=lang==='en'?'New Run':'开始新的存档';
+  document.getElementById('ecs-cancel').textContent=lang==='en'?'Cancel':'取消';
+  document.getElementById('endlessContinueOverlay').style.display='flex';
+}
+function _endlessContinue(){
+  document.getElementById('endlessContinueOverlay').style.display='none';
+  const meta=loadMeta(),save=meta.endlessSave;
+  if(save)_launchDungeon(save.diff,{endless:true,dLevel:save.dLevel,perks:{...save.perks},metaSkills:meta.skills,activeSkill:save.activeSkill});
+}
+function _endlessNew(){
+  document.getElementById('endlessContinueOverlay').style.display='none';
+  const meta=loadMeta();meta.endlessSave=null;saveMeta(meta);
+  _launchDungeon(_pendingEndlessDiff||lastDiff||'d2',{endless:true,dLevel:1,perks:EMPTY_PERKS(),metaSkills:meta.skills,activeSkill:selectedActiveSkill});
+}
+function _endlessCancel(){document.getElementById('endlessContinueOverlay').style.display='none';}
+
+function saveEndlessProgress(){
+  if(!G||!G.endless||!G.diff)return;
+  const meta=loadMeta();
+  meta.endlessSave={diff:G.diff,dLevel:G.dLevel,perks:{...G.perks},activeSkill:G.activeSkill};
+  saveMeta(meta);
+}
+
+function startEndless(){
+  if(selectedMode==='dungeon'){
+    const meta=loadMeta(),save=meta.endlessSave,targetDiff=lastDiff||'d2';
+    if(save&&save.diff===targetDiff){_showEndlessContinueDialog(save);return;}
+    _launchDungeon(targetDiff,{endless:true,dLevel:1,perks:EMPTY_PERKS(),metaSkills:meta.skills,activeSkill:selectedActiveSkill});
+    return;
+  }
+  if(G){G.destroy();G=null;}
+  document.getElementById('menu').style.display='none';
+  document.getElementById('gameWrap').style.display='block';
+  document.getElementById('overlay').style.display='none';
+  G=new Game('d2',{endless:true,wave:1});
+  // override with wave 1 config
+  const lv=genLevel(G._endlessCfg());
+  G.plats=lv.plats;G.enemies=lv.enemies;G.levelW=lv.levelW;G.goalPos=lv.goal;
+  G.p.x=lv.start.x;G.p.y=lv.start.y;
+}
+
+// ─── event bindings ───────────────────────────────────────────
+['d1','d2','d3','d4','d5'].forEach(d=>document.getElementById(`btn-${d}`).onclick=()=>start(d));
+document.getElementById('btn-endless').addEventListener('click',startEndless);
+document.getElementById('btn-skills').onclick=showSkillTree;
+document.getElementById('btn-close-skills').onclick=closeSkillTree;
+document.getElementById('btn-restart').onclick=()=>{
+  if(selectedMode==='dungeon'){
+    if(G&&G.endless)startEndless();
+    else _launchDungeon(lastDiff||'d2',{endless:false});
+  } else if(G&&G.endless)startEndless();
+  else start(lastDiff);
+};
+document.getElementById('btn-menu2').onclick=toMenu;
+document.getElementById('skillMenu').addEventListener('click',e=>{if(e.target===document.getElementById('skillMenu'))closeSkillTree()});
+document.getElementById('btn-slot-switch').onclick=openSlotMenu;
+
+// start with slot select; menu display is flex (horizontal)
+document.getElementById('menu').style.display='none';
+openSlotMenu();
+// setMode called after slot select → selectSlot → updateMenuUI → setMode('parkour') default
+</script>
+</body>
+</html>

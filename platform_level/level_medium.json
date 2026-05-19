@@ -1,0 +1,101 @@
+{
+  "difficulty": "medium",
+  "world": { "width": 800, "height": 600 },
+  "platforms": [
+    { "id": "ground_start",   "x": 0,   "y": 550, "width": 180, "height": 20 },
+    { "id": "low_1",          "x": 220, "y": 500, "width": 120, "height": 20 },
+    { "id": "low_2",          "x": 380, "y": 500, "width": 120, "height": 20 },
+    { "id": "low_3",          "x": 540, "y": 480, "width": 120, "height": 20 },
+    { "id": "mid_1",          "x": 160, "y": 400, "width": 100, "height": 20 },
+    { "id": "mid_2",          "x": 300, "y": 380, "width": 120, "height": 20 },
+    { "id": "mid_3",          "x": 460, "y": 360, "width": 120, "height": 20 },
+    { "id": "mid_4",          "x": 620, "y": 340, "width": 100, "height": 20 },
+    { "id": "upper_1",        "x": 100, "y": 280, "width": 100, "height": 20 },
+    { "id": "upper_2",        "x": 240, "y": 260, "width": 120, "height": 20 },
+    { "id": "upper_3",        "x": 400, "y": 240, "width": 100, "height": 20 },
+    { "id": "upper_4",        "x": 540, "y": 220, "width": 120, "height": 20 },
+    { "id": "goal_platform",  "x": 680, "y": 150, "width": 120, "height": 20 }
+  ],
+  "start": { "x": 50, "y": 530 },
+  "goal":  { "x": 740, "y": 130 },
+  "enemies": [
+    {
+      "id": "e1", "type": "patrol",
+      "x": 280, "y": 480,
+      "patrol_start": 220, "patrol_end": 340,
+      "note": "patrols low_1 — timeable, forces upper/mid detour or careful timing"
+    },
+    {
+      "id": "e2", "type": "patrol",
+      "x": 490, "y": 340,
+      "patrol_start": 460, "patrol_end": 580,
+      "note": "patrols mid_3 — blocks mid lane, alternative via low or upper"
+    },
+    {
+      "id": "e3", "type": "static",
+      "x": 268, "y": 240,
+      "note": "guards upper_2 center — jumpable or avoidable via low/mid lanes"
+    }
+  ],
+  "solution_paths": [
+    {
+      "id": "path_1",
+      "label": "Full lower lane",
+      "steps": ["ground_start", "low_1", "low_2", "low_3", "mid_4", "goal_platform"],
+      "enemy_interactions": ["e1 must be timed on low_1"]
+    },
+    {
+      "id": "path_2",
+      "label": "Full middle lane",
+      "steps": ["ground_start", "mid_1", "mid_2", "mid_3", "mid_4", "goal_platform"],
+      "enemy_interactions": ["e2 must be timed on mid_3"]
+    },
+    {
+      "id": "path_3",
+      "label": "Full upper lane",
+      "steps": ["ground_start", "mid_1", "upper_1", "upper_2", "upper_3", "upper_4", "goal_platform"],
+      "enemy_interactions": ["e3 on upper_2 — jumpable over enemy"]
+    },
+    {
+      "id": "path_4",
+      "label": "Lower-to-upper crossover",
+      "steps": ["ground_start", "low_1", "mid_2", "upper_3", "upper_4", "goal_platform"],
+      "enemy_interactions": ["e1 timed on low_1"]
+    },
+    {
+      "id": "path_5",
+      "label": "Upper-to-middle descent",
+      "steps": ["ground_start", "mid_1", "upper_1", "upper_2", "mid_3", "mid_4", "goal_platform"],
+      "enemy_interactions": ["e3 on upper_2, e2 on mid_3 — both timeable"]
+    },
+    {
+      "id": "path_6",
+      "label": "Mid-to-upper late crossover",
+      "steps": ["ground_start", "mid_1", "mid_2", "upper_3", "upper_4", "goal_platform"],
+      "enemy_interactions": ["none blocking this route"]
+    }
+  ],
+  "pathfinding_notes": {
+    "max_jump_horizontal_px": 150,
+    "max_jump_vertical_px": 200,
+    "gap_verification": [
+      "ground_start -> low_1: gap=40px horizontal, +50px up — OK",
+      "ground_start -> mid_1: gap=0px (overlapping x), +150px up — OK",
+      "low_1 -> low_2: gap=40px, same height — OK",
+      "low_2 -> low_3: gap=40px, +20px up — OK",
+      "low_3 -> mid_4: gap=0px, +140px up — OK",
+      "mid_1 -> mid_2: gap=40px, +20px up — OK",
+      "mid_2 -> mid_3: gap=40px, +20px up — OK",
+      "mid_3 -> mid_4: gap=40px, +20px up — OK",
+      "mid_4 -> goal_platform: gap=0px, +190px up — OK (tight but within range)",
+      "mid_1 -> upper_1: gap=0px, +120px up — OK",
+      "upper_1 -> upper_2: gap=40px, +20px up — OK",
+      "upper_2 -> upper_3: gap=40px, +20px up — OK",
+      "upper_3 -> upper_4: gap=40px, +20px up — OK",
+      "upper_4 -> goal_platform: gap=20px, +70px up — OK",
+      "low_1 -> mid_2: gap=0px overlap, +120px up — OK",
+      "mid_2 -> upper_3: gap=40px, +140px up — OK",
+      "upper_2 -> mid_3: gap=120px, drop +100px — OK (drop is free)"
+    ]
+  }
+}

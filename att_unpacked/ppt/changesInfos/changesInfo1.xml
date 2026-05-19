@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pc:chgInfo xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:ac="http://schemas.microsoft.com/office/drawing/2013/main/command" xmlns:pc="http://schemas.microsoft.com/office/powerpoint/2013/main/command">
+  <pc:docChgLst>
+    <pc:chgData name="Xin Wang Elva" userId="ef9d1b2b-c090-4794-941d-f5be9faf2d6d" providerId="ADAL" clId="{76429C4D-C6F4-5171-B746-C7DBAC781BBD}"/>
+    <pc:docChg chg="modSld">
+      <pc:chgData name="Xin Wang Elva" userId="ef9d1b2b-c090-4794-941d-f5be9faf2d6d" providerId="ADAL" clId="{76429C4D-C6F4-5171-B746-C7DBAC781BBD}" dt="2026-04-23T07:36:24.933" v="2"/>
+      <pc:docMkLst>
+        <pc:docMk/>
+      </pc:docMkLst>
+      <pc:sldChg chg="addSp delSp modSp mod">
+        <pc:chgData name="Xin Wang Elva" userId="ef9d1b2b-c090-4794-941d-f5be9faf2d6d" providerId="ADAL" clId="{76429C4D-C6F4-5171-B746-C7DBAC781BBD}" dt="2026-04-23T07:36:24.933" v="2"/>
+        <pc:sldMkLst>
+          <pc:docMk/>
+          <pc:sldMk cId="4039134851" sldId="1018"/>
+        </pc:sldMkLst>
+        <pc:spChg chg="add del mod">
+          <ac:chgData name="Xin Wang Elva" userId="ef9d1b2b-c090-4794-941d-f5be9faf2d6d" providerId="ADAL" clId="{76429C4D-C6F4-5171-B746-C7DBAC781BBD}" dt="2026-04-23T07:36:24.933" v="2"/>
+          <ac:spMkLst>
+            <pc:docMk/>
+            <pc:sldMk cId="4039134851" sldId="1018"/>
+            <ac:spMk id="8" creationId="{28CC7CA8-2797-1BD8-E816-95C8DAAD0237}"/>
+          </ac:spMkLst>
+        </pc:spChg>
+      </pc:sldChg>
+    </pc:docChg>
+  </pc:docChgLst>
+</pc:chgInfo>

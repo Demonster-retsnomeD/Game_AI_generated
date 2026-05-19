@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>开始游戏</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#08080f;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;color:#fff;overflow:hidden;user-select:none}
+canvas#bg{position:fixed;inset:0;z-index:0}
+#main{position:relative;z-index:1;text-align:center;padding:40px 24px}
+h1{font-size:3em;margin-bottom:10px;letter-spacing:2px}
+h1 span{background:linear-gradient(135deg,#e94560,#f5a623,#4af,#8f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:#555;font-size:.9em;margin-bottom:52px}
+.start-btn{padding:18px 64px;border:none;border-radius:16px;font-weight:bold;font-size:1.3em;cursor:pointer;color:#fff;background:linear-gradient(135deg,#e94560,#9b44f5);transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 8px 40px rgba(233,69,96,.35);letter-spacing:1px}
+.start-btn:hover{opacity:.9;transform:translateY(-4px);box-shadow:0 16px 56px rgba(233,69,96,.5)}
+.start-btn:active{transform:scale(.97)}
+.sig{position:fixed;bottom:18px;right:24px;z-index:10;font-size:.85em;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#e94560,#9b44f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:.75;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="main">
+  <h1>🎮 <span>Ball Dungeon</span></h1>
+  <p class="sub">地牢探索 · 平台跳跃 · 养成解锁</p>
+  <button class="start-btn" onclick="location.href='platform_level/game.html'">▶ 开始游戏</button>
+</div>
+<div class="sig">Kenny</div>
+<script>
+const canvas=document.getElementById('bg');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+resize();window.addEventListener('resize',resize);
+const pts=Array.from({length:55},()=>({
+  x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+  vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,
+  r:Math.random()*1.5+.5,
+  hue:Math.random()<.5?(200+Math.random()*40):(350+Math.random()*20)
+}));
+let angle=0;
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i];
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.vx=Math.abs(p.vx);if(p.x>canvas.width)p.vx=-Math.abs(p.vx);
+    if(p.y<0)p.vy=Math.abs(p.vy);if(p.y>canvas.height)p.vy=-Math.abs(p.vy);
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${p.hue},70%,65%,.5)`;ctx.fill();
+    for(let j=i+1;j<pts.length;j++){
+      const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy;
+      if(d2<12000){ctx.strokeStyle=`rgba(255,255,255,${.06*(1-d2/12000)})`;
+        ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}
+    }
+  }
+  angle+=0.008;
+  const cx=canvas.width/2,cy=canvas.height/2,OR=Math.min(cx,cy)*.55;
+  ctx.globalAlpha=.12;
+  ctx.strokeStyle='rgba(233,69,96,.4)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(cx,cy,OR,0,Math.PI*2);ctx.stroke();
+  const gA=ctx.createRadialGradient(cx+Math.cos(angle)*OR,cy+Math.sin(angle)*OR,0,cx+Math.cos(angle)*OR,cy+Math.sin(angle)*OR,30);
+  gA.addColorStop(0,'#e94560');gA.addColorStop(1,'transparent');
+  ctx.fillStyle=gA;ctx.beginPath();ctx.arc(cx+Math.cos(angle)*OR,cy+Math.sin(angle)*OR,30,0,Math.PI*2);ctx.fill();
+  const gB=ctx.createRadialGradient(cx+Math.cos(angle+Math.PI)*OR,cy+Math.sin(angle+Math.PI)*OR,0,cx+Math.cos(angle+Math.PI)*OR,cy+Math.sin(angle+Math.PI)*OR,22);
+  gB.addColorStop(0,'#4af');gB.addColorStop(1,'transparent');
+  ctx.fillStyle=gB;ctx.beginPath();ctx.arc(cx+Math.cos(angle+Math.PI)*OR,cy+Math.sin(angle+Math.PI)*OR,22,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+</body>
+</html>

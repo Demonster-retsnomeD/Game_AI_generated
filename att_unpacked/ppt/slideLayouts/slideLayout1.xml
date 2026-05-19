@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?><p:sldLayout xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" type="title" preserve="1">
+  <p:cSld name="Title Slide">
+    <p:spTree>
+      <p:nvGrpSpPr>
+        <p:cNvPr id="1" name=""/>
+        <p:cNvGrpSpPr/>
+        <p:nvPr/>
+      </p:nvGrpSpPr>
+      <p:grpSpPr>
+        <a:xfrm>
+          <a:off x="0" y="0"/>
+          <a:ext cx="0" cy="0"/>
+          <a:chOff x="0" y="0"/>
+          <a:chExt cx="0" cy="0"/>
+        </a:xfrm>
+      </p:grpSpPr>
+      <p:sp>
+        <p:nvSpPr>
+          <p:cNvPr id="2" name="Title 1">
+            <a:extLst>
+              <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{BC770E59-2905-32C4-ECD9-14F5D5830C92}"/>
+              </a:ext>
+            </a:extLst>
+          </p:cNvPr>
+          <p:cNvSpPr>
+            <a:spLocks noGrp="1"/>
+          </p:cNvSpPr>
+          <p:nvPr>
+            <p:ph type="ctrTitle"/>
+          </p:nvPr>
+        </p:nvSpPr>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="2286000" y="1683544"/>
+            <a:ext cx="13716000" cy="3581400"/>
+          </a:xfrm>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr anchor="b">
+            <a:normAutofit/>
+          </a:bodyPr>
+          <a:lstStyle>
+            <a:lvl1pPr algn="ctr">
+              <a:defRPr sz="7200" b="1" i="0">
+                <a:solidFill>
+                  <a:srgbClr val="0070C0"/>
+                </a:solidFill>
+                <a:latin typeface="Tahoma" panose="020B0604030504040204" pitchFamily="34" charset="0"/>
+                <a:ea typeface="Tahoma" panose="020B0604030504040204" pitchFamily="34" charset="0"/>
+                <a:cs typeface="Tahoma" panose="020B0604030504040204" pitchFamily="34" charset="0"/>
+              </a:defRPr>
+            </a:lvl1pPr>
+          </a:lstStyle>
+          <a:p>
+            <a:r>
+              <a:rPr lang="en-GB" dirty="0"/>
+              <a:t>Click to edit Master title style</a:t>
+            </a:r>
+            <a:endParaRPr lang="en-US" dirty="0"/>
+          </a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr>
+          <p:cNvPr id="3" name="Subtitle 2">
+            <a:extLst>
+              <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{550BBB61-FF75-B9CA-2F77-2C5787A92F63}"/>
+              </a:ext>
+            </a:extLst>
+          </p:cNvPr>
+          <p:cNvSpPr>
+            <a:spLocks noGrp="1"/>
+          </p:cNvSpPr>
+          <p:nvPr>
+            <p:ph type="subTitle" idx="1"/>
+          </p:nvPr>
+        </p:nvSpPr>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="2286000" y="5403057"/>
+            <a:ext cx="13716000" cy="2483643"/>
+          </a:xfrm>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr>
+            <a:normAutofit/>
+          </a:bodyPr>
+          <a:lstStyle>
+            <a:lvl1pPr marL="0" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="4000" b="1" i="0">
+                <a:solidFill>
+                  <a:schemeClr val="tx1">
+                    <a:lumMod val="65000"/>
+                    <a:lumOff val="35000"/>
+                  </a:schemeClr>
+                </a:solidFill>
+                <a:latin typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/>
+                <a:cs typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/>
+              </a:defRPr>
+            </a:lvl1pPr>
+            <a:lvl2pPr marL="685800" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="3000"/>
+            </a:lvl2pPr>
+            <a:lvl3pPr marL="1371600" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2700"/>
+            </a:lvl3pPr>
+            <a:lvl4pPr marL="2057400" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2400"/>
+            </a:lvl4pPr>
+            <a:lvl5pPr marL="2743200" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2400"/>
+            </a:lvl5pPr>
+            <a:lvl6pPr marL="3429000" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2400"/>
+            </a:lvl6pPr>
+            <a:lvl7pPr marL="4114800" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2400"/>
+            </a:lvl7pPr>
+            <a:lvl8pPr marL="4800600" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2400"/>
+            </a:lvl8pPr>
+            <a:lvl9pPr marL="5486400" indent="0" algn="ctr">
+              <a:buNone/>
+              <a:defRPr sz="2400"/>
+            </a:lvl9pPr>
+          </a:lstStyle>
+          <a:p>
+            <a:r>
+              <a:rPr lang="en-GB" dirty="0"/>
+              <a:t>Click to edit Master subtitle style</a:t>
+            </a:r>
+            <a:endParaRPr lang="en-US" dirty="0"/>
+          </a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr>
+          <p:cNvPr id="4" name="Date Placeholder 3">
+            <a:extLst>
+              <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{940A64A3-29D7-D69A-B4F7-C08729DF2254}"/>
+              </a:ext>
+            </a:extLst>
+          </p:cNvPr>
+          <p:cNvSpPr>
+            <a:spLocks noGrp="1"/>
+          </p:cNvSpPr>
+          <p:nvPr>
+            <p:ph type="dt" sz="half" idx="10"/>
+          </p:nvPr>
+        </p:nvSpPr>
+        <p:spPr/>
+        <p:txBody>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:fld id="{0641DCED-A778-914F-AD40-3E5A7458EC44}" type="datetime1">
+              <a:rPr lang="en-SG" smtClean="0"/>
+              <a:t>23/4/26</a:t>
+            </a:fld>
+            <a:endParaRPr lang="en-US"/>
+          </a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr>
+          <p:cNvPr id="7" name="Freeform 2">
+            <a:extLst>
+              <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{D63AF9DA-7E62-9211-5814-7777480343E3}"/>
+              </a:ext>
+            </a:extLst>
+          </p:cNvPr>
+          <p:cNvSpPr/>
+          <p:nvPr userDrawn="1"/>
+        </p:nvSpPr>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="15325191" y="596620"/>
+            <a:ext cx="2303257" cy="1076632"/>
+          </a:xfrm>
+          <a:custGeom>
+            <a:avLst/>
+            <a:gdLst/>
+            <a:ahLst/>
+            <a:cxnLst/>
+            <a:rect l="l" t="t" r="r" b="b"/>
+            <a:pathLst>
+              <a:path w="2303257" h="1076632">
+                <a:moveTo>
+                  <a:pt x="0" y="0"/>
+                </a:moveTo>
+                <a:lnTo>
+                  <a:pt x="2303257" y="0"/>
+                </a:lnTo>
+                <a:lnTo>
+                  <a:pt x="2303257" y="1076631"/>
+                </a:lnTo>
+                <a:lnTo>
+                  <a:pt x="0" y="1076631"/>
+                </a:lnTo>
+                <a:lnTo>
+                  <a:pt x="0" y="0"/>
+                </a:lnTo>
+                <a:close/>
+              </a:path>
+            </a:pathLst>
+          </a:custGeom>
+          <a:blipFill>
+            <a:blip r:embed="rId2"/>
+            <a:stretch>
+              <a:fillRect b="-27784"/>
+            </a:stretch>
+          </a:blipFill>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:endParaRPr lang="en-US"/>
+          </a:p>
+        </p:txBody>
+      </p:sp>
+      <p:sp>
+        <p:nvSpPr>
+          <p:cNvPr id="6" name="Footer Placeholder 2">
+            <a:extLst>
+              <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+                <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{C5724C12-9B86-1084-931A-D2C3D6BD2AD0}"/>
+              </a:ext>
+            </a:extLst>
+          </p:cNvPr>
+          <p:cNvSpPr>
+            <a:spLocks noGrp="1"/>
+          </p:cNvSpPr>
+          <p:nvPr>
+            <p:ph type="ftr" sz="quarter" idx="11"/>
+          </p:nvPr>
+        </p:nvSpPr>
+        <p:spPr>
+          <a:xfrm>
+            <a:off x="7185160" y="9534526"/>
+            <a:ext cx="10477500" cy="547688"/>
+          </a:xfrm>
+          <a:prstGeom prst="rect">
+            <a:avLst/>
+          </a:prstGeom>
+        </p:spPr>
+        <p:txBody>
+          <a:bodyPr/>
+          <a:lstStyle>
+            <a:lvl1pPr algn="r">
+              <a:defRPr b="0" i="0">
+                <a:latin typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/>
+                <a:cs typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/>
+              </a:defRPr>
+            </a:lvl1pPr>
+          </a:lstStyle>
+          <a:p>
+            <a:r>
+              <a:rPr lang="en-SG" dirty="0"/>
+              <a:t xml:space="preserve">Proprietary and confidential. Please do not circulate without consent from ATT Group </a:t>
+            </a:r>
+            <a:endParaRPr lang="en-US" dirty="0"/>
+          </a:p>
+        </p:txBody>
+      </p:sp>
+    </p:spTree>
+    <p:extLst>
+      <p:ext uri="{BB962C8B-B14F-4D97-AF65-F5344CB8AC3E}">
+        <p14:creationId xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" val="1415768270"/>
+      </p:ext>
+    </p:extLst>
+  </p:cSld>
+  <p:clrMapOvr>
+    <a:masterClrMapping/>
+  </p:clrMapOvr>
+</p:sldLayout>
