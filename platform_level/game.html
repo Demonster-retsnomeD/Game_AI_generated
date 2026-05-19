@@ -1591,6 +1591,14 @@ class DungeonGame{
       if(r.conn.E!==undefined)for(let tx=rx+RW-1;tx<=rx+CW;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
       if(r.conn.S!==undefined)for(let ty=ry+RH-1;ty<=ry+CH;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
     });
+    // Carve corridor approaches inside each room (fixes small rooms with thick walls)
+    rooms.forEach(r=>{
+      const rx=r.gx*CW,ry=r.gy*CH;
+      if(r.conn.E!==undefined)for(let tx=rx+RW-5;tx<rx+RW;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.W!==undefined)for(let tx=rx+1;tx<=rx+5;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.S!==undefined)for(let ty=ry+RH-5;ty<ry+RH;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.N!==undefined)for(let ty=ry+1;ty<=ry+5;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
+    });
     // Place hard blocks + special floor tiles in rooms (monster rooms only)
     rooms.forEach((r,ri)=>{
       if(r.type!=='monster')return; // only monster rooms get terrain
