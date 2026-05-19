@@ -238,8 +238,8 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
     <input class="auth-input" id="authUser" placeholder="用户名 / Username" maxlength="20" autocomplete="username"/>
     <input class="auth-input" id="authPass" placeholder="密码 / Password (min 6)" type="password" autocomplete="current-password"/>
     <div id="authMsg"></div>
-    <button class="auth-btn" id="authSubmitBtn" onclick="authSubmit()">登录 / Login</button>
-    <button class="auth-btn sec" onclick="authSkip()">跳过，游客模式 / Play as Guest</button>
+    <button class="auth-btn" id="authSubmitBtn">登录 / Login</button>
+    <button class="auth-btn sec" id="authSkipBtn">跳过，游客模式 / Play as Guest</button>
   </div>
 </div>
 <!-- Auth user bar -->
@@ -2637,7 +2637,9 @@ function authLogout() {
   document.getElementById('authOverlay').style.display = 'flex';
 })();
 
-// Enter key submits
+// Bind buttons via addEventListener (more reliable than onclick)
+document.getElementById('authSubmitBtn').addEventListener('click', authSubmit);
+document.getElementById('authSkipBtn').addEventListener('click', authSkip);
 document.getElementById('authPass').addEventListener('keydown', e => { if(e.key === 'Enter') authSubmit(); });
 document.getElementById('authUser').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('authPass').focus(); });
 // ===== END AUTH SYSTEM =====
