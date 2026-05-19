@@ -227,9 +227,7 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
   <div class="slot-cards" id="slot-cards"></div>
 </div>
 
-<div id="gameWrap">
-  <canvas id="gc" width="800" height="500"></canvas>
-<!-- Auth overlay -->
+<!-- Auth overlay (outside gameWrap so it's always visible) -->
 <div id="authOverlay">
   <div id="authBox">
     <h2>🎮 Ball Dungeon</h2>
@@ -244,11 +242,13 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
     <button class="auth-btn sec" onclick="authSkip()">跳过，游客模式 / Play as Guest</button>
   </div>
 </div>
-<!-- Auth user bar (shown when logged in) -->
+<!-- Auth user bar -->
 <div id="authUserBar">
   <span id="authUserName"></span>
   <button id="authLogoutBtn" onclick="authLogout()">退出</button>
 </div>
+<div id="gameWrap">
+  <canvas id="gc" width="800" height="500"></canvas>
   <div id="hud">
     <div id="hud-hp">❤️ ♥♥♥</div>
     <div id="hud-jumps"></div>
