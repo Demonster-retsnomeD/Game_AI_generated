@@ -2250,10 +2250,10 @@ class DungeonGame{
       }
       ctx.textAlign='left';ctx.textBaseline='alphabetic';
     }
-    // P pause hint — top right
+    // P pause hint — top left below HUD bar
     const _pHint=lang==='en'?'P: Pause':'P: 暂停';
-    ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='11px Arial';ctx.textAlign='right';ctx.textBaseline='top';
-    ctx.fillText(_pHint,W-8,6);
+    ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='10px Arial';ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillText(_pHint,8,28);
     ctx.textAlign='left';ctx.textBaseline='alphabetic';
   }
 
