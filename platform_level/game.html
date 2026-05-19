@@ -1719,7 +1719,7 @@ class DungeonGame{
     // Floor tile under player
     const _ptx=Math.floor(p.x/DTZ),_pty=Math.floor(p.y/DTZ);
     const _pFloor=(_ptx>=0&&_pty>=0&&_ptx<DUN_W&&_pty<DUN_H)?this.worldTiles[_pty][_ptx]:DT_EMPTY;
-    let _pMult=1;
+    let _pMult=1;this._playerFloor=_pFloor;
     if(_pFloor===DT_SWAMP)_pMult=0.45;
     else if(_pFloor===DT_BOOST)_pMult=1.7;
     if(_pFloor===DT_LAVA){
@@ -2152,6 +2152,21 @@ class DungeonGame{
     ctx.globalAlpha=1;
     // Player
     const p=this.p,inv=p.invTimer>0&&Math.floor(Date.now()/80)%2;
+    // Floor status aura
+    const _pf=this._playerFloor||0;
+    if(_pf===DT_LAVA){
+      const _fa=0.3+0.2*Math.sin(Date.now()*.012);
+      ctx.save();ctx.globalAlpha=_fa;ctx.beginPath();ctx.arc(p.x,p.y,p.r+10,0,Math.PI*2);
+      ctx.fillStyle='#ff3300';ctx.fill();ctx.restore();
+    }else if(_pf===DT_SWAMP){
+      const _fa=0.3+0.15*Math.sin(Date.now()*.006);
+      ctx.save();ctx.globalAlpha=_fa;ctx.beginPath();ctx.arc(p.x,p.y,p.r+8,0,Math.PI*2);
+      ctx.fillStyle='#22aa22';ctx.fill();ctx.restore();
+    }else if(_pf===DT_BOOST){
+      const _fa=0.35+0.2*Math.sin(Date.now()*.015);
+      ctx.save();ctx.globalAlpha=_fa;ctx.beginPath();ctx.arc(p.x,p.y,p.r+12,0,Math.PI*2);
+      ctx.fillStyle='#44aaff';ctx.fill();ctx.restore();
+    }
     if(!inv){
       if(p.atkFlash>0){ctx.fillStyle=`rgba(255,200,50,${p.atkFlash/230*.3})`;ctx.beginPath();ctx.arc(p.x,p.y,58,0,Math.PI*2);ctx.fill();}
       ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(p.x,p.y+p.r,p.r*.8,4,0,0,Math.PI*2);ctx.fill();
@@ -2235,10 +2250,10 @@ class DungeonGame{
       }
       ctx.textAlign='left';ctx.textBaseline='alphabetic';
     }
-    // P pause hint (floor legend)
-    ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(W/2-120,H-20,240,16);
-    ctx.fillStyle='#666';ctx.font='10px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('P: 暂停/Pause  |  🔴岩浆伤害  🟢沼泽减速  🔵地板加速',W/2,H-12);
+    // P pause hint — top right
+    const _pHint=lang==='en'?'P: Pause':'P: 暂停';
+    ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='11px Arial';ctx.textAlign='right';ctx.textBaseline='top';
+    ctx.fillText(_pHint,W-8,6);
     ctx.textAlign='left';ctx.textBaseline='alphabetic';
   }
 
