@@ -1810,6 +1810,8 @@ class DungeonGame{
   _updateBoss(dt){
     const b=this.boss,p=this.p;
     if(!b.alive)return;
+    // Boss only active when player is in its room
+    if(this._getCurrentRoom()!==this.portalRoomId)return;
     const dx=p.x-b.x,dy=p.y-b.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
     // Phase cycle (every 20s trigger next special phase)
     b.phaseCycleTimer-=dt;
@@ -1953,11 +1955,13 @@ class DungeonGame{
       mn.y=p.y+Math.sin(mn.angle)*MR;
       mn.atkCd=Math.max(0,mn.atkCd-dt);
       if(mn.atkCd<=0){
-        let nearest=null,nd2=Infinity;
-        for(const e of this.allEnemies){if(!e.alive)continue;const ddx=e.x-mn.x,ddy=e.y-mn.y,d2=ddx*ddx+ddy*ddy;if(d2<nd2){nd2=d2;nearest=e;}}
-        if(nearest&&nd2<220*220){
+        let tgt=null,nd2=Infinity;
+        for(const e of this.allEnemies){if(!e.alive)continue;const ddx=e.x-mn.x,ddy=e.y-mn.y,d2=ddx*ddx+ddy*ddy;if(d2<nd2){nd2=d2;tgt={x:e.x,y:e.y};}}
+        // Also target boss
+        if(this.boss&&this.boss.alive){const bdx=this.boss.x-mn.x,bdy=this.boss.y-mn.y,bd2=bdx*bdx+bdy*bdy;if(bd2<nd2){nd2=bd2;tgt={x:this.boss.x,y:this.boss.y};}}
+        if(tgt&&nd2<220*220){
           mn.atkCd=700;
-          const ddx=nearest.x-mn.x,ddy=nearest.y-mn.y,l=Math.sqrt(nd2);
+          const ddx=tgt.x-mn.x,ddy=tgt.y-mn.y,l=Math.sqrt(nd2);
           this.bullets.push({x:mn.x,y:mn.y,vx:ddx/l*8,vy:ddy/l*8,r:4,dmg:this._getMinionDmg(),life:80});
         }
       }
@@ -2037,10 +2041,13 @@ class DungeonGame{
       if(p.invTimer<=0&&!p.shieldActive){const dx=b.x-p.x,dy=b.y-p.y;if(dx*dx+dy*dy<(b.r+p.r)*(b.r+p.r)){p.hp-=b.dmg;p.invTimer=700;this._burst(p.x,p.y,'#f44',5);return false;}}
       return true;
     });
-    // Enemy AI (activate within detection range)
+    // Enemy AI (activate within detection range, confined to own room)
     const DETECT=350;
+    const _curRoom=this._getCurrentRoom();
     this.allEnemies.forEach(e=>{
       if(!e.alive)return;
+      // Only activate when player is in same room
+      if(e.roomId!==undefined&&e.roomId!==_curRoom)return;
       const dx=p.x-e.x,dy=p.y-e.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
       if(dist>DETECT)return;
       // Floor effects on enemy
