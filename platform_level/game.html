@@ -131,6 +131,22 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
 .tc-soon{font-size:.62em;color:#f90;margin-top:3px;background:rgba(255,140,0,.1);border-radius:4px;padding:1px 5px;display:inline-block}
 .type-card.tc-locked{cursor:default;opacity:.4}
 .type-card.tc-locked:hover{border-color:rgba(255,255,255,.1)!important;background:rgba(255,255,255,.04)!important}
+#authOverlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#authBox{background:#16162a;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:36px 40px;width:340px;display:flex;flex-direction:column;gap:14px}
+#authBox h2{text-align:center;font-size:1.5em;background:linear-gradient(135deg,#e94560,#9b44f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.auth-input{background:#0d0d1a;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:11px 14px;color:#fff;font-size:.95em;outline:none;width:100%;box-sizing:border-box}
+.auth-input:focus{border-color:#4af}
+.auth-btn{padding:12px;border:none;border-radius:9px;font-weight:bold;font-size:1em;cursor:pointer;width:100%;background:linear-gradient(135deg,#e94560,#9b44f5);color:#fff;transition:opacity .2s}
+.auth-btn:hover{opacity:.88}
+.auth-btn.sec{background:rgba(255,255,255,.07);color:#aaa}
+.auth-tab{display:flex;gap:0;background:rgba(255,255,255,.06);border-radius:8px;padding:3px;margin-bottom:4px}
+.auth-tab-btn{flex:1;padding:7px;border:none;background:transparent;color:#666;cursor:pointer;border-radius:6px;font-size:.88em;font-weight:bold;transition:all .2s}
+.auth-tab-btn.active{background:rgba(255,255,255,.14);color:#fff}
+#authMsg{font-size:.82em;text-align:center;min-height:18px;color:#f66}
+#authUserBar{position:fixed;top:0;right:60px;z-index:400;display:none;align-items:center;gap:10px;padding:4px 14px;background:rgba(0,0,0,.7);border-radius:0 0 10px 10px;font-size:.82em}
+#authUserName{color:#4af;font-weight:bold}
+#authLogoutBtn{background:none;border:1px solid #444;color:#666;padding:3px 10px;border-radius:6px;cursor:pointer;font-size:.78em}
+#authLogoutBtn:hover{color:#ccc;border-color:#888}
 </style>
 </head>
 <body>
@@ -213,6 +229,26 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
 
 <div id="gameWrap">
   <canvas id="gc" width="800" height="500"></canvas>
+<!-- Auth overlay -->
+<div id="authOverlay">
+  <div id="authBox">
+    <h2>🎮 Ball Dungeon</h2>
+    <div class="auth-tab">
+      <button class="auth-tab-btn active" id="tabLogin" onclick="authTab('login')">登录 / Login</button>
+      <button class="auth-tab-btn" id="tabReg" onclick="authTab('reg')">注册 / Register</button>
+    </div>
+    <input class="auth-input" id="authUser" placeholder="用户名 / Username" maxlength="20" autocomplete="username"/>
+    <input class="auth-input" id="authPass" placeholder="密码 / Password (min 6)" type="password" autocomplete="current-password"/>
+    <div id="authMsg"></div>
+    <button class="auth-btn" id="authSubmitBtn" onclick="authSubmit()">登录 / Login</button>
+    <button class="auth-btn sec" onclick="authSkip()">跳过，游客模式 / Play as Guest</button>
+  </div>
+</div>
+<!-- Auth user bar (shown when logged in) -->
+<div id="authUserBar">
+  <span id="authUserName"></span>
+  <button id="authLogoutBtn" onclick="authLogout()">退出</button>
+</div>
   <div id="hud">
     <div id="hud-hp">❤️ ♥♥♥</div>
     <div id="hud-jumps"></div>
@@ -2504,6 +2540,98 @@ document.getElementById('btn-slot-switch').onclick=openSlotMenu;
 document.getElementById('menu').style.display='none';
 openSlotMenu();
 // setMode called after slot select → selectSlot → updateMenuUI → setMode('parkour') default
+
+// ===== AUTH SYSTEM =====
+const AUTH_API = 'https://ball-dungeon-auth.xc-9090606.workers.dev';
+let authToken = localStorage.getItem('bd_token') || null;
+let authUsername = localStorage.getItem('bd_username') || null;
+let authMode = 'login'; // 'login' | 'reg'
+
+function authTab(mode) {
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('tabReg').classList.toggle('active', mode === 'reg');
+  document.getElementById('authSubmitBtn').textContent = mode === 'login' ? '登录 / Login' : '注册 / Register';
+  document.getElementById('authMsg').textContent = '';
+}
+
+async function authSubmit() {
+  const user = document.getElementById('authUser').value.trim();
+  const pass = document.getElementById('authPass').value;
+  const msg = document.getElementById('authMsg');
+  if (!user || !pass) { msg.textContent = '请填写用户名和密码 / Fill all fields'; return; }
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const res = await fetch(`${AUTH_API}/${authMode === 'login' ? 'login' : 'register'}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user, password: pass })
+    });
+    const data = await res.json();
+    if (data.success) {
+      authToken = data.token; authUsername = data.username;
+      localStorage.setItem('bd_token', authToken);
+      localStorage.setItem('bd_username', authUsername);
+      authDone();
+    } else {
+      msg.style.color = '#f66';
+      msg.textContent = data.error || 'Error';
+    }
+  } catch(e) {
+    msg.style.color = '#f66';
+    msg.textContent = '网络错误 / Network error';
+  }
+  btn.disabled = false;
+  authTab(authMode);
+}
+
+function authSkip() {
+  authToken = null; authUsername = null;
+  authDone();
+}
+
+function authDone() {
+  document.getElementById('authOverlay').style.display = 'none';
+  const bar = document.getElementById('authUserBar');
+  if (authUsername) {
+    document.getElementById('authUserName').textContent = '👤 ' + authUsername;
+    bar.style.display = 'flex';
+  }
+}
+
+function authLogout() {
+  if (authToken) fetch(`${AUTH_API}/logout`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + authToken } }).catch(()=>{});
+  authToken = null; authUsername = null;
+  localStorage.removeItem('bd_token'); localStorage.removeItem('bd_username');
+  document.getElementById('authUserBar').style.display = 'none';
+  document.getElementById('authUser').value = '';
+  document.getElementById('authPass').value = '';
+  document.getElementById('authMsg').textContent = '';
+  authTab('login');
+  document.getElementById('authOverlay').style.display = 'flex';
+}
+
+// Auto-verify saved token on load
+(async () => {
+  if (authToken) {
+    try {
+      const res = await fetch(`${AUTH_API}/verify`, { headers: { 'Authorization': 'Bearer ' + authToken } });
+      const data = await res.json();
+      if (data.valid) { authUsername = data.username; localStorage.setItem('bd_username', authUsername); authDone(); return; }
+    } catch(e) {}
+    // Token invalid — clear and show login
+    localStorage.removeItem('bd_token'); localStorage.removeItem('bd_username');
+    authToken = null; authUsername = null;
+  }
+  // Show login overlay
+  document.getElementById('authOverlay').style.display = 'flex';
+})();
+
+// Enter key submits
+document.getElementById('authPass').addEventListener('keydown', e => { if(e.key === 'Enter') authSubmit(); });
+document.getElementById('authUser').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('authPass').focus(); });
+// ===== END AUTH SYSTEM =====
 </script>
 </body>
 </html>
