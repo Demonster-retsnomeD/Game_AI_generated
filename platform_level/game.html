@@ -2314,6 +2314,7 @@ function _launchDungeon(diff,opts={}){
   document.getElementById('gameWrap').style.display='block';
   document.getElementById('overlay').style.display='none';
   document.getElementById('dungeonUpgrade').style.display='none';
+  document.getElementById('hud').style.display='none';
   G=new DungeonGame(diff,opts);
 }
 
@@ -2374,6 +2375,7 @@ function _settleAndLeave(){
   document.getElementById('gameWrap').style.display='none';
   document.getElementById('pauseOverlay').style.display='none';
   document.getElementById('dungeonUpgrade').style.display='none';
+  document.getElementById('hud').style.display='';
   const msg=lang==='en'
     ?`+${xpGain} XP${lvlUp?` · Level Up Lv.${newLv}!`:''}`
     :`+${xpGain} XP${lvlUp?` · 升级至Lv.${newLv}！`:''}`;
@@ -2387,6 +2389,7 @@ function _saveAndLeave(){
   document.getElementById('gameWrap').style.display='none';
   document.getElementById('pauseOverlay').style.display='none';
   document.getElementById('dungeonUpgrade').style.display='none';
+  document.getElementById('hud').style.display='';
 }
 function toMenu(){
   if(G&&G.endless)saveEndlessProgress();
@@ -2395,6 +2398,7 @@ function toMenu(){
   document.getElementById('gameWrap').style.display='none';
   document.getElementById('dungeonUpgrade').style.display='none';
   document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('hud').style.display='';
   setMode(selectedMode);
   if(selectedMode==='roguelite')updateMenuUI();
 }
