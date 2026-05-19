@@ -556,7 +556,7 @@ const ACHIEVEMENTS={
 };
 
 // ─── save slots ───────────────────────────────────────────────
-const SAVE_SLOTS=['platform_save_1','platform_save_2','platform_save_3'];
+function getSaveSlots(){var u=typeof authUsername!=='undefined'&&authUsername?authUsername:null;var p=u?'u_'+u:'guest';return[p+'_save_1',p+'_save_2',p+'_save_3'];}
 let currentSlot=null; // set by slot select UI
 
 function defaultMeta(){
@@ -576,7 +576,7 @@ function deleteSlot(key){localStorage.removeItem(key);}
 function buildSlotMenu(){
   const wrap=document.getElementById('slot-cards');
   wrap.innerHTML='';
-  SAVE_SLOTS.forEach((key,i)=>{
+  getSaveSlots().forEach((key,i)=>{
     const d=slotData(key);
     const card=document.createElement('div');
     card.className='slot-card'+(d?' slot-has':'');
@@ -2622,7 +2622,14 @@ function authDone() {
   if (authUsername) {
     document.getElementById('authUserName').textContent = '👤 ' + authUsername;
     bar.style.display = 'flex';
+  } else {
+    bar.style.display = 'none';
   }
+  // Reset slot selection — each account/guest has isolated saves
+  currentSlot = null;
+  document.getElementById('menu').style.display = 'none';
+  buildSlotMenu();
+  document.getElementById('slotMenu').style.display = 'flex';
 }
 
 function authLogout() {
