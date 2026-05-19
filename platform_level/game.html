@@ -217,6 +217,7 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">
       <button id="btn-skills">🌟 养成系统</button>
       <button id="btn-slot-switch">💾 切换存档</button>
+      <button id="btn-leaderboard" style="background:rgba(255,100,50,.12);border:1px solid #f64;color:#f96;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:.88em;font-weight:bold;transition:background .2s" onmouseenter="this.style.background='rgba(255,100,50,.22)'" onmouseleave="this.style.background='rgba(255,100,50,.12)'">🏆 排行榜</button>
     </div>
   </div>
 </div>
@@ -303,6 +304,17 @@ canvas{display:block;border-radius:10px;box-shadow:0 0 40px rgba(0,0,0,.8);curso
   <button id="ecs-continue" onclick="_endlessContinue()" style="padding:12px 40px;background:rgba(80,200,100,.15);border:1px solid #4a8;color:#8f8;border-radius:10px;cursor:pointer;font-size:1em;width:230px">继续上次存档</button>
   <button id="ecs-new" onclick="_endlessNew()" style="padding:12px 40px;background:rgba(200,80,80,.12);border:1px solid #a44;color:#f88;border-radius:10px;cursor:pointer;font-size:1em;width:230px">开始新的存档</button>
   <button id="ecs-cancel" onclick="_endlessCancel()" style="padding:8px 30px;background:transparent;border:1px solid #555;color:#666;border-radius:8px;cursor:pointer;font-size:.85em;margin-top:4px">取消</button>
+</div>
+<div id="lbMenu" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:110;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px">
+  <h2 style="color:#f96;font-size:1.6em">🏆 无尽模式排行榜</h2>
+  <p style="color:#555;font-size:.8em">Endless Mode Leaderboard</p>
+  <div id="lb-table" style="width:100%;max-width:420px;background:rgba(255,255,255,.04);border-radius:12px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:48px 1fr 80px;padding:10px 16px;background:rgba(255,255,255,.06);color:#888;font-size:.78em;font-weight:bold">
+      <span>#</span><span>玩家</span><span style="text-align:right">最高层</span>
+    </div>
+    <div id="lb-rows" style="max-height:360px;overflow-y:auto"></div>
+  </div>
+  <button id="btn-close-lb" style="margin-top:8px;padding:9px 28px;background:#222;color:#888;border:1px solid #333;border-radius:8px;cursor:pointer;font-size:.9em">关闭 / Close</button>
 </div>
 <div id="toast"></div>
 
@@ -2351,6 +2363,10 @@ class DungeonGame{
     let lvlUp=false,newLv=meta.level;
     while(meta.xp>=xpNeeded(meta.level)){meta.xp-=xpNeeded(meta.level);meta.level++;meta.sp++;lvlUp=true;}
     newLv=meta.level;meta.endlessSave=null;saveMeta(meta);updateMenuUI();
+    if(this.endless&&typeof authToken!=='undefined'&&authToken){
+      const _sk=Object.entries(this.metaSkills||{}).filter(([,v])=>v).map(([k])=>k);
+      fetch(AUTH_API+'/score',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+authToken},body:JSON.stringify({floor:this.dLevel,skills:_sk})}).catch(()=>{});
+    }
     document.getElementById('ov-title').textContent=win?L('dungeonWin'):L('dungeonLose');
     const floorTxt=this.endless?(lang==='en'?` · Floor ${this.dLevel}`:` · 第${this.dLevel}层`):'';
     document.getElementById('ov-sub').textContent=(win?L('portalWinSub'):L('portalLoseSub'))+floorTxt;
@@ -2642,6 +2658,47 @@ document.getElementById('authSubmitBtn').addEventListener('click', authSubmit);
 document.getElementById('authSkipBtn').addEventListener('click', authSkip);
 document.getElementById('authPass').addEventListener('keydown', e => { if(e.key === 'Enter') authSubmit(); });
 document.getElementById('authUser').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('authPass').focus(); });
+// ===== LEADERBOARD =====
+const SKILL_ICONS={
+  double_jump:'2️⃣',triple_jump:'3️⃣',glide:'🪶',high_jump_1:'⬆',high_jump_2:'⬆⬆',high_jump_3:'⬆⬆⬆',
+  melee_dmg_1:'⚔',melee_dmg_2:'⚔⚔',melee_range_1:'🔄',melee_range_2:'🔄🔄',
+  bullet_count_1:'💥',bullet_count_2:'💥💥',bullet_spread_1:'📡',bullet_dmg_1:'🔫',bullet_dmg_2:'🔫🔫',
+  atk_speed_1:'⚡',atk_speed_2:'⚡⚡',
+  q_shield_1:'🛡',q_shield_2:'🛡🛡',q_shield_3:'🛡🛡🛡',
+  q_barrage_1:'💥',q_barrage_2:'💥💥',q_barrage_3:'💥💥💥',
+  q_minion_1:'👾',q_minion_2:'👾👾',q_minion_3:'👾👾👾'
+};
+async function showLeaderboard(){
+  const lbMenu=document.getElementById('lbMenu');
+  lbMenu.style.display='flex';
+  const rows=document.getElementById('lb-rows');
+  rows.innerHTML='<div style="padding:20px;text-align:center;color:#555">加载中... / Loading...</div>';
+  try{
+    const res=await fetch(AUTH_API+'/leaderboard');
+    const data=await res.json();
+    if(!data.success||!data.scores||!data.scores.length){
+      rows.innerHTML='<div style="padding:20px;text-align:center;color:#555">暂无记录 / No records yet</div>';return;
+    }
+    const medals=['🥇','🥈','🥉'];
+    rows.innerHTML=data.scores.map((s,i)=>{
+      let skillList=[];
+      try{skillList=JSON.parse(s.skills||'[]');}catch(e){}
+      const skillIcons=skillList.slice(0,6).map(k=>SKILL_ICONS[k]||'').filter(Boolean).join(' ');
+      const isMe=typeof authUsername!=='undefined'&&authUsername&&s.username===authUsername;
+      return `<div style="display:grid;grid-template-columns:48px 1fr 120px 70px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.05);align-items:center;${i<3?'background:rgba(255,150,50,.05);':''}${isMe?'outline:1px solid rgba(255,200,0,.3);':''}">
+        <span style="font-size:1.1em">${medals[i]||i+1}</span>
+        <span style="color:${isMe?'#ffd740':i===0?'#ffaa44':'#ccc'};font-weight:${i<3||isMe?'bold':'normal'}">${s.username}${isMe?' 👈':''}</span>
+        <span style="font-size:.85em;color:#aaa">${skillIcons||'—'}</span>
+        <span style="text-align:right;color:#f96;font-weight:bold">${s.max_floor}层</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    rows.innerHTML='<div style="padding:20px;text-align:center;color:#f66">加载失败 / Load failed</div>';
+  }
+}
+document.getElementById('btn-leaderboard').addEventListener('click',showLeaderboard);
+document.getElementById('btn-close-lb').addEventListener('click',()=>{document.getElementById('lbMenu').style.display='none';});
+// ===== END LEADERBOARD =====
 // ===== END AUTH SYSTEM =====
 </script>
 </body>
