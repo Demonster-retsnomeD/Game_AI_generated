@@ -1430,7 +1430,7 @@ const EMPTY_PERKS=()=>({maxHp:0,lifesteal:0,meleeDmg:0,rangedDmg:0,rangedSpd:0,m
 
 // ─── dungeon mode ─────────────────────────────────────────────
 const DTZ=40;
-const DT_EMPTY=0,DT_WALL=1,DT_SOFT=2;
+const DT_EMPTY=0,DT_WALL=1,DT_SOFT=2,DT_HARD=3,DT_LAVA=4,DT_SWAMP=5,DT_BOOST=6;
 const RW=19,RH=11;   // room size in tiles
 const CW=24,CH=15;   // grid cell size (room + corridor gap)
 const GW=5,GH=4;     // dungeon grid dimensions
@@ -1568,6 +1568,29 @@ class DungeonGame{
       if(r.conn.E!==undefined)for(let tx=rx+RW-1;tx<=rx+CW;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
       if(r.conn.S!==undefined)for(let ty=ry+RH-1;ty<=ry+CH;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
     });
+    // Place hard blocks + special floor tiles in rooms
+    rooms.forEach((r,ri)=>{
+      const rx=r.gx*CW,ry=r.gy*CH;
+      const isStart=ri===sid;
+      const spawnTX=Math.floor(r.gx*CW+RW/2),spawnTY=Math.floor(r.gy*CH+RH/2);
+      const hasE=r.conn.E!==undefined,hasS=r.conn.S!==undefined;
+      const hasW=r.conn.W!==undefined,hasN=r.conn.N!==undefined;
+      for(let ty=ry+2;ty<ry+RH-2;ty++)for(let tx=rx+2;tx<rx+RW-2;tx++){
+        if(wt[ty][tx]!==DT_EMPTY)continue;
+        // Protect corridor exits (4-tile buffer around each corridor mouth)
+        if(hasE&&tx>=rx+RW-5&&ty>=ry+3&&ty<=ry+7)continue;
+        if(hasS&&ty>=ry+RH-5&&tx>=rx+6&&tx<=rx+12)continue;
+        if(hasW&&tx<=rx+4&&ty>=ry+3&&ty<=ry+7)continue;
+        if(hasN&&ty<=ry+4&&tx>=rx+6&&tx<=rx+12)continue;
+        // Protect player spawn zone in start room (5-tile radius)
+        if(isStart&&Math.abs(tx-spawnTX)<=4&&Math.abs(ty-spawnTY)<=4)continue;
+        const rnd=Math.random();
+        if(rnd<0.07)wt[ty][tx]=DT_HARD;
+        else if(rnd<0.13)wt[ty][tx]=DT_LAVA;
+        else if(rnd<0.18)wt[ty][tx]=DT_SWAMP;
+        else if(rnd<0.22)wt[ty][tx]=DT_BOOST;
+      }
+    });
     // BFS to find farthest room for portal
     const dist=new Map();dist.set(sid,0);
     const q=[sid];let farthest=sid;
@@ -1641,7 +1664,8 @@ class DungeonGame{
   _solid(wx,wy){
     const tx=Math.floor(wx/DTZ),ty=Math.floor(wy/DTZ);
     if(tx<0||ty<0||tx>=DUN_W||ty>=DUN_H)return true;
-    return this.worldTiles[ty][tx]!==DT_EMPTY;
+    const t=this.worldTiles[ty][tx];
+    return t===DT_WALL||t===DT_HARD||t===DT_SOFT;
   }
 
   _move(obj,dx,dy){
@@ -1692,10 +1716,21 @@ class DungeonGame{
 
   _update(dt){
     const p=this.p,k=this.keys;
+    // Floor tile under player
+    const _ptx=Math.floor(p.x/DTZ),_pty=Math.floor(p.y/DTZ);
+    const _pFloor=(_ptx>=0&&_pty>=0&&_ptx<DUN_W&&_pty<DUN_H)?this.worldTiles[_pty][_ptx]:DT_EMPTY;
+    let _pMult=1;
+    if(_pFloor===DT_SWAMP)_pMult=0.45;
+    else if(_pFloor===DT_BOOST)_pMult=1.7;
+    if(_pFloor===DT_LAVA){
+      p._lavaCd=(p._lavaCd||0)-dt;
+      if(p._lavaCd<=0){p._lavaCd=500;if(p.invTimer<=0){p.hp-=8;p.invTimer=300;this._burst(p.x,p.y,'#ff4400',4);}}
+    }
     let vx=0,vy=0;
     if(k.KeyA||k.ArrowLeft)vx-=p.spd;if(k.KeyD||k.ArrowRight)vx+=p.spd;
     if(k.KeyW||k.ArrowUp)vy-=p.spd;if(k.KeyS||k.ArrowDown)vy+=p.spd;
     if(vx&&vy){vx*=.707;vy*=.707;}
+    vx*=_pMult;vy*=_pMult;
     this._move(p,vx,vy);
     // Aim (mouse screen→world)
     const adx=this.mx+this.camX-p.x,ady=this.my+this.camY-p.y,al=Math.sqrt(adx*adx+ady*ady)||1;
@@ -1712,8 +1747,8 @@ class DungeonGame{
           this.barrageFireCd=80;
           const bouncy=this._qBarrageLv()>=3;
           const bLife=bouncy?300:80;
-          for(let i=0;i<12;i++){
-            const a=(i/12)*Math.PI*2;
+          for(let i=0;i<8;i++){
+            const a=(i/8)*Math.PI*2;
             this.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,r:5,dmg:this.dRangedDmg,life:bLife,bouncy});
           }
         }
@@ -1837,20 +1872,26 @@ class DungeonGame{
       if(!e.alive)return;
       const dx=p.x-e.x,dy=p.y-e.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
       if(dist>DETECT)return;
+      // Floor effects on enemy
+      const _etx=Math.floor(e.x/DTZ),_ety=Math.floor(e.y/DTZ);
+      const _eFloor=(_etx>=0&&_ety>=0&&_etx<DUN_W&&_ety<DUN_H)?this.worldTiles[_ety][_etx]:DT_EMPTY;
+      let _eMult=1;
+      if(_eFloor===DT_SWAMP)_eMult=0.45;else if(_eFloor===DT_BOOST)_eMult=1.7;
+      if(_eFloor===DT_LAVA){e._lavaCd=(e._lavaCd||0)-dt;if(e._lavaCd<=0){e._lavaCd=500;e.hp-=5;if(e.hp<=0){this._killEnemy(e);return;}}}
       if(e.type==='charge'||e.type==='split'||e.type==='split_small'||e.type==='minion_enemy'){
-        this._move(e,dx/dist*e.spd,dy/dist*e.spd);
+        this._move(e,dx/dist*e.spd*_eMult,dy/dist*e.spd*_eMult);
         if(dist<e.r+p.r+4&&p.invTimer<=0&&!p.shieldActive){p.hp-=this.dc.eDmg*(e.type==='split_small'||e.type==='minion_enemy'?.4:1)*dt/500;p.invTimer=280;}
       }else if(e.type==='shoot'){
         const td=180;
-        if(dist<td-20)this._move(e,-dx/dist*e.spd*.6,-dy/dist*e.spd*.6);
-        else if(dist>td+20)this._move(e,dx/dist*e.spd*.7,dy/dist*e.spd*.7);
+        if(dist<td-20)this._move(e,-dx/dist*e.spd*.6*_eMult,-dy/dist*e.spd*.6*_eMult);
+        else if(dist>td+20)this._move(e,dx/dist*e.spd*.7*_eMult,dy/dist*e.spd*.7*_eMult);
         e.shootCd-=dt;
         if(e.shootCd<=0){e.shootCd=2200+Math.random()*1000;this.eBullets.push({x:e.x,y:e.y,vx:dx/dist*4.5,vy:dy/dist*4.5,r:6,dmg:this.dc.eDmg,life:95});}
       }else if(e.type==='summoner'){
         // orbit player at distance
         const td=200;
-        if(dist<td-30)this._move(e,-dx/dist*e.spd,-dy/dist*e.spd);
-        else if(dist>td+30)this._move(e,dx/dist*e.spd,dy/dist*e.spd);
+        if(dist<td-30)this._move(e,-dx/dist*e.spd*_eMult,-dy/dist*e.spd*_eMult);
+        else if(dist>td+30)this._move(e,dx/dist*e.spd*_eMult,dy/dist*e.spd*_eMult);
         e.summonTimer-=dt;
         if(e.summonTimer<=0){
           e.summonTimer=e.summonCd;
@@ -1866,7 +1907,7 @@ class DungeonGame{
         }
       }else if(e.type==='elite'){
         // slow approach + periodic summon
-        if(dist>e.r+p.r+10)this._move(e,dx/dist*e.spd,dy/dist*e.spd);
+        if(dist>e.r+p.r+10)this._move(e,dx/dist*e.spd*_eMult,dy/dist*e.spd*_eMult);
         if(dist<e.r+p.r+4&&p.invTimer<=0&&!p.shieldActive){p.hp-=this.dc.eDmg*1.5*dt/500;p.invTimer=280;}
         e.summonTimer-=dt;
         if(e.summonTimer<=0){
@@ -2036,12 +2077,32 @@ class DungeonGame{
         ctx.fillStyle='#242438';ctx.fillRect(px,py,DTZ,DTZ);
         ctx.fillStyle='#32325a';ctx.fillRect(px+1,py+1,DTZ-2,5);
         ctx.fillStyle='#1a1a2e';ctx.fillRect(px+1,py+DTZ-2,DTZ-2,1);
+      }else if(t===DT_HARD){
+        ctx.fillStyle='#2a2a4a';ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.fillStyle='#4a4a7a';ctx.fillRect(px+2,py+2,DTZ-4,5);
+        ctx.strokeStyle='#3a3a6a';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(px+5,py+5);ctx.lineTo(px+DTZ-5,py+DTZ-5);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(px+DTZ-5,py+5);ctx.lineTo(px+5,py+DTZ-5);ctx.stroke();
       }else if(t===DT_SOFT){
         const hp=this.worldSoftHp[ty][tx];
         ctx.fillStyle=['#3a1808','#4a2810','#6a4020'][hp-1]||'#3a1808';ctx.fillRect(px,py,DTZ,DTZ);
         ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=2;
         if(hp<3){ctx.beginPath();ctx.moveTo(px+6,py+6);ctx.lineTo(px+DTZ-6,py+DTZ-6);ctx.stroke();}
         if(hp<2){ctx.beginPath();ctx.moveTo(px+DTZ-8,py+8);ctx.lineTo(px+8,py+DTZ-8);ctx.stroke();}
+      }else if(t===DT_LAVA){
+        const _lt=performance.now()/1000;
+        const _lc=Math.floor(30+Math.sin(_lt*3+tx*0.7+ty*0.5)*8);
+        ctx.fillStyle=`rgb(${200+_lc},${40+_lc},0)`;ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.fillStyle=`rgba(255,180,0,${0.15+0.1*Math.sin(_lt*5+tx)})`;ctx.fillRect(px+3,py+3,DTZ-6,DTZ-6);
+      }else if(t===DT_SWAMP){
+        ctx.fillStyle='#1a3318';ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.fillStyle='rgba(30,120,20,0.25)';ctx.fillRect(px+3,py+3,DTZ-6,DTZ-6);
+        ctx.fillStyle='rgba(50,160,30,0.12)';ctx.beginPath();ctx.arc(px+DTZ/2,py+DTZ/2,8,0,Math.PI*2);ctx.fill();
+      }else if(t===DT_BOOST){
+        const _bt=performance.now()/1000;
+        ctx.fillStyle='#0a1535';ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.fillStyle=`rgba(80,180,255,${0.2+0.12*Math.sin(_bt*4+tx+ty)})`;ctx.fillRect(px+2,py+2,DTZ-4,DTZ-4);
+        ctx.fillStyle='rgba(120,220,255,0.3)';ctx.beginPath();ctx.arc(px+DTZ/2,py+DTZ/2,5,0,Math.PI*2);ctx.fill();
       }else{
         ctx.fillStyle=((tx+ty)%2===0)?'#13131f':'#11111a';ctx.fillRect(px,py,DTZ,DTZ);
       }
@@ -2174,6 +2235,10 @@ class DungeonGame{
       }
       ctx.textAlign='left';ctx.textBaseline='alphabetic';
     }
+    // P pause hint (floor legend)
+    ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(W/2-120,H-20,240,16);
+    ctx.fillStyle='#666';ctx.font='10px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('P: 暂停/Pause  |  🔴岩浆伤害  🟢沼泽减速  🔵地板加速',W/2,H-12);
     ctx.textAlign='left';ctx.textBaseline='alphabetic';
   }
 
