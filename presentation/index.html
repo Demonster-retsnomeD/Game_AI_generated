@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工作汇报 | Progress Report — ATT Group</title>
+<style>
+:root{
+  --dark:#0f172a; --navy:#1e3a5f;
+  --accent:#0ea5e9; --accent2:#7c3aed;
+  --white:#ffffff; --light:#f8fafc; --panel:#f1f5f9;
+  --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+  --green:#16a34a; --amber:#d97706; --red:#dc2626;
+  --nav-h:50px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;
+  font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  color:var(--text);}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
+.nav-brand{font-size:.82em;font-weight:800;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-links{display:flex;gap:2px;align-items:center;}
+.nav-btn{background:none;border:none;color:var(--muted);
+  font-size:.75em;cursor:pointer;padding:5px 11px;border-radius:20px;
+  transition:all .18s;letter-spacing:.2px;}
+.nav-btn:hover{color:var(--text);background:var(--panel);}
+#lang-btn{border:1px solid rgba(14,165,233,.5);color:var(--accent);
+  background:rgba(14,165,233,.08);padding:4px 13px;border-radius:20px;
+  cursor:pointer;font-size:.73em;font-weight:700;letter-spacing:.8px;
+  margin-left:8px;transition:all .18s;}
+#lang-btn:hover{background:rgba(14,165,233,.2);}
+
+/* ── SLIDESHOW ── */
+.slideshow{position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;overflow:hidden;}
+.slides-wrapper{display:flex;height:100%;overflow:hidden;}
+.slide{min-width:100%;width:100%;height:100%;flex-shrink:0;overflow:hidden;
+  display:flex;flex-direction:column;}
+
+/* Arrows */
+.arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:200;
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+  background:rgba(255,255,255,.92);backdrop-filter:blur(8px);color:var(--muted);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:.95em;transition:all .18s;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.arrow:hover{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateY(-50%) scale(1.06);}
+.arrow:disabled{opacity:.15;cursor:default;pointer-events:none;}
+.arrow.prev{left:10px;} .arrow.next{right:10px;}
+
+/* Dots */
+.pager{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:200;
+  display:flex;flex-direction:row;align-items:center;gap:7px;}
+.slide-dots{display:flex;flex-direction:row;align-items:center;gap:7px;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(15,23,42,.15);
+  cursor:pointer;transition:all .22s;}
+.dot.on{background:var(--accent);transform:scale(1.4);}
+.pnum{font-size:.65em;color:rgba(15,23,42,.3);margin-left:6px;font-variant-numeric:tabular-nums;}
+
+/* ── Cover ── */
+.cover{display:flex;flex-direction:column;justify-content:center;
+  padding:52px 80px;height:100%;position:relative;overflow:hidden;
+  background:var(--white);}
+.cover-accent{position:absolute;top:0;left:0;bottom:0;width:5px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));}
+.cover-deco{position:absolute;right:-60px;top:-60px;width:420px;height:420px;
+  border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.06),transparent 70%);
+  pointer-events:none;}
+.cover-content{position:relative;z-index:1;max-width:720px;}
+.cover-eyebrow{font-size:.7em;font-weight:700;letter-spacing:5px;
+  text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+.cover-h{font-size:3.4em;font-weight:900;line-height:1.08;color:var(--text);margin-bottom:16px;}
+.cover-line{width:60px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:2px;margin-bottom:18px;}
+.cover-sub{font-size:.92em;color:var(--muted);margin-bottom:44px;letter-spacing:.3px;}
+.cover-pills{display:flex;gap:10px;flex-wrap:wrap;}
+.pill{background:var(--panel);border:1px solid var(--border);
+  color:var(--text);font-size:.75em;padding:5px 16px;border-radius:20px;}
+
+/* ── Part Divider ── */
+.divider{display:flex;flex-direction:column;justify-content:center;
+  padding:0 80px;height:100%;position:relative;overflow:hidden;
+  background:var(--white);}
+.divider-accent{position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));}
+.divider-deco{position:absolute;right:-80px;bottom:-80px;width:500px;height:500px;
+  border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.05),transparent 65%);
+  pointer-events:none;}
+.divider-content{position:relative;z-index:1;}
+.part-label{font-size:.65em;font-weight:700;letter-spacing:6px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.part-n{font-size:7em;font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:6px;}
+.part-rule{width:64px;height:3px;background:linear-gradient(90deg,var(--accent),transparent);
+  border-radius:2px;margin-bottom:22px;}
+.part-zh{font-size:2.8em;font-weight:800;color:var(--text);line-height:1.15;margin-bottom:8px;}
+.part-en{font-size:1em;color:var(--muted);}
+
+/* ── Thank You ── */
+.ty{display:flex;flex-direction:column;justify-content:center;
+  padding:0 80px;height:100%;position:relative;overflow:hidden;
+  background:var(--white);}
+.ty-accent{position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));}
+.ty-deco{position:absolute;right:-60px;top:-60px;width:420px;height:420px;
+  border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.05),transparent 70%);
+  pointer-events:none;}
+.ty-content{position:relative;z-index:1;max-width:580px;}
+.ty-big{font-size:5.5em;font-weight:900;color:var(--text);line-height:1;}
+.ty-en{font-size:1.9em;color:var(--accent);margin-top:6px;}
+.ty-rule{width:56px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;margin:26px 0;}
+.ty-sub{font-size:.9em;color:var(--muted);}
+.ty-addr{font-size:.72em;color:rgba(100,116,139,.5);margin-top:14px;}
+
+/* ═══════════════════════════════════════════
+   SLIDE BASE
+═══════════════════════════════════════════ */
+.slide{background:var(--white);}
+.light{background:var(--light);}
+.content{display:flex;height:100%;padding:32px 52px 28px;gap:36px;overflow:hidden;}
+/* Left side bar accent */
+.l-bar{width:3px;background:var(--accent);border-radius:2px;flex-shrink:0;margin-right:4px;}
+.l-bar.green{background:var(--green);}
+/* Left pane */
+.l-pane{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+/* Right pane (image) */
+.r-pane{width:38%;flex-shrink:0;display:flex;flex-direction:column;gap:14px;overflow:hidden;}
+.r-pane.narrow{width:30%;}
+.r-pane.wide{width:46%;}
+
+/* Slide heading */
+.s-head{margin-bottom:18px;}
+.s-h1{font-size:1.25em;font-weight:800;color:var(--text);}
+.s-h2{font-size:.75em;color:var(--muted);margin-top:3px;}
+
+/* img box */
+.img-box{flex:1;border-radius:10px;overflow:hidden;background:var(--panel);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  min-height:0;}
+.img-box img{width:100%;height:100%;object-fit:contain;}
+.img-box.fill img{object-fit:cover;}
+
+/* Icon cards */
+.cards{display:flex;flex-direction:column;gap:9px;flex:1;overflow:hidden;}
+.cards.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:start;}
+.card{display:flex;align-items:flex-start;gap:11px;background:var(--white);
+  border:1px solid var(--border);border-radius:9px;padding:11px 14px;}
+.card-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:1em;flex-shrink:0;}
+.ico-g{background:rgba(22,163,74,.12);} .ico-b{background:rgba(14,165,233,.12);}
+.ico-a{background:rgba(217,119,6,.12);} .ico-r{background:rgba(220,38,38,.12);}
+.card-title{font-size:.82em;font-weight:700;color:var(--text);}
+.card-body{font-size:.72em;color:var(--muted);line-height:1.5;margin-top:2px;}
+.check{font-size:.65em;color:var(--green);font-weight:700;margin-top:3px;}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.62em;font-weight:700;margin-left:6px;vertical-align:middle;}
+.b-blue{background:rgba(14,165,233,.1);color:var(--accent);border:1px solid rgba(14,165,233,.25);}
+.b-gray{background:var(--panel);color:var(--muted);border:1px solid var(--border);}
+
+/* Steps (timeline) */
+.steps{display:flex;flex-direction:column;gap:0;flex:1;}
+.step{display:flex;gap:13px;}
+.step-connector{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.82em;font-weight:800;flex-shrink:0;z-index:1;}
+.sn-on{background:var(--accent);color:#fff;}
+.sn-off{background:var(--border);color:var(--muted);}
+.step-line{width:2px;flex:1;background:var(--border);margin:3px 0;}
+.step:last-child .step-line{display:none;}
+.step-body{padding-bottom:20px;flex:1;}
+.step-title{font-size:.83em;font-weight:700;color:var(--text);margin-bottom:3px;}
+.step-desc{font-size:.72em;color:var(--muted);line-height:1.45;}
+
+/* Checklist items */
+.chk-list{display:flex;flex-direction:column;gap:8px;}
+.chk{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;
+  padding:9px 14px;font-size:.82em;font-weight:600;color:var(--text);}
+
+/* Strategy box */
+.strat{background:#eff6ff;border:1px solid rgba(14,165,233,.4);
+  border-radius:9px;padding:12px 16px;margin-top:12px;}
+.strat-head{font-size:.75em;font-weight:700;color:var(--accent);margin-bottom:5px;}
+.strat-body{font-size:.72em;color:var(--text);line-height:1.55;}
+
+/* Section heading small */
+.sec-label{font-size:.65em;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+
+/* Tech cards 3-col */
+.tech-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.tech{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.tech-head{padding:14px 14px 10px;text-align:center;}
+.tech-ico{font-size:1.4em;margin-bottom:5px;}
+.tech-name{font-size:.82em;font-weight:800;color:var(--text);}
+.tech-sub{font-size:.68em;font-weight:700;margin-top:2px;}
+.tech-body{font-size:.7em;color:var(--muted);line-height:1.6;
+  padding:0 14px 12px;text-align:center;}
+.learn{background:#eff6ff;border:1px solid rgba(14,165,233,.35);
+  border-radius:9px;padding:10px 16px;margin-top:12px;}
+.learn-head{font-size:.75em;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.learn-body{font-size:.72em;color:var(--text);line-height:1.6;}
+
+/* Progress bars */
+.prog-list{display:flex;flex-direction:column;gap:16px;flex:1;justify-content:center;}
+.prog-top{display:flex;justify-content:space-between;margin-bottom:5px;}
+.prog-lbl{font-size:.82em;font-weight:700;color:var(--text);}
+.prog-pct{font-size:.82em;font-weight:800;}
+.prog-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;}
+
+/* Token tiers (light) */
+.token-wrap{display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center;}
+.tier{display:flex;align-items:center;gap:16px;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:10px;padding:13px 18px;}
+.tier-n{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.9em;font-weight:900;flex-shrink:0;}
+.tier-body{flex:1;min-width:0;}
+.tier-name{font-size:.85em;font-weight:700;color:var(--text);margin-bottom:2px;}
+.tier-method{font-size:.75em;margin-bottom:2px;}
+.tier-use{font-size:.68em;color:var(--muted);}
+.tier-save{font-size:.95em;font-weight:800;min-width:56px;text-align:right;}
+
+/* Footer note */
+.foot{font-size:.58em;color:rgba(100,116,139,.5);text-align:center;
+  padding-top:8px;border-top:1px solid var(--border);margin-top:10px;flex-shrink:0;}
+
+@media(max-width:768px){
+  .r-pane{display:none;}
+  .content{padding:20px 22px;}
+  .cover{padding:32px 24px;}
+  .divider,.ty{padding:0 24px;}
+  .arrow{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">ATT GROUP</div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="goTo(0)" data-i18n="nav_home">首页</button>
+    <button class="nav-btn" onclick="goTo(1)" data-i18n="nav_robot">机器人</button>
+    <button class="nav-btn" onclick="goTo(5)" data-i18n="nav_game">AI 游戏</button>
+    <button class="nav-btn" onclick="goTo(8)" data-i18n="nav_cc">Claude Code</button>
+    <button class="nav-btn" onclick="goTo(10)" data-i18n="nav_end">结尾</button>
+    <button id="lang-btn" onclick="toggleLang()">EN</button>
+  </div>
+</nav>
+
+<div class="slideshow">
+<div class="slides-wrapper" id="sw">
+
+<!-- ① COVER -->
+<section class="slide">
+  <div class="cover">
+    <div class="cover-accent"></div>
+    <div class="cover-deco"></div>
+    <div class="cover-content">
+      <div class="cover-eyebrow" data-i18n="c_tag">PROGRESS REPORT · 工作汇报</div>
+      <div class="cover-h" data-i18n="c_title">阶段性工作汇报</div>
+      <div class="cover-line"></div>
+      <div class="cover-sub" data-i18n="c_sub">机器人系统 · AI 游戏开发 · Claude Code 应用</div>
+      <div class="cover-pills">
+        <span class="pill">📅 2025</span>
+        <span class="pill">👤 Kenny</span>
+        <span class="pill">🏢 ATT Group</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ② PART 01 DIVIDER -->
+<section class="slide">
+  <div class="divider">
+    <div class="divider-accent"></div>
+    <div class="divider-deco"></div>
+    <div class="divider-content">
+      <div class="part-label" data-i18n="p1_label">PART 01</div>
+      <div class="part-n">01</div>
+      <div class="part-rule"></div>
+      <div class="part-zh" data-i18n="p1_zh">机器人系统</div>
+      <div class="part-en" data-i18n="p1_en">Robot System</div>
+    </div>
+  </div>
+</section>
+
+<!-- ③ Robot — Completed (previous_function images = what worked before) -->
+<section class="slide light">
+  <div class="content">
+    <div class="l-bar green"></div>
+    <div class="l-pane">
+      <div class="s-head">
+        <div class="s-h1" data-i18n="r1_h">✅ 已完成 — 机器人基础功能</div>
+        <div class="s-h2" data-i18n="r1_sub">Robot System — Completed Milestones</div>
+      </div>
+      <div class="cards grid2">
+        <div class="card">
+          <div class="card-ico ico-g">🔧</div>
+          <div>
+            <div class="card-title" data-i18n="r1_t1">接线排查</div>
+            <div class="card-body" data-i18n="r1_b1">发现并纠正 PCB 接线错误，机器人恢复正常</div>
+            <div class="check">✓ 完成</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-ico ico-g">🚗</div>
+          <div>
+            <div class="card-title" data-i18n="r1_t2">基础运动</div>
+            <div class="card-body" data-i18n="r1_b2">正常行驶，响应控制指令</div>
+            <div class="check">✓ 完成</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-ico ico-g">🗺️</div>
+          <div>
+            <div class="card-title" data-i18n="r1_t3">地图探测</div>
+            <div class="card-body" data-i18n="r1_b3">扫描环境并建立 SLAM 地图</div>
+            <div class="check">✓ 完成</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-ico ico-g">📍</div>
+          <div>
+            <div class="card-title" data-i18n="r1_t4">自主导航</div>
+            <div class="card-body" data-i18n="r1_b4">A→B 路径规划，自主到达目标</div>
+            <div class="check">✓ 完成</div>
+          </div>
+        </div>
+        <div class="card" style="grid-column:1/-1;">
+          <div class="card-ico ico-g">📱</div>
+          <div>
+            <div class="card-title" data-i18n="r1_t5">WiFi 远控</div>
+            <div class="card-body" data-i18n="r1_b5">同热点下正常通信，可远程操控</div>
+            <div class="check">✓ 完成</div>
+          </div>
+        </div>
+      </div>
+      <div class="foot">Proprietary &amp; Confidential — ATT Group</div>
+    </div>
+    <!-- 之前的成果截图 -->
+    <div class="r-pane">
+      <div class="img-box">
+        <img src="./previous_function.png" alt="Previous Function 1">
+      </div>
+      <div class="img-box">
+        <img src="./previous_function2.png" alt="Previous Function 2">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ④ Robot — Problem (package_box) -->
+<section class="slide light">
+  <div class="content">
+    <div class="l-bar" style="background:var(--red);"></div>
+    <div class="l-pane">
+      <div class="s-head">
+        <div class="s-h1" data-i18n="r2_h">⚠️ 当前问题 — 显示屏短路</div>
+        <div class="s-h2" data-i18n="r2_sub">机器人暂时无法远程操控</div>
+      </div>
+      <div class="cards">
+        <div class="card" style="border-color:rgba(220,38,38,.3);background:#fff5f5;">
+          <div class="card-ico ico-r">💥</div>
+          <div>
+            <div class="card-title" data-i18n="r2_t1">起因</div>
+            <div class="card-body" data-i18n="r2_b1">封装时 PCB 与显示屏金属背板背靠背接触 → 短路黑屏</div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(217,119,6,.3);background:#fffbeb;">
+          <div class="card-ico ico-a">📡</div>
+          <div>
+            <div class="card-title" data-i18n="r2_t2">影响</div>
+            <div class="card-body" data-i18n="r2_b2">黑屏后无法进入设置界面，无法配置 WiFi 热点</div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(14,165,233,.3);background:#eff6ff;">
+          <div class="card-ico ico-b">💡</div>
+          <div>
+            <div class="card-title" data-i18n="r2_t3">教训</div>
+            <div class="card-body" data-i18n="r2_b3">金属背板之间必须加绝缘隔层，封装前需检查绝缘状态</div>
+          </div>
+        </div>
+      </div>
+      <div class="foot">Proprietary &amp; Confidential — ATT Group</div>
+    </div>
+    <!-- 硬件/包装箱图片 -->
+    <div class="r-pane">
+      <div class="img-box" style="flex:1;">
+        <img src="./package_box.png" alt="Package Box">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ Robot — Solution (robot1/2 = 现在开发的软件界面) -->
+<section class="slide light">
+  <div class="content">
+    <div class="l-bar"></div>
+    <div class="l-pane">
+      <div class="s-head">
+        <div class="s-h1" data-i18n="r3_h">🔭 解决方案 &amp; 软件预开发</div>
+        <div class="s-h2" data-i18n="r3_sub">Hardware Fix · Software Already Ready</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;align-content:start;">
+        <div>
+          <div class="sec-label" data-i18n="r3_hw">硬件修复</div>
+          <div class="steps">
+            <div class="step">
+              <div class="step-connector">
+                <div class="step-num sn-on">1</div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <div class="step-title"><span data-i18n="r3_t1">新显示屏已下单</span><span class="badge b-blue" data-i18n="inprog">进行中</span></div>
+                <div class="step-desc" data-i18n="r3_d1">预计 1–2 周到货</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-connector">
+                <div class="step-num sn-off">2</div>
+                <div class="step-line"></div>
+              </div>
+              <div class="step-body">
+                <div class="step-title"><span data-i18n="r3_t2">安装 &amp; WiFi 配置</span><span class="badge b-gray" data-i18n="pending">待完成</span></div>
+                <div class="step-desc" data-i18n="r3_d2">安装后重新配置热点</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-connector">
+                <div class="step-num sn-off">3</div>
+              </div>
+              <div class="step-body">
+                <div class="step-title"><span data-i18n="r3_t3">系统实际联调</span><span class="badge b-gray" data-i18n="pending">待完成</span></div>
+                <div class="step-desc" data-i18n="r3_d3">软件与机器人连接测试</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-label" data-i18n="r3_sw">软件已提前完成</div>
+          <div class="chk-list">
+            <div class="chk" data-i18n="r3_s1">✅ 完整控制系统 UI</div>
+            <div class="chk" data-i18n="r3_s2">✅ 账号登录 / 注册系统</div>
+            <div class="chk" data-i18n="r3_s3">✅ 机器人状态实时显示</div>
+            <div class="chk" data-i18n="r3_s4">✅ 导航指令 &amp; 地图可视化</div>
+          </div>
+          <div class="strat">
+            <div class="strat-head" data-i18n="r3_at">💡 策略优势</div>
+            <div class="strat-body" data-i18n="r3_ab">软件已在硬件修复前完成开发，显示屏到货后可立即进行实际适配</div>
+          </div>
+        </div>
+      </div>
+      <div class="foot">Proprietary &amp; Confidential — ATT Group</div>
+    </div>
+    <!-- 现在开发的软件界面截图 -->
+    <div class="r-pane narrow">
+      <div class="img-box">
+        <img src="./robot1.png" alt="Software UI">
+      </div>
+      <div class="img-box">
+        <img src="./robot2.png" alt="Software UI 2">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ PART 02 DIVIDER -->
+<section class="slide">
+  <div class="divider">
+    <div class="divider-accent"></div>
+    <div class="divider-deco"></div>
+    <div class="divider-content">
+      <div class="part-label" data-i18n="p2_label">PART 02</div>
+      <div class="part-n">02</div>
+      <div class="part-rule"></div>
+      <div class="part-zh" data-i18n="p2_zh">AI 生成游戏</div>
+      <div class="part-en" data-i18n="p2_en">AI-Generated Game</div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ Ball Dungeon (ai_game image) -->
+<section class="slide light">
+  <div class="content">
+    <div class="l-bar" style="background:var(--accent2);"></div>
+    <div class="l-pane">
+      <div class="s-head">
+        <div class="s-h1" data-i18n="g1_h">🎮 Ball Dungeon</div>
+        <div class="s-h2"><span data-i18n="g1_sub">AI 辅助开发的完整浏览器游戏</span> · <span style="color:var(--accent);font-size:.95em;">demonster-retsnomed.github.io/Game_AI_generated</span></div>
+      </div>
+      <div class="cards grid2">
+        <div class="card">
+          <div class="card-ico ico-b">🎯</div>
+          <div>
+            <div class="card-title" data-i18n="g1_t1">多关卡模式</div>
+            <div class="card-body" data-i18n="g1_b1">平台跳跃 · Roguelite · 地牢探索 · 无尽挑战</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-ico ico-b">👤</div>
+          <div>
+            <div class="card-title" data-i18n="g1_t2">账号系统</div>
+            <div class="card-body" data-i18n="g1_b2">注册登录 · 3 槽存档 · 跨设备同步</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-ico ico-a">🏆</div>
+          <div>
+            <div class="card-title" data-i18n="g1_t3">排行榜</div>
+            <div class="card-body" data-i18n="g1_b3">无尽模式最高层数 · Top 20 实时更新</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-ico ico-r">⚔️</div>
+          <div>
+            <div class="card-title" data-i18n="g1_t4">BOSS 战</div>
+            <div class="card-body" data-i18n="g1_b4">护盾 / 弹幕 / 召唤三阶段 · 打败才能过关</div>
+          </div>
+        </div>
+      </div>
+      <div class="foot">Proprietary &amp; Confidential — ATT Group</div>
+    </div>
+    <!-- 游戏截图 -->
+    <div class="r-pane wide">
+      <div class="img-box fill" style="flex:1;">
+        <img src="./ai_game.png" alt="Ball Dungeon Screenshot">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑧ Tech Stack -->
+<section class="slide light">
+  <div class="content">
+    <div class="l-bar"></div>
+    <div class="l-pane">
+      <div class="s-head">
+        <div class="s-h1" data-i18n="g2_h">🛠️ 技术架构</div>
+        <div class="s-h2">Ball Dungeon — Tech Stack</div>
+      </div>
+      <div class="tech-row">
+        <div class="tech">
+          <div class="tech-head">
+            <div class="tech-ico">🌐</div>
+            <div class="tech-name" data-i18n="g2_t1">前端 Frontend</div>
+            <div class="tech-sub" style="color:var(--accent);">GitHub Pages</div>
+          </div>
+          <div class="tech-body" data-i18n="g2_b1">HTML5 Canvas · 纯 JavaScript<br>无框架 · ~2,800 行代码</div>
+        </div>
+        <div class="tech">
+          <div class="tech-head">
+            <div class="tech-ico">⚡</div>
+            <div class="tech-name" data-i18n="g2_t2">后端 Backend</div>
+            <div class="tech-sub" style="color:var(--amber);">Cloudflare Workers</div>
+          </div>
+          <div class="tech-body" data-i18n="g2_b2">JWT-less Token 认证<br>PBKDF2 加密 · RESTful API</div>
+        </div>
+        <div class="tech">
+          <div class="tech-head">
+            <div class="tech-ico">🗄️</div>
+            <div class="tech-name" data-i18n="g2_t3">数据库 Database</div>
+            <div class="tech-sub" style="color:var(--green);">Cloudflare D1</div>
+          </div>
+          <div class="tech-body" data-i18n="g2_b3">账号 &amp; Token 存储<br>排行榜 &amp; 技能数据持久化</div>
+        </div>
+      </div>
+      <div class="learn">
+        <div class="learn-head" data-i18n="g2_lh">🎓 学习价值 — 直接服务机器人开发</div>
+        <div class="learn-body" data-i18n="g2_lb">Claude Code 完整工具链 · 前后端分离架构 · API 安全认证 · 数据库设计 · Git 自动部署 · 实战调试经验</div>
+      </div>
+      <div class="foot">Proprietary &amp; Confidential — ATT Group</div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑨ PART 03 DIVIDER -->
+<section class="slide">
+  <div class="divider">
+    <div class="divider-accent"></div>
+    <div class="divider-deco"></div>
+    <div class="divider-content">
+      <div class="part-label" data-i18n="p3_label">PART 03</div>
+      <div class="part-n">03</div>
+      <div class="part-rule"></div>
+      <div class="part-zh" data-i18n="p3_zh">Claude Code 应用</div>
+      <div class="part-en" data-i18n="p3_en">Claude Code Usage</div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑩ Token Strategy -->
+<section class="slide light">
+  <div class="content">
+    <div class="l-bar" style="background:var(--accent2);"></div>
+    <div class="l-pane">
+      <div class="s-head">
+        <div class="s-h1" data-i18n="tk_h">💰 Token 节省策略</div>
+        <div class="s-h2" data-i18n="tk_sub">三层调用体系 — 最大化效率，最小化成本</div>
+      </div>
+      <div class="token-wrap">
+        <div class="tier" style="border-color:rgba(22,163,74,.35);background:#f0fdf4;">
+          <div class="tier-n" style="background:rgba(22,163,74,.15);color:var(--green);">0</div>
+          <div class="tier-body">
+            <div class="tier-name" data-i18n="t0n">层级 0 — 零 Token</div>
+            <div class="tier-method" style="color:var(--green);" data-i18n="t0m">直接 Bash 命令（纯系统命令）</div>
+            <div class="tier-use" data-i18n="t0u">查磁盘 · git状态 · 版本号 · 进程 · 端口监听</div>
+          </div>
+          <div class="tier-save" style="color:var(--green);">100%</div>
+        </div>
+        <div class="tier" style="border-color:rgba(14,165,233,.35);background:#eff6ff;">
+          <div class="tier-n" style="background:rgba(14,165,233,.15);color:var(--accent);">1</div>
+          <div class="tier-body">
+            <div class="tier-name" data-i18n="t1n">层级 1 — 本地 AI</div>
+            <div class="tier-method" style="color:var(--accent);" data-i18n="t1m">Ollama + free-scanner MCP（零费用）</div>
+            <div class="tier-use" data-i18n="t1u">扫描项目 · 总结代码 · 解释报错 · review diff</div>
+          </div>
+          <div class="tier-save" style="color:var(--accent);">80–95%</div>
+        </div>
+        <div class="tier" style="border-color:rgba(217,119,6,.35);background:#fffbeb;">
+          <div class="tier-n" style="background:rgba(217,119,6,.15);color:var(--amber);">2</div>
+          <div class="tier-body">
+            <div class="tier-name" data-i18n="t2n">层级 2 — 精准操作</div>
+            <div class="tier-method" style="color:var(--amber);" data-i18n="t2m">Grep 精确搜索 + Edit 定点修改</div>
+            <div class="tier-use" data-i18n="t2u">已知函数名直接 Grep，已知位置直接 Edit</div>
+          </div>
+          <div class="tier-save" style="color:var(--amber);">60–80%</div>
+        </div>
+        <div class="tier" style="border-color:var(--border);">
+          <div class="tier-n" style="background:var(--panel);color:var(--muted);">3</div>
+          <div class="tier-body">
+            <div class="tier-name" data-i18n="t3n">层级 3 — Claude</div>
+            <div class="tier-method" style="color:var(--muted);" data-i18n="t3m">Claude Code 完整推理</div>
+            <div class="tier-use" data-i18n="t3u">新功能设计 · 复杂架构决策 · 跨文件逻辑推理</div>
+          </div>
+          <div class="tier-save" style="color:var(--muted);" data-i18n="t3s">基准</div>
+        </div>
+      </div>
+      <div class="foot">Proprietary &amp; Confidential — ATT Group</div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑫ THANK YOU -->
+<section class="slide">
+  <div class="ty">
+    <div class="ty-accent"></div>
+    <div class="ty-deco"></div>
+    <div class="ty-content">
+      <div class="ty-big" data-i18n="ty_zh">谢谢</div>
+      <div class="ty-en" data-i18n="ty_en">Thank You</div>
+      <div class="ty-rule"></div>
+      <div class="ty-sub" data-i18n="ty_sub">以上为本阶段工作汇报，欢迎提问与反馈</div>
+      <div class="ty-addr">ATT Group · 35 Ubi Crescent, ATT Building, Singapore 408585</div>
+    </div>
+  </div>
+</section>
+
+</div>
+</div>
+
+<button class="arrow prev" id="bp" onclick="go(cur-1)">&#8592;</button>
+<button class="arrow next" id="bn" onclick="go(cur+1)">&#8594;</button>
+<div class="pager">
+  <div class="slide-dots" id="pd"></div>
+  <span class="pnum" id="pn">1 / 12</span>
+</div>
+
+<script>
+const N=11; let cur=0,_a=false;
+const pd=document.getElementById('pd');
+for(let i=0;i<N;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);pd.appendChild(d);}
+
+function go(n){
+  n=Math.max(0,Math.min(n,N-1));
+  if(_a)return; _a=true; cur=n;
+  const sw=document.getElementById('sw'),tw=sw.offsetWidth;
+  const tgt=n*tw,st=sw.scrollLeft,d=tgt-st,dur=360; let t0=null;
+  (function step(ts){
+    if(!t0)t0=ts;
+    const p=Math.min((ts-t0)/dur,1),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+    sw.scrollLeft=st+d*e;
+    p<1?requestAnimationFrame(step):(sw.scrollLeft=tgt,_a=false);
+  })(0);
+  document.getElementById('pn').textContent=`${n+1} / ${N}`;
+  document.querySelectorAll('.dot').forEach((el,i)=>el.classList.toggle('on',i===n));
+  document.getElementById('bp').disabled=n===0;
+  document.getElementById('bn').disabled=n===N-1;
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')go(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(cur-1);
+});
+let _tx=0;
+document.addEventListener('touchstart',e=>_tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-_tx;if(Math.abs(dx)>50)dx<0?go(cur+1):go(cur-1);});
+go(0);
+
+// i18n
+const T={
+zh:{
+  nav_home:'首页',nav_robot:'机器人',nav_game:'AI 游戏',nav_cc:'Claude Code',nav_end:'结尾',
+  c_tag:'PROGRESS REPORT · 工作汇报',c_title:'阶段性工作汇报',c_sub:'机器人系统 · AI 游戏开发 · Claude Code 应用',
+  p1_label:'PART 01',p1_zh:'机器人系统',p1_en:'Robot System',
+  p2_label:'PART 02',p2_zh:'AI 生成游戏',p2_en:'AI-Generated Game',
+  p3_label:'PART 03',p3_zh:'Claude Code 应用',p3_en:'Claude Code Usage',
+  r1_h:'✅ 已完成 — 机器人基础功能',r1_sub:'Robot System — Completed Milestones',
+  r1_t1:'接线排查',r1_b1:'发现并纠正 PCB 接线错误，机器人恢复正常',
+  r1_t2:'基础运动',r1_b2:'正常行驶，响应控制指令',
+  r1_t3:'地图探测',r1_b3:'扫描环境并建立 SLAM 地图',
+  r1_t4:'自主导航',r1_b4:'A→B 路径规划，自主到达目标',
+  r1_t5:'WiFi 远控',r1_b5:'同热点下正常通信，可远程操控',
+  r2_h:'⚠️ 当前问题 — 显示屏短路',r2_sub:'机器人暂时无法远程操控',
+  r2_t1:'起因',r2_b1:'封装时 PCB 与显示屏金属背板背靠背接触 → 短路黑屏',
+  r2_t2:'影响',r2_b2:'黑屏后无法进入设置界面，无法配置 WiFi 热点',
+  r2_t3:'教训',r2_b3:'金属背板之间必须加绝缘隔层，封装前需检查绝缘状态',
+  r3_h:'🔭 解决方案 &amp; 软件预开发',r3_sub:'Hardware Fix · Software Already Ready',
+  r3_hw:'硬件修复路径',r3_sw:'软件已提前完成',
+  r3_t1:'新显示屏已下单',r3_d1:'预计 1–2 周到货',
+  r3_t2:'安装 &amp; WiFi 配置',r3_d2:'安装后重新配置热点',
+  r3_t3:'系统实际联调',r3_d3:'软件与机器人连接测试',
+  r3_s1:'✅ 完整控制系统 UI',r3_s2:'✅ 账号登录 / 注册系统',
+  r3_s3:'✅ 机器人状态实时显示',r3_s4:'✅ 导航指令 &amp; 地图可视化',
+  r3_at:'💡 策略优势',r3_ab:'软件已在硬件修复前完成开发，显示屏到货后可立即进行实际适配',
+  inprog:'进行中',pending:'待完成',
+  g1_h:'🎮 Ball Dungeon',g1_sub:'AI 辅助开发的完整浏览器游戏',
+  g1_t1:'多关卡模式',g1_b1:'平台跳跃 · Roguelite · 地牢探索 · 无尽挑战',
+  g1_t2:'账号系统',g1_b2:'注册登录 · 3 槽存档 · 跨设备同步',
+  g1_t3:'排行榜',g1_b3:'无尽模式最高层数 · Top 20 实时更新',
+  g1_t4:'BOSS 战',g1_b4:'护盾 / 弹幕 / 召唤三阶段 · 打败才能过关',
+  g2_h:'🛠️ 技术架构',
+  g2_t1:'前端 Frontend',g2_b1:'HTML5 Canvas · 纯 JavaScript<br>无框架 · ~2,800 行代码',
+  g2_t2:'后端 Backend',g2_b2:'JWT-less Token 认证<br>PBKDF2 加密 · RESTful API',
+  g2_t3:'数据库 Database',g2_b3:'账号 &amp; Token 存储<br>排行榜 &amp; 技能数据持久化',
+  g2_lh:'🎓 学习价值 — 直接服务机器人开发',
+  g2_lb:'Claude Code 完整工具链 · 前后端分离架构 · API 安全认证 · 数据库设计 · Git 自动部署 · 实战调试经验',
+  cc_h:'🤖 Claude Code 学习与应用',cc_sub:'起源于 Gabriel 的会议介绍 · 系统性学习 AI 辅助开发',
+  cc_lbl:'核心能力掌握',
+  cc_s1:'AI 辅助代码生成与快速迭代',cc_s2:'项目架构设计',cc_s3:'前后端联调',
+  cc_s4:'Token 成本控制',cc_s5:'机器人系统应用',
+  tk_h:'💰 Token 节省策略',tk_sub:'三层调用体系 — 最大化效率，最小化成本',
+  t0n:'层级 0 — 零 Token',t0m:'直接 Bash 命令（纯系统命令）',t0u:'查磁盘 · git状态 · 版本号 · 进程 · 端口监听',
+  t1n:'层级 1 — 本地 AI',t1m:'Ollama + free-scanner MCP（零费用）',t1u:'扫描项目 · 总结代码 · 解释报错 · review diff',
+  t2n:'层级 2 — 精准操作',t2m:'Grep 精确搜索 + Edit 定点修改',t2u:'已知函数名直接 Grep，已知位置直接 Edit',
+  t3n:'层级 3 — Claude',t3m:'Claude Code 完整推理',t3u:'新功能设计 · 复杂架构决策 · 跨文件逻辑推理',t3s:'基准',
+  ty_zh:'谢谢',ty_en:'Thank You',ty_sub:'以上为本阶段工作汇报，欢迎提问与反馈',
+},
+en:{
+  nav_home:'Home',nav_robot:'Robot',nav_game:'AI Game',nav_cc:'Claude Code',nav_end:'End',
+  c_tag:'PROGRESS REPORT',c_title:'Progress Report',c_sub:'Robot System · AI Game Dev · Claude Code',
+  p1_label:'PART 01',p1_zh:'Robot System',p1_en:'Robot System',
+  p2_label:'PART 02',p2_zh:'AI-Generated Game',p2_en:'AI-Generated Game',
+  p3_label:'PART 03',p3_zh:'Claude Code Usage',p3_en:'Claude Code Usage',
+  r1_h:'✅ Completed — Robot Core Functions',r1_sub:'Robot System — Completed Milestones',
+  r1_t1:'Wiring Fixed',r1_b1:'PCB wiring error found and corrected',
+  r1_t2:'Basic Movement',r1_b2:'Drives normally, responds to commands',
+  r1_t3:'Map Exploration',r1_b3:'Scans environment and builds SLAM map',
+  r1_t4:'Autonomous Navigation',r1_b4:'A→B path planning, self-navigates to target',
+  r1_t5:'WiFi Remote Control',r1_b5:'Normal communication on same hotspot',
+  r2_h:'⚠️ Current Issue — Display Short Circuit',r2_sub:'Remote control temporarily unavailable',
+  r2_t1:'Root Cause',r2_b1:'PCB and display metal backs contacted → short circuit, black screen',
+  r2_t2:'Impact',r2_b2:'Cannot access settings to configure WiFi hotspot',
+  r2_t3:'Lesson',r2_b3:'Insulating layer required between metal backs; inspect before sealing',
+  r3_h:'🔭 Solution &amp; Pre-Development',r3_sub:'Hardware Fix · Software Already Ready',
+  r3_hw:'Hardware Fix Path',r3_sw:'Software Already Done',
+  r3_t1:'New display ordered',r3_d1:'Expected delivery: 1–2 weeks',
+  r3_t2:'Install &amp; configure WiFi',r3_d2:'Install display, reconfigure hotspot',
+  r3_t3:'System integration',r3_d3:'Connect software to robot and test',
+  r3_s1:'✅ Complete Control System UI',r3_s2:'✅ Account Login / Register',
+  r3_s3:'✅ Real-time Robot Status',r3_s4:'✅ Navigation &amp; Map Visualization',
+  r3_at:'💡 Strategic Advantage',r3_ab:'Software complete before hardware repaired — integration starts immediately on delivery',
+  inprog:'In Progress',pending:'Pending',
+  g1_h:'🎮 Ball Dungeon',g1_sub:'Full browser game built with AI assistance',
+  g1_t1:'Multiple Modes',g1_b1:'Platformer · Roguelite · Dungeon · Endless',
+  g1_t2:'Account System',g1_b2:'Register/login · 3 save slots · cross-device sync',
+  g1_t3:'Leaderboard',g1_b3:'Endless max floor ranking · Top 20 live',
+  g1_t4:'BOSS Fight',g1_b4:'Shield / Barrage / Summon 3-phase · defeat to proceed',
+  g2_h:'🛠️ Tech Architecture',
+  g2_t1:'Frontend',g2_b1:'HTML5 Canvas · Pure JavaScript<br>No framework · ~2,800 lines',
+  g2_t2:'Backend',g2_b2:'JWT-less Token auth<br>PBKDF2 hashing · RESTful API',
+  g2_t3:'Database',g2_b3:'Accounts &amp; Token storage<br>Leaderboard &amp; skill persistence',
+  g2_lh:'🎓 Learning Value — Serves Robot Dev',
+  g2_lb:'Full Claude Code toolchain · Frontend-backend separation · API auth · DB design · Git deploy · Real-world debugging',
+  cc_h:'🤖 Claude Code — Learning & Application',cc_sub:'Introduced by Gabriel · Systematic learning of AI-assisted development',
+  cc_lbl:'Core Skills Acquired',
+  cc_s1:'AI-assisted code generation & iteration',cc_s2:'Project architecture design',cc_s3:'Frontend-backend integration',
+  cc_s4:'Token cost control',cc_s5:'Robot system application',
+  tk_h:'💰 Token-Saving Strategy',tk_sub:'3-Tier system — maximize efficiency, minimize cost',
+  t0n:'Tier 0 — Zero Token',t0m:'Direct Bash commands (pure system)',t0u:'Disk · git · version · process · ports',
+  t1n:'Tier 1 — Local AI',t1m:'Ollama + free-scanner MCP (zero cost)',t1u:'Scan project · summarize code · explain errors · review diff',
+  t2n:'Tier 2 — Precise',t2m:'Grep search + Edit targeted change',t2u:'Known function → Grep. Known location → Edit directly.',
+  t3n:'Tier 3 — Claude',t3m:'Full Claude Code reasoning',t3u:'New features · complex architecture · cross-file logic',t3s:'Baseline',
+  ty_zh:'Thank You',ty_en:'谢谢',ty_sub:'End of progress report. Questions and feedback welcome.',
+}};
+
+let lang='zh';
+function applyLang(l){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if(T[l][k]!==undefined)el.innerHTML=T[l][k];
+  });
+  document.getElementById('lang-btn').textContent=l==='zh'?'EN':'中文';
+  document.documentElement.lang=l==='zh'?'zh':'en';
+}
+function toggleLang(){lang=lang==='zh'?'en':'zh';applyLang(lang);}
+applyLang('zh');
+</script>
+</body>
+</html>
