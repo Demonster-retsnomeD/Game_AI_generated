@@ -362,11 +362,22 @@ canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
   const px = e.clientX - rect.left;
   const py = e.clientY - rect.top;
+  const x = px / SCALE;
+  const y = py / SCALE;
 
-  pathPoints.push({
-    x: px / SCALE,
-    y: py / SCALE
-  });
+  pathPoints.push({ x, y });
+
+  // 检测是否到达重要点（自动结束）
+  const importantPoints = { ...points, ...Object.fromEntries(receivePoints.map((p, i) => [`P${i}`, p])) };
+  for (const [key, point] of Object.entries(importantPoints)) {
+    const dist = Math.sqrt(Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2));
+    if (dist < 2) {
+      // 到达重要点，自动结束路径
+      savePath();
+      return;
+    }
+  }
+
   updateUI();
 });
 
