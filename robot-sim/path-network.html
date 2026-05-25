@@ -270,10 +270,12 @@ function savePaths() {
 
 function updateCurrentPath() {
   const el = document.getElementById('currentPath');
-  if (currentEditPath.length === 0) {
-    el.textContent = '未开始';
+  if (!selectedStartPoint) {
+    el.textContent = '点击任意点开始绘制';
+    el.style.color = '#64748b';
   } else {
-    el.textContent = `已添加 ${currentEditPath.length} 个点`;
+    el.innerHTML = `<strong>${selectedStartPoint}</strong> → 已添加 ${currentEditPath.length - 1} 个中间点<br/>点击目标点完成`;
+    el.style.color = '#0ea5e9';
   }
 }
 
@@ -283,9 +285,9 @@ function updatePathList() {
     el.innerHTML = '无路径';
   } else {
     el.innerHTML = Object.keys(pathNetwork).map(key => `
-      <div class="path-item">
+      <div class="path-item" style="cursor: pointer;" ondblclick="deletePath('${key}')">
         <span>${key}</span>
-        <span class="delete" onclick="deletePath('${key}')">✕</span>
+        <span class="delete" onclick="deletePath('${key}'); event.stopPropagation();" title="双击删除或点击✕">✕</span>
       </div>
     `).join('');
   }
@@ -595,17 +597,19 @@ function drawMap() {
     }
   }
 
-  // 虚线跟随鼠标
-  if (editMode && isDrawing && currentEditPath.length >= 0) {
+  // 虚线跟随鼠标（编辑中）
+  if (editMode && isDrawing && selectedStartPoint) {
     const lastPt = currentEditPath.length > 0 ? currentEditPath[currentEditPath.length - 1] : keyPoints[selectedStartPoint];
-    ctx.strokeStyle = '#8b5cf6';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(lastPt.x * SCALE, lastPt.y * SCALE);
-    ctx.lineTo(mousePos.x * SCALE, mousePos.y * SCALE);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    if (lastPt) {
+      ctx.strokeStyle = '#8b5cf6';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(lastPt.x * SCALE, lastPt.y * SCALE);
+      ctx.lineTo(mousePos.x * SCALE, mousePos.y * SCALE);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   }
 
   // 关键点
