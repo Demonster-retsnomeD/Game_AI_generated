@@ -374,6 +374,10 @@ function updateRobots(dt) {
       // 往返 A ↔ B
       const dist = getDistance(robot.x, robot.y, robot.targetX, robot.targetY);
       if (dist < 0.5) {
+        // 锁定位置到目标点
+        robot.x = robot.targetX;
+        robot.y = robot.targetY;
+        // 反向
         if (robot.targetX === robot.pathEnd.x && robot.targetY === robot.pathEnd.y) {
           robot.targetX = robot.pathStart.x;
           robot.targetY = robot.pathStart.y;
@@ -381,11 +385,12 @@ function updateRobots(dt) {
           robot.targetX = robot.pathEnd.x;
           robot.targetY = robot.pathEnd.y;
         }
+      } else {
+        const vx = (robot.targetX - robot.x) / dist * robot.speed;
+        const vy = (robot.targetY - robot.y) / dist * robot.speed;
+        robot.x += vx * dt;
+        robot.y += vy * dt;
       }
-      const vx = (robot.targetX - robot.x) / dist * robot.speed;
-      const vy = (robot.targetY - robot.y) / dist * robot.speed;
-      robot.x += vx * dt;
-      robot.y += vy * dt;
     }
 
     if (robot.status === 'moving') {
