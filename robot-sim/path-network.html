@@ -191,7 +191,7 @@
       <div class="panel">
         <h3>📍 路径编辑</h3>
         <label style="font-size: 12px; color: #64748b;">从哪个点开始:</label>
-        <select id="startPoint" class="select-box">
+        <select id="startPoint" class="select-box" onchange="selectStartPoint(this.value)">
           <option value="">选择起点...</option>
         </select>
         <button class="btn-primary btn-small" onclick="resetEditPath()" style="background: #ef4444;">🗑️ 清除当前</button>
@@ -283,11 +283,14 @@ function updateStartPoints() {
   for (const pt of allPoints) {
     select.innerHTML += `<option value="${pt}">${pt}</option>`;
   }
-  select.addEventListener('change', (e) => {
-    selectedStartPoint = e.target.value;
-    currentEditPath = selectedStartPoint ? [keyPoints[selectedStartPoint]] : [];
-    updateCurrentPath();
-  });
+}
+
+// 处理起点选择
+function selectStartPoint(pt) {
+  selectedStartPoint = pt;
+  currentEditPath = pt ? [keyPoints[pt]] : [];
+  isDrawing = false;
+  updateCurrentPath();
 }
 
 function updateCurrentPath() {
