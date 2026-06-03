@@ -14,18 +14,16 @@
   --nav-h:50px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;
-  font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
-  color:var(--text);}
+html,body{height:100%;overflow:hidden;font-size:17px;
+  font-family:'Times New Roman','Georgia','PingFang SC','Microsoft YaHei',serif;
+  color:var(--text);line-height:1.55;}
 
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
   background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
-.nav-brand{font-size:.82em;font-weight:800;letter-spacing:3px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-brand{display:flex;align-items:center;}
 .nav-links{display:flex;gap:2px;align-items:center;}
 .nav-btn{background:none;border:none;color:var(--muted);
   font-size:.75em;cursor:pointer;padding:5px 11px;border-radius:20px;
@@ -72,15 +70,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
   border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.06),transparent 70%);
   pointer-events:none;}
 .cover-content{position:relative;z-index:1;max-width:720px;}
-.cover-eyebrow{font-size:.7em;font-weight:700;letter-spacing:5px;
+.cover-eyebrow{font-size:.8em;font-weight:700;letter-spacing:5px;
   text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
 .cover-h{font-size:3.4em;font-weight:900;line-height:1.08;color:var(--text);margin-bottom:16px;}
 .cover-line{width:60px;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));
   border-radius:2px;margin-bottom:18px;}
-.cover-sub{font-size:.92em;color:var(--muted);margin-bottom:44px;letter-spacing:.3px;}
+.cover-sub{font-size:1em;color:var(--muted);margin-bottom:44px;letter-spacing:.3px;}
 .cover-pills{display:flex;gap:10px;flex-wrap:wrap;}
 .pill{background:var(--panel);border:1px solid var(--border);
-  color:var(--text);font-size:.75em;padding:5px 16px;border-radius:20px;}
+  color:var(--text);font-size:.82em;padding:6px 18px;border-radius:20px;}
 
 /* ── Part Divider ── */
 .divider{display:flex;flex-direction:column;justify-content:center;
@@ -92,7 +90,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
   border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.05),transparent 65%);
   pointer-events:none;}
 .divider-content{position:relative;z-index:1;}
-.part-label{font-size:.65em;font-weight:700;letter-spacing:6px;
+.part-label{font-size:.75em;font-weight:700;letter-spacing:6px;
   text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
 .part-n{font-size:7em;font-weight:900;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
@@ -101,7 +99,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
 .part-rule{width:64px;height:3px;background:linear-gradient(90deg,var(--accent),transparent);
   border-radius:2px;margin-bottom:22px;}
 .part-zh{font-size:2.8em;font-weight:800;color:var(--text);line-height:1.15;margin-bottom:8px;}
-.part-en{font-size:1em;color:var(--muted);}
+.part-en{font-size:1.1em;color:var(--muted);}
 
 /* ── Thank You ── */
 .ty{display:flex;flex-direction:column;justify-content:center;
@@ -137,8 +135,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
 
 /* Slide heading */
 .s-head{margin-bottom:18px;}
-.s-h1{font-size:1.25em;font-weight:800;color:var(--text);}
-.s-h2{font-size:.75em;color:var(--muted);margin-top:3px;}
+.s-h1{font-size:1.45em;font-weight:800;color:var(--text);}
+.s-h2{font-size:.85em;color:var(--muted);margin-top:4px;}
 
 /* img box */
 .img-box{flex:1;border-radius:10px;overflow:hidden;background:var(--panel);
@@ -156,10 +154,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
   justify-content:center;font-size:1em;flex-shrink:0;}
 .ico-g{background:rgba(22,163,74,.12);} .ico-b{background:rgba(14,165,233,.12);}
 .ico-a{background:rgba(217,119,6,.12);} .ico-r{background:rgba(220,38,38,.12);}
-.card-title{font-size:.82em;font-weight:700;color:var(--text);}
-.card-body{font-size:.72em;color:var(--muted);line-height:1.5;margin-top:2px;}
-.check{font-size:.65em;color:var(--green);font-weight:700;margin-top:3px;}
-.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.62em;font-weight:700;margin-left:6px;vertical-align:middle;}
+.card-title{font-size:.92em;font-weight:700;color:var(--text);}
+.card-body{font-size:.82em;color:var(--muted);line-height:1.55;margin-top:3px;}
+.check{font-size:.75em;color:var(--green);font-weight:700;margin-top:3px;}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.7em;font-weight:700;margin-left:6px;vertical-align:middle;}
 .b-blue{background:rgba(14,165,233,.1);color:var(--accent);border:1px solid rgba(14,165,233,.25);}
 .b-gray{background:var(--panel);color:var(--muted);border:1px solid var(--border);}
 
@@ -174,19 +172,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
 .step-line{width:2px;flex:1;background:var(--border);margin:3px 0;}
 .step:last-child .step-line{display:none;}
 .step-body{padding-bottom:20px;flex:1;}
-.step-title{font-size:.83em;font-weight:700;color:var(--text);margin-bottom:3px;}
-.step-desc{font-size:.72em;color:var(--muted);line-height:1.45;}
+.step-title{font-size:.93em;font-weight:700;color:var(--text);margin-bottom:3px;}
+.step-desc{font-size:.82em;color:var(--muted);line-height:1.5;}
 
 /* Checklist items */
 .chk-list{display:flex;flex-direction:column;gap:8px;}
 .chk{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;
-  padding:9px 14px;font-size:.82em;font-weight:600;color:var(--text);}
+  padding:10px 16px;font-size:.88em;font-weight:600;color:var(--text);}
 
 /* Strategy box */
 .strat{background:#eff6ff;border:1px solid rgba(14,165,233,.4);
-  border-radius:9px;padding:12px 16px;margin-top:12px;}
-.strat-head{font-size:.75em;font-weight:700;color:var(--accent);margin-bottom:5px;}
-.strat-body{font-size:.72em;color:var(--text);line-height:1.55;}
+  border-radius:9px;padding:14px 18px;margin-top:12px;}
+.strat-head{font-size:.85em;font-weight:700;color:var(--accent);margin-bottom:6px;}
+.strat-body{font-size:.82em;color:var(--text);line-height:1.6;}
 
 /* Section heading small */
 .sec-label{font-size:.65em;font-weight:700;letter-spacing:3px;
@@ -197,14 +195,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
 .tech{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .tech-head{padding:14px 14px 10px;text-align:center;}
 .tech-ico{font-size:1.4em;margin-bottom:5px;}
-.tech-name{font-size:.82em;font-weight:800;color:var(--text);}
-.tech-sub{font-size:.68em;font-weight:700;margin-top:2px;}
-.tech-body{font-size:.7em;color:var(--muted);line-height:1.6;
-  padding:0 14px 12px;text-align:center;}
+.tech-name{font-size:.9em;font-weight:800;color:var(--text);}
+.tech-sub{font-size:.76em;font-weight:700;margin-top:2px;}
+.tech-body{font-size:.8em;color:var(--muted);line-height:1.65;
+  padding:0 14px 14px;text-align:center;}
 .learn{background:#eff6ff;border:1px solid rgba(14,165,233,.35);
-  border-radius:9px;padding:10px 16px;margin-top:12px;}
-.learn-head{font-size:.75em;font-weight:700;color:var(--accent);margin-bottom:4px;}
-.learn-body{font-size:.72em;color:var(--text);line-height:1.6;}
+  border-radius:9px;padding:12px 18px;margin-top:12px;}
+.learn-head{font-size:.85em;font-weight:700;color:var(--accent);margin-bottom:5px;}
+.learn-body{font-size:.82em;color:var(--text);line-height:1.65;}
 
 /* Progress bars */
 .prog-list{display:flex;flex-direction:column;gap:16px;flex:1;justify-content:center;}
@@ -222,13 +220,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
 .tier-n{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:.9em;font-weight:900;flex-shrink:0;}
 .tier-body{flex:1;min-width:0;}
-.tier-name{font-size:.85em;font-weight:700;color:var(--text);margin-bottom:2px;}
-.tier-method{font-size:.75em;margin-bottom:2px;}
-.tier-use{font-size:.68em;color:var(--muted);}
-.tier-save{font-size:.95em;font-weight:800;min-width:56px;text-align:right;}
+.tier-name{font-size:.95em;font-weight:700;color:var(--text);margin-bottom:2px;}
+.tier-method{font-size:.83em;margin-bottom:2px;}
+.tier-use{font-size:.76em;color:var(--muted);}
+.tier-save{font-size:1em;font-weight:800;min-width:56px;text-align:right;}
 
 /* Footer note */
-.foot{font-size:.58em;color:rgba(100,116,139,.5);text-align:center;
+.foot{font-size:.68em;color:rgba(100,116,139,.5);text-align:center;
   padding-top:8px;border-top:1px solid var(--border);margin-top:10px;flex-shrink:0;}
 
 @media(max-width:768px){
@@ -243,13 +241,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
 <body>
 
 <nav>
-  <div class="nav-brand">ATT GROUP</div>
+  <div class="nav-brand">
+    <svg height="30" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="52" font-family="Arial Black,Arial,sans-serif" font-weight="900"
+        font-size="58" letter-spacing="-2" fill="#1565C0">ATT</text>
+    </svg>
+  </div>
   <div class="nav-links">
-    <button class="nav-btn" onclick="goTo(0)" data-i18n="nav_home">首页</button>
-    <button class="nav-btn" onclick="goTo(1)" data-i18n="nav_robot">机器人</button>
-    <button class="nav-btn" onclick="goTo(5)" data-i18n="nav_game">AI 游戏</button>
-    <button class="nav-btn" onclick="goTo(8)" data-i18n="nav_cc">Claude Code</button>
-    <button class="nav-btn" onclick="goTo(10)" data-i18n="nav_end">结尾</button>
     <button id="lang-btn" onclick="toggleLang()">EN</button>
   </div>
 </nav>
@@ -444,12 +442,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:999;height:var(--nav-h);
           </div>
         </div>
         <div>
-          <div class="sec-label" data-i18n="r3_sw">软件已提前完成</div>
+          <div class="sec-label" data-i18n="r3_sw">软件功能清单（已全部实现）</div>
           <div class="chk-list">
-            <div class="chk" data-i18n="r3_s1">✅ 完整控制系统 UI</div>
-            <div class="chk" data-i18n="r3_s2">✅ 账号登录 / 注册系统</div>
-            <div class="chk" data-i18n="r3_s3">✅ 机器人状态实时显示</div>
-            <div class="chk" data-i18n="r3_s4">✅ 导航指令 &amp; 地图可视化</div>
+            <div class="chk" data-i18n="r3_s1">✅ 完整控制系统 UI（Flask + Web）</div>
+            <div class="chk" data-i18n="r3_s2">✅ 账号登录 / 注册 / 权限管理</div>
+            <div class="chk" data-i18n="r3_s3">✅ 机器人实时状态监控</div>
+            <div class="chk" data-i18n="r3_s4">✅ SLAM 地图可视化 &amp; 地图库</div>
+            <div class="chk" data-i18n="r3_s5">✅ 建图模式 &amp; 手绘编辑工具</div>
+            <div class="chk" data-i18n="r3_s6">✅ 多目标点导航 &amp; 机器人定位</div>
+            <div class="chk" data-i18n="r3_s7">✅ 路线规划 &amp; 多点顺序巡航</div>
+            <div class="chk" data-i18n="r3_s8">✅ 路线库（按地图分类管理）</div>
+            <div class="chk" data-i18n="r3_s9">✅ 充电桩导航 &amp; 运动状态监控</div>
           </div>
           <div class="strat">
             <div class="strat-head" data-i18n="r3_at">💡 策略优势</div>
@@ -725,8 +728,12 @@ zh:{
   r3_t1:'新显示屏已下单',r3_d1:'预计 1–2 周到货',
   r3_t2:'安装 &amp; WiFi 配置',r3_d2:'安装后重新配置热点',
   r3_t3:'系统实际联调',r3_d3:'软件与机器人连接测试',
-  r3_s1:'✅ 完整控制系统 UI',r3_s2:'✅ 账号登录 / 注册系统',
-  r3_s3:'✅ 机器人状态实时显示',r3_s4:'✅ 导航指令 &amp; 地图可视化',
+  r3_sw:'软件功能清单（已全部实现）',
+  r3_s1:'✅ 完整控制系统 UI（Flask + Web）',r3_s2:'✅ 账号登录 / 注册 / 权限管理',
+  r3_s3:'✅ 机器人实时状态监控',r3_s4:'✅ SLAM 地图可视化 &amp; 地图库',
+  r3_s5:'✅ 建图模式 &amp; 手绘编辑工具',r3_s6:'✅ 多目标点导航 &amp; 机器人定位',
+  r3_s7:'✅ 路线规划 &amp; 多点顺序巡航',r3_s8:'✅ 路线库（按地图分类管理）',
+  r3_s9:'✅ 充电桩导航 &amp; 运动状态监控',
   r3_at:'💡 策略优势',r3_ab:'软件已在硬件修复前完成开发，显示屏到货后可立即进行实际适配',
   inprog:'进行中',pending:'待完成',
   g1_h:'🎮 Ball Dungeon',g1_sub:'AI 辅助开发的完整浏览器游戏',
@@ -772,8 +779,12 @@ en:{
   r3_t1:'New display ordered',r3_d1:'Expected delivery: 1–2 weeks',
   r3_t2:'Install &amp; configure WiFi',r3_d2:'Install display, reconfigure hotspot',
   r3_t3:'System integration',r3_d3:'Connect software to robot and test',
-  r3_s1:'✅ Complete Control System UI',r3_s2:'✅ Account Login / Register',
-  r3_s3:'✅ Real-time Robot Status',r3_s4:'✅ Navigation &amp; Map Visualization',
+  r3_sw:'Software Features (All Implemented)',
+  r3_s1:'✅ Full Control System UI (Flask + Web)',r3_s2:'✅ Account Login / Register / Permissions',
+  r3_s3:'✅ Real-time Robot Status Monitoring',r3_s4:'✅ SLAM Map Visualization &amp; Map Library',
+  r3_s5:'✅ Mapping Mode &amp; Hand-draw Edit Tools',r3_s6:'✅ Multi-waypoint Navigation &amp; Localization',
+  r3_s7:'✅ Route Planning &amp; Sequential Auto-patrol',r3_s8:'✅ Route Library (per-map management)',
+  r3_s9:'✅ Charger Navigation &amp; Motion State Monitor',
   r3_at:'💡 Strategic Advantage',r3_ab:'Software complete before hardware repaired — integration starts immediately on delivery',
   inprog:'In Progress',pending:'Pending',
   g1_h:'🎮 Ball Dungeon',g1_sub:'Full browser game built with AI assistance',

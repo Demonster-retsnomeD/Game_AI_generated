@@ -546,7 +546,7 @@ const SKILLS={
   q_barrage_3:{name:'弹幕强化Ⅲ',nameEn:'Barrage Boost III',icon:'💥',desc:'弹幕持续7s，子弹可反弹',descEn:'Barrage 7s, bullets bounce off walls',cost:2,requires:'q_barrage_2'},
   q_minion_1:{name:'随从强化Ⅰ',nameEn:'Minion Boost I',  icon:'🔮',desc:'随从血量提升（3→6）',descEn:'Minion HP increased (3→6)',cost:1,requires:null},
   q_minion_2:{name:'随从强化Ⅱ',nameEn:'Minion Boost II', icon:'🔮',desc:'随从攻击力提升；Q技能一次召唤3个随从',descEn:'Minion damage increased; Q skill summons 3 minions at once',cost:2,requires:'q_minion_1'},
-  q_minion_3:{name:'随从强化Ⅲ',nameEn:'Minion Boost III',icon:'🔮',desc:'随从上限50个，Q冷却降至3s',descEn:'Minion cap 50, Q CD reduced to 3s',cost:2,requires:'q_minion_2'},
+  q_minion_3:{name:'随从强化Ⅲ',nameEn:'Minion Boost III',icon:'🔮',desc:'随从上限50个，Q冷却降至3s，一次召唤10个',descEn:'Minion cap 50, Q CD 3s, summon 10 at once',cost:2,requires:'q_minion_2'},
 };
 
 // ─── achievement definitions ──────────────────────────────────
@@ -1482,9 +1482,9 @@ const EMPTY_PERKS=()=>({maxHp:0,lifesteal:0,meleeDmg:0,rangedDmg:0,rangedSpd:0,m
 
 // ─── dungeon mode ─────────────────────────────────────────────
 const DTZ=40;
-const DT_EMPTY=0,DT_WALL=1,DT_SOFT=2,DT_HARD=3,DT_LAVA=4,DT_SWAMP=5,DT_BOOST=6;
-const RW=19,RH=11;   // room size in tiles
-const CW=24,CH=15;   // grid cell size (room + corridor gap)
+const DT_EMPTY=0,DT_WALL=1,DT_SOFT=2,DT_HARD=3,DT_LAVA=4,DT_SWAMP=5,DT_BOOST=6,DT_BARRIER=7;
+const RW=20,RH=18;   // room size in tiles (near-square, ~2x area)
+const CW=26,CH=24;   // grid cell size (room + corridor gap)
 const GW=5,GH=4;     // dungeon grid dimensions
 const DUN_W=(GW-1)*CW+RW;  // 115 tiles wide
 const DUN_H=(GH-1)*CH+RH;  // 56 tiles tall
@@ -1494,6 +1494,44 @@ const DCFG={
   d3:{eN:5,eHp:90,eDmg:20,eSpd:1.9,eSh:true},
   d4:{eN:7,eHp:130,eDmg:30,eSpd:2.3,eSh:true},
   d5:{eN:10,eHp:200,eDmg:45,eSpd:2.8,eSh:true},
+};
+
+// ===== PIXEL ART SPRITE SYSTEM =====
+const _PX=(ctx,rows,pal,cx,cy,sc,flip)=>{
+  const w=rows[0].length,bx=Math.round(cx-(w/2)*sc),by=Math.round(cy-(rows.length/2)*sc);
+  if(flip){ctx.save();ctx.transform(-1,0,0,1,Math.round(cx)*2,0);}
+  for(let ry=0;ry<rows.length;ry++){const row=rows[ry];for(let rx=0;rx<w;rx++){const k=row[rx];if(k==='.')continue;ctx.fillStyle=pal[k];ctx.fillRect(bx+rx*sc,by+ry*sc,sc,sc);}}
+  if(flip)ctx.restore();
+};
+const _WF=e=>Math.floor((Date.now()+(e.x+e.y)*7)/200)%2;
+const _SPRS={
+  hero:{sc:2,pal:{H:'#2B1800',S:'#F0A870',e:'#EEEEFF',B:'#1644BB',b:'#3060CC',L:'#0D2277',F:'#0A0A1A',W:'#9AAFBB'},
+    fr:[['.HHHHHH.','.SSSSSS.','.SeeSSS.','.SSSSSS.','.BbBBBb.','.BBbBBB.','.BBWBBB.','..LLLL..','..L..L..','..L..L..','..F..F..','........'],
+        ['.HHHHHH.','.SSSSSS.','.SeeSSS.','.SSSSSS.','.BbBBBb.','.BBbBBB.','.BBWBBB.','..LLLL..','...LLL..','..LL.L..','..F..FF.','........']]},
+  charge:{sc:2,pal:{H:'#111',R:'#CC1111',r:'#DD3333',A:'#882222',h:'#FFAA00',e:'#FF5500'},
+    fr:[['..hRRh..','.RRRRRR.','.ReRRRR.','.RRRRRR.','.AArARA.','.AARrAA.','.AArARA.','..AAAA..','..A..A..','..A..A..','..H..H..','........'],
+        ['..hRRh..','.RRRRRR.','.ReRRRR.','.RRRRRR.','.AArARA.','.AARrAA.','.AArARA.','..AAAA..','...AAA..','.....A..','..H..HH.','........']]},
+  shoot:{sc:2,pal:{H:'#1A0033',V:'#5500AA',v:'#7722CC',C:'#BB66FF',e:'#FF66FF',W:'#AABBFF'},
+    fr:[['.VVVVVV.','.CCCCCC.','.CeCCCC.','.CCCCCC.','.VvVVVV.','.VVVvVV.','.VWWVVV.','..VVVV..','..V..V..','..V..V..','..H..H..','........'],
+        ['.VVVVVV.','.CCCCCC.','.CeCCCC.','.CCCCCC.','.VvVVVV.','.VVVvVV.','.VWWVVV.','..VVVV..','...VVV..','.....V..','..H..HH.','........']]},
+  split:{sc:2,pal:{O:'#CC5500',o:'#FF7722',G:'#FFD077',e:'#EEEEEE',H:'#882200'},
+    fr:[['...oooo...','..ooOOoo..','..OOOOOoo.','.oOeeoOoo.','..OOOOOO..','..OoooOo..','...oooo...','..........'],
+        ['....oo....','..oooooo..','..oOOOOo..','..OeeoOo..','..OOOOOO..','..ooOOoo..','...oooo...','..........']]},
+  split_small:{sc:2,pal:{O:'#EE6611',o:'#FF9944',e:'#EEEEEE',H:'#772200'},
+    fr:[['.oooo.','ooOOoo','oOeeOo','ooOOoo','.oooo.','......','......','......'],
+        ['.oooo.','ooOOoo','oOeeOo','oooooo','..oo..','......','......','......']]},
+  summoner:{sc:2,pal:{H:'#1A0033',P:'#3A0055',p:'#6600AA',C:'#AA55FF',e:'#FF00EE',W:'#FFEE44'},
+    fr:[['.pppppp.','.CCCCCC.','.CeeCCC.','.CCCCCC.','.PpPPPp.','.PPpPPP.','.PPWPPP.','..PPPP..','..P..P..','..P..P..','..H..H..','........'],
+        ['.pppppp.','.CCCCCC.','.CeeCCC.','.CCCCCC.','.PpPPPp.','.PPpPPP.','.PPWPPP.','..PPPP..','...PPP..','.....P..','..H..HH.','........']]},
+  elite:{sc:2,pal:{K:'#886600',G:'#FFD700',g:'#BBAA00',A:'#444444',a:'#666666',e:'#FF2200',H:'#111111',S:'#CCCCCC',s:'#EEEEEE'},
+    fr:[['..GGGGGG..','..GSSSSSG.','..GSeSSGG.','..GSSSSG..','..GGgGGG..','..AAaAAA..','..AAsAAA..','...AAAA...','..A....A..','..A....A..','..H....H..','..........'],
+        ['..GGGGGG..','..GSSSSSG.','..GSeSSGG.','..GSSSSG..','..GGgGGG..','..AAaAAA..','..AAsAAA..','...AAAA...','...AAA....','......A...','..H....HH.','..........']]},
+  minion:{sc:2,pal:{P:'#770033',p:'#CC0055',e:'#FF55AA',H:'#330011'},
+    fr:[['.pppp.','.PPPP.','pPeePp','pPPPPp','.pPPp.','..pp..','......','......'],
+        ['.pppp.','.PPPP.','pPeePp','pPPPPp','..pp..','..pp..','......','......']]},
+  boss:{sc:2,pal:{D:'#330011',d:'#660022',R:'#BB1133',r:'#DD3355',G:'#FFD700',g:'#BBAA00',e:'#FF2200',H:'#220011',S:'#DDCCCC',s:'#BBAAAA'},
+    fr:[['...GGgGGG...','..GgGGGGgG..','..dSSSSSSd..','..dSSeeSSd..','..dSSSSSd...','..ddSdSdd...','...RRRRRR...','..RRRrRRRR..','..RRRRRRRR..','..RR....RR..','..RR....RR..','..RR....RR..','..HH....HH..','..HH....HH..','..HH....HH..'],
+        ['...GGgGGG...','..GgGGGGgG..','..dSSSSSSd..','..dSSeeSSd..','..dSSSSSd...','..ddSdSdd...','...RRRRRR...','..RRRrRRRR..','..RRRRRRRR..','..RR....RR..','..RR....RR..','..RR....RR..','...HH...HH..','...HHH......','..HH....HHH.']]},
 };
 
 class DungeonGame{
@@ -1511,6 +1549,8 @@ class DungeonGame{
     this.minions=[];      // [{angle, atkCd}]
     this._qWas=false;
     this.dc=this._getDC();
+    this.gold=opts.gold||0;
+    this.drops=[];
     this.dungeonXP=0;
     this.canvas=document.getElementById('gc');this.ctx=this.canvas.getContext('2d');
     this.keys={};this.mx=400;this.my=250;this.state='play';
@@ -1522,6 +1562,7 @@ class DungeonGame{
     const baseHp=200+pk.maxHp*40;
     this.p={x:(sr.gx*CW+RW/2)*DTZ,y:(sr.gy*CH+RH/2)*DTZ,
       hp:baseHp,maxHp:baseHp,r:13,spd:3.5+pk.moveSpd*0.4,
+      mp:100,maxMp:100,
       meleeCd:0,shootCd:0,invTimer:0,atkFlash:0,dir:{x:1,y:0}};
     this.bullets=[];this.eBullets=[];this.parts=[];
     // derived perk stats (recalculated in _applyPerks)
@@ -1594,7 +1635,7 @@ class DungeonGame{
     [...vis].sort().forEach(k=>{
       const[gx,gy]=k.split(',').map(Number);const id=rooms.length;ridx[k]=id;
       if(gx===2&&gy===1)sid=id;
-      rooms.push({gx,gy,conn:{},cleared:false,visited:false});
+      rooms.push({gx,gy,conn:{},cleared:false,visited:false,locked:false,barrierTiles:[]});
     });
     // Build connections
     [...vis].forEach(k=>{
@@ -1618,10 +1659,11 @@ class DungeonGame{
     // Assign room types
     rooms[sid].type='start';
     rooms[farthest].type='portal';
-    // Pick up to 2 chest rooms from remaining
+    // Pick 1 chest + 1 shop from remaining (down from 2 free chests)
     const _remaining=rooms.map((_,i)=>i).filter(i=>i!==sid&&i!==farthest);
-    const _chestCount=Math.min(2,Math.max(0,_remaining.length-1));
-    _remaining.sort(()=>Math.random()-.5).slice(0,_chestCount).forEach(i=>rooms[i].type='chest');
+    const _shuffled=[..._remaining].sort(()=>Math.random()-.5);
+    if(_shuffled.length>0)rooms[_shuffled[0]].type='chest';
+    if(_shuffled.length>1)rooms[_shuffled[1]].type='shop';
     rooms.forEach(r=>{if(!r.type)r.type='monster';});
     // Create world tile array (all walls)
     const wt=Array.from({length:DUN_H},()=>Array(DUN_W).fill(DT_WALL));
@@ -1633,23 +1675,23 @@ class DungeonGame{
       const isMonster=r.type==='monster'||r.type==='portal';
       const pad=isMonster?1:3;
       for(let ty=ry+pad;ty<ry+RH-pad;ty++)for(let tx=rx+pad;tx<rx+RW-pad;tx++){
-        if(isMonster&&Math.random()<.14){wt[ty][tx]=DT_SOFT;wsh[ty][tx]=3;}
+        if(isMonster&&Math.random()<.093){wt[ty][tx]=DT_SOFT;wsh[ty][tx]=3;}
         else wt[ty][tx]=DT_EMPTY;
       }
     });
     // Carve corridors (E and S only; W/N are mirrors of neighbour's E/S)
     rooms.forEach(r=>{
       const rx=r.gx*CW,ry=r.gy*CH;
-      if(r.conn.E!==undefined)for(let tx=rx+RW-1;tx<=rx+CW;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
-      if(r.conn.S!==undefined)for(let ty=ry+RH-1;ty<=ry+CH;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.E!==undefined)for(let tx=rx+RW-1;tx<=rx+CW;tx++)for(let ty=ry+8;ty<=ry+10;ty++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.S!==undefined)for(let ty=ry+RH-1;ty<=ry+CH;ty++)for(let tx=rx+9;tx<=rx+11;tx++)wt[ty][tx]=DT_EMPTY;
     });
     // Carve corridor approaches inside each room (fixes small rooms with thick walls)
     rooms.forEach(r=>{
       const rx=r.gx*CW,ry=r.gy*CH;
-      if(r.conn.E!==undefined)for(let tx=rx+RW-5;tx<rx+RW;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
-      if(r.conn.W!==undefined)for(let tx=rx+1;tx<=rx+5;tx++)for(let ty=ry+4;ty<=ry+6;ty++)wt[ty][tx]=DT_EMPTY;
-      if(r.conn.S!==undefined)for(let ty=ry+RH-5;ty<ry+RH;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
-      if(r.conn.N!==undefined)for(let ty=ry+1;ty<=ry+5;ty++)for(let tx=rx+8;tx<=rx+10;tx++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.E!==undefined)for(let tx=rx+RW-5;tx<rx+RW;tx++)for(let ty=ry+8;ty<=ry+10;ty++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.W!==undefined)for(let tx=rx+1;tx<=rx+5;tx++)for(let ty=ry+8;ty<=ry+10;ty++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.S!==undefined)for(let ty=ry+RH-5;ty<ry+RH;ty++)for(let tx=rx+9;tx<=rx+11;tx++)wt[ty][tx]=DT_EMPTY;
+      if(r.conn.N!==undefined)for(let ty=ry+1;ty<=ry+5;ty++)for(let tx=rx+9;tx<=rx+11;tx++)wt[ty][tx]=DT_EMPTY;
     });
     // Place hard blocks + special floor tiles in rooms (monster rooms only)
     rooms.forEach((r,ri)=>{
@@ -1660,15 +1702,15 @@ class DungeonGame{
       for(let ty=ry+2;ty<ry+RH-2;ty++)for(let tx=rx+2;tx<rx+RW-2;tx++){
         if(wt[ty][tx]!==DT_EMPTY)continue;
         // Protect corridor exits (4-tile buffer around each corridor mouth)
-        if(hasE&&tx>=rx+RW-5&&ty>=ry+3&&ty<=ry+7)continue;
-        if(hasS&&ty>=ry+RH-5&&tx>=rx+6&&tx<=rx+12)continue;
-        if(hasW&&tx<=rx+4&&ty>=ry+3&&ty<=ry+7)continue;
-        if(hasN&&ty<=ry+4&&tx>=rx+6&&tx<=rx+12)continue;
+        if(hasE&&tx>=rx+RW-5&&ty>=ry+7&&ty<=ry+11)continue;
+        if(hasS&&ty>=ry+RH-5&&tx>=rx+7&&tx<=rx+13)continue;
+        if(hasW&&tx<=rx+4&&ty>=ry+7&&ty<=ry+11)continue;
+        if(hasN&&ty<=ry+8&&tx>=rx+7&&tx<=rx+13)continue;
         const rnd=Math.random();
-        if(rnd<0.07)wt[ty][tx]=DT_HARD;
-        else if(rnd<0.13)wt[ty][tx]=DT_LAVA;
-        else if(rnd<0.18)wt[ty][tx]=DT_SWAMP;
-        else if(rnd<0.22)wt[ty][tx]=DT_BOOST;
+        if(rnd<0.047)wt[ty][tx]=DT_HARD;
+        else if(rnd<0.087)wt[ty][tx]=DT_LAVA;
+        else if(rnd<0.12)wt[ty][tx]=DT_SWAMP;
+        else if(rnd<0.147)wt[ty][tx]=DT_BOOST;
       }
     });
     // Place enemies in monster rooms only
@@ -1676,7 +1718,7 @@ class DungeonGame{
     rooms.forEach((r,i)=>{
       if(r.type!=='monster')return;
       const rx=r.gx*CW,ry=r.gy*CH;
-      const n=this.dc.eN+Math.floor(Math.random()*2);
+      const n=(this.dc.eN+Math.floor(Math.random()*2))*2;
       for(let j=0;j<n;j++){
         let ex=rx+2+Math.floor(Math.random()*(RW-4)),ey=ry+2+Math.floor(Math.random()*(RH-4)),tries=0;
         while(wt[ey]&&wt[ey][ex]!==DT_EMPTY&&tries++<30){ex=rx+2+Math.floor(Math.random()*(RW-4));ey=ry+2+Math.floor(Math.random()*(RH-4));}
@@ -1712,6 +1754,10 @@ class DungeonGame{
     rooms[sid].visited=true;rooms[sid].cleared=true;
     this.rooms=rooms;this.sid=sid;this.portalRoomId=farthest;
     this.worldTiles=wt;this.worldSoftHp=wsh;this.allEnemies=allEnemies;
+    // Shop vendor: centered in shop room
+    this.shopVendors=rooms.filter(r=>r.type==='shop').map(r=>({
+      x:(r.gx*CW+RW/2)*DTZ, y:(r.gy*CH+RH/2)*DTZ, r:18, bought:false
+    }));
     // Chests: one per chest room, centered
     this.chests=rooms.filter(r=>r.type==='chest').map(r=>({
       x:(r.gx*CW+RW/2)*DTZ, y:(r.gy*CH+RH/2)*DTZ,
@@ -1719,8 +1765,8 @@ class DungeonGame{
     }));
     // BOSS in portal room
     const _pr2=rooms[farthest];
-    const _bHp=Math.round(this.dc.eHp*20);
-    const _bShHp=Math.round(this.dc.eHp*2.5);
+    const _bHp=Math.round(this.dc.eHp*40);
+    const _bShHp=Math.round(this.dc.eHp*5);
     this.boss={
       x:(_pr2.gx*CW+RW/2)*DTZ, y:(_pr2.gy*CH+RH/2)*DTZ-50,
       hp:_bHp, maxHp:_bHp, r:26, spd:this.dc.eSpd*0.65, alive:true,
@@ -1740,11 +1786,61 @@ class DungeonGame{
     return -1;
   }
 
+  _lockRoom(roomIdx){
+    const room=this.rooms[roomIdx];
+    if(room.locked)return;
+    room.locked=true; room.barrierTiles=[];
+    const rx=room.gx*CW,ry=room.gy*CH;
+    const add=(tx,ty)=>{
+      if(ty>=0&&ty<DUN_H&&tx>=0&&tx<DUN_W&&this.worldTiles[ty][tx]===DT_EMPTY){
+        this.worldTiles[ty][tx]=DT_BARRIER;
+        room.barrierTiles.push({tx,ty});
+      }
+    };
+    if(room.conn.E!==undefined)for(let ty=ry+8;ty<=ry+10;ty++)add(rx+RW-1,ty);
+    if(room.conn.W!==undefined)for(let ty=ry+8;ty<=ry+10;ty++)add(rx+1,ty);
+    if(room.conn.S!==undefined)for(let tx=rx+9;tx<=rx+11;tx++)add(tx,ry+RH-1);
+    if(room.conn.N!==undefined)for(let tx=rx+9;tx<=rx+11;tx++)add(tx,ry+1);
+  }
+
+  _unlockRoom(roomIdx){
+    const room=this.rooms[roomIdx];
+    if(!room.locked)return;
+    room.locked=false;
+    (room.barrierTiles||[]).forEach(({tx,ty})=>{ this.worldTiles[ty][tx]=DT_EMPTY; });
+    room.barrierTiles=[];
+  }
+
+  _playerNearDoor(room){
+    const rx=room.gx*CW,ry=room.gy*CH;
+    const ptx=Math.floor(this.p.x/DTZ),pty=Math.floor(this.p.y/DTZ);
+    if(room.conn.E!==undefined&&ptx>=rx+RW-2)return true;
+    if(room.conn.W!==undefined&&ptx<=rx+2)return true;
+    if(room.conn.S!==undefined&&pty>=ry+RH-2)return true;
+    if(room.conn.N!==undefined&&pty<=ry+2)return true;
+    return false;
+  }
+
+  _checkRoomLock(){
+    const curRoom=this._getCurrentRoom();
+    if(curRoom<0)return;
+    const room=this.rooms[curRoom];
+    if(room.cleared){if(room.locked)this._unlockRoom(curRoom);return;}
+    const hasEnemies=this.allEnemies.some(e=>e.alive&&e.roomId===curRoom);
+    const hasBoss=this.boss&&this.boss.alive&&this.boss.roomId===curRoom;
+    if(hasEnemies||hasBoss){
+      // Wait until player is fully inside (not standing in doorway)
+      if(!room.locked&&!this._playerNearDoor(room))this._lockRoom(curRoom);
+    } else {
+      if(room.locked)this._unlockRoom(curRoom);
+    }
+  }
+
   _solid(wx,wy){
     const tx=Math.floor(wx/DTZ),ty=Math.floor(wy/DTZ);
     if(tx<0||ty<0||tx>=DUN_W||ty>=DUN_H)return true;
     const t=this.worldTiles[ty][tx];
-    return t===DT_WALL||t===DT_HARD||t===DT_SOFT;
+    return t===DT_WALL||t===DT_HARD||t===DT_SOFT||t===DT_BARRIER;
   }
 
   _move(obj,dx,dy){
@@ -1895,6 +1991,25 @@ class DungeonGame{
     p.dir={x:adx/al,y:ady/al};
     if(p.meleeCd>0)p.meleeCd-=dt;if(p.shootCd>0)p.shootCd-=dt;
     if(p.invTimer>0)p.invTimer-=dt;if(p.atkFlash>0)p.atkFlash-=dt;
+    // mana regen (8/sec)
+    if(p.mp<p.maxMp){p.mp=Math.min(p.maxMp,p.mp+dt*0.008);}
+    // drop magnet + pickup
+    this.drops=this.drops.filter(dr=>{
+      const dx=p.x-dr.x,dy=p.y-dr.y;
+      const d2=dx*dx+dy*dy;
+      if(d2<90*90){
+        const dist=Math.sqrt(d2)||1;
+        const spd=Math.min(10,160/Math.max(dist,1));
+        dr.x+=dx/dist*spd; dr.y+=dy/dist*spd;
+      }
+      if(d2<22*22){
+        if(dr.type==='gold')this.gold+=dr.val;
+        else p.mp=Math.min(p.maxMp,p.mp+dr.val);
+        this._burst(dr.x,dr.y,dr.type==='gold'?'#ffd700':'#44aaff',6);
+        return false;
+      }
+      return true;
+    });
     // active skill timers
     if(this.activeCd>0)this.activeCd-=dt;
     if(this.activeTimer>0){
@@ -1931,6 +2046,20 @@ class DungeonGame{
       }
       if(this.activeTimer<=0&&this.activeSkill==='shield'){
         this.p.shieldActive=false;
+        // Absorbed damage → homing missiles
+        if((this.shieldDmgAbsorbed||0)>0){
+          const lv=this._qShieldLv();
+          const mult=[1,1,3,5][Math.min(lv,3)]; // lv0=1, lv1=1, lv2=3, lv3=5
+          const count=Math.max(1,Math.round(this.shieldDmgAbsorbed)*mult);
+          const capped=Math.min(count,60);
+          for(let i=0;i<capped;i++){
+            const a=(i/capped)*Math.PI*2;
+            this.bullets.push({x:p.x,y:p.y,vx:Math.cos(a)*7,vy:Math.sin(a)*7,
+              r:5,dmg:this.dRangedDmg,life:150,homing:true});
+          }
+          this._burst(p.x,p.y,'#88ccff',Math.min(capped,30));
+          this.shieldDmgAbsorbed=0;
+        }
         // Lv3: AOE blast on expiry
         if(this._qShieldLv()>=3){
           const blastR=160,blastDmg=80;
@@ -1988,6 +2117,15 @@ class DungeonGame{
     }
     // Player bullets
     this.bullets=this.bullets.filter(b=>{
+      if(b.homing){
+        let best=null,bd2=Infinity;
+        this.allEnemies.forEach(e=>{if(!e.alive)return;const ex=e.x-b.x,ey=e.y-b.y,d2=ex*ex+ey*ey;if(d2<bd2){bd2=d2;best=e;}});
+        if(this.boss&&this.boss.alive){const ex=this.boss.x-b.x,ey=this.boss.y-b.y,d2=ex*ex+ey*ey;if(d2<bd2){bd2=d2;best=this.boss;}}
+        if(best){const tx=best.x-b.x,ty=best.y-b.y,tl=Math.sqrt(tx*tx+ty*ty)||1;
+          const spd=Math.sqrt(b.vx*b.vx+b.vy*b.vy)||7;
+          b.vx=b.vx*0.82+(tx/tl*spd)*0.18;b.vy=b.vy*0.82+(ty/tl*spd)*0.18;
+          const cl=Math.sqrt(b.vx*b.vx+b.vy*b.vy)||1;b.vx=b.vx/cl*spd;b.vy=b.vy/cl*spd;}
+      }
       b.x+=b.vx;b.y+=b.vy;b.life--;
       if(b.life<=0)return false;
       if(this._solid(b.x,b.y)){
@@ -2038,7 +2176,7 @@ class DungeonGame{
     this.eBullets=this.eBullets.filter(b=>{
       b.x+=b.vx;b.y+=b.vy;b.life--;
       if(b.life<=0||this._solid(b.x,b.y))return false;
-      if(p.invTimer<=0&&!p.shieldActive){const dx=b.x-p.x,dy=b.y-p.y;if(dx*dx+dy*dy<(b.r+p.r)*(b.r+p.r)){p.hp-=b.dmg;p.invTimer=700;this._burst(p.x,p.y,'#f44',5);return false;}}
+      if(p.invTimer<=0){const dx=b.x-p.x,dy=b.y-p.y;if(dx*dx+dy*dy<(b.r+p.r)*(b.r+p.r)){if(p.shieldActive){this.shieldDmgAbsorbed=(this.shieldDmgAbsorbed||0)+b.dmg;this._burst(p.x,p.y,'#88ccff',4);return false;}else{p.hp-=b.dmg;p.invTimer=700;this._burst(p.x,p.y,'#f44',5);return false;}}}
       return true;
     });
     // Enemy AI (activate within detection range, confined to own room)
@@ -2058,7 +2196,7 @@ class DungeonGame{
       if(_eFloor===DT_LAVA){e._lavaCd=(e._lavaCd||0)-dt;if(e._lavaCd<=0){e._lavaCd=500;e.hp-=5;if(e.hp<=0){this._killEnemy(e);return;}}}
       if(e.type==='charge'||e.type==='split'||e.type==='split_small'||e.type==='minion_enemy'){
         this._move(e,dx/dist*e.spd*_eMult,dy/dist*e.spd*_eMult);
-        if(dist<e.r+p.r+4&&p.invTimer<=0&&!p.shieldActive){p.hp-=this.dc.eDmg*(e.type==='split_small'||e.type==='minion_enemy'?.4:1)*dt/500;p.invTimer=280;}
+        if(dist<e.r+p.r+4&&p.invTimer<=0){const _md=this.dc.eDmg*(e.type==='split_small'||e.type==='minion_enemy'?.4:1)*dt/500;if(p.shieldActive){this.shieldDmgAbsorbed=(this.shieldDmgAbsorbed||0)+_md;}else{p.hp-=_md;p.invTimer=280;}}
       }else if(e.type==='shoot'){
         const td=180;
         if(dist<td-20)this._move(e,-dx/dist*e.spd*.6*_eMult,-dy/dist*e.spd*.6*_eMult);
@@ -2086,7 +2224,7 @@ class DungeonGame{
       }else if(e.type==='elite'){
         // slow approach + periodic summon
         if(dist>e.r+p.r+10)this._move(e,dx/dist*e.spd*_eMult,dy/dist*e.spd*_eMult);
-        if(dist<e.r+p.r+4&&p.invTimer<=0&&!p.shieldActive){p.hp-=this.dc.eDmg*1.5*dt/500;p.invTimer=280;}
+        if(dist<e.r+p.r+4&&p.invTimer<=0){const _md2=this.dc.eDmg*1.5*dt/500;if(p.shieldActive){this.shieldDmgAbsorbed=(this.shieldDmgAbsorbed||0)+_md2;}else{p.hp-=_md2;p.invTimer=280;}}
         e.summonTimer-=dt;
         if(e.summonTimer<=0){
           e.summonTimer=e.summonCd;
@@ -2104,14 +2242,20 @@ class DungeonGame{
     });
     // Boss update
     if(this.boss&&this.boss.alive)this._updateBoss(dt);
-    // Room visit & clear tracking
+    // Room visit, clear & lock tracking
     const curRoom=this._getCurrentRoom();
     if(curRoom>=0){
       this.rooms[curRoom].visited=true;
       if(!this.rooms[curRoom].cleared){
         const re=this.allEnemies.filter(e=>e.roomId===curRoom);
-        if(re.length===0||re.every(e=>!e.alive))this.rooms[curRoom].cleared=true;
+        const enemiesGone=re.length===0||re.every(e=>!e.alive);
+        const bossGone=curRoom!==this.portal.roomId||(this.boss&&!this.boss.alive)||!this.boss;
+        if(enemiesGone&&bossGone){
+          this.rooms[curRoom].cleared=true;
+          this._unlockRoom(curRoom);
+        }
       }
+      this._checkRoomLock();
     }
     // Portal check
     const pdx=p.x-this.portal.x,pdy=p.y-this.portal.y;
@@ -2133,6 +2277,26 @@ class DungeonGame{
       if(ch.opened)continue;
       const cx=p.x-ch.x,cy=p.y-ch.y;
       if(cx*cx+cy*cy<(p.r+ch.r)*(p.r+ch.r)){ch.opened=true;this.state='paused';this._showUpgradePicker(true);return;}
+    }
+    // Shop interaction — F key
+    this._nearShopVendor=null;
+    for(const sv of (this.shopVendors||[])){
+      if(sv.bought)continue;
+      const sx=p.x-sv.x,sy=p.y-sv.y;
+      if(sx*sx+sy*sy<(p.r+sv.r+20)*(p.r+sv.r+20)){
+        this._nearShopVendor=sv; break;
+      }
+    }
+    if(this._nearShopVendor&&this.keys['KeyF']){
+      this.keys['KeyF']=false;
+      const cost=15,sv=this._nearShopVendor;
+      if(this.gold>=cost){
+        this.gold-=cost; sv.bought=true;
+        this.state='paused'; this._showUpgradePicker(true); return;
+      } else {
+        this._bossWarnMsg=(lang==='en'?`Need ${cost} 💰!`:`需要${cost}金币！`);
+        this._bossWarnTimer=1500;
+      }
     }
     if(p.hp<=0){p.hp=0;this.state='dead';this._showEnd(false);}
     // Camera follows player
@@ -2176,9 +2340,9 @@ class DungeonGame{
       this.state='play';this._lt=performance.now();
       this._rafId=requestAnimationFrame(t=>this._loop(t));
     } else {
-      const nd=this.dLevel+1,np={...this.perks},d=this.diff,ms=this.metaSkills;
+      const nd=this.dLevel+1,np={...this.perks},d=this.diff,ms=this.metaSkills,ng=this.gold;
       this.destroy();
-      G=new DungeonGame(d,{dLevel:nd,perks:np,endless:true,metaSkills:ms,activeSkill:this.activeSkill});
+      G=new DungeonGame(d,{dLevel:nd,perks:np,endless:true,metaSkills:ms,activeSkill:this.activeSkill,gold:ng});
     }
   }
 
@@ -2188,9 +2352,9 @@ class DungeonGame{
       this.state='play';this._lt=performance.now();
       this._rafId=requestAnimationFrame(t=>this._loop(t));
     } else {
-      const nd=this.dLevel+1,np={...this.perks},d=this.diff,ms=this.metaSkills;
+      const nd=this.dLevel+1,np={...this.perks},d=this.diff,ms=this.metaSkills,ng=this.gold;
       this.destroy();
-      G=new DungeonGame(d,{dLevel:nd,perks:np,endless:true,metaSkills:ms,activeSkill:this.activeSkill});
+      G=new DungeonGame(d,{dLevel:nd,perks:np,endless:true,metaSkills:ms,activeSkill:this.activeSkill,gold:ng});
     }
   }
 
@@ -2210,12 +2374,16 @@ class DungeonGame{
 
   _activateSkill(){
     const sk=this.activeSkill;
+    const manaCost={shield:40,barrage:35,minion:30}[sk]||35;
+    if(this.p.mp<manaCost){this._bossWarnMsg='蓝量不足！';this._bossWarnTimer=1000;return;}
+    this.p.mp-=manaCost;
     const cdMap={shield:8000,barrage:7000,minion:5000};
     this.activeCd=cdMap[sk]||8000;
     if(sk==='shield'){
       const lvl=this._qShieldLv();
       const dur=[3000,5000,9000,10000][Math.min(lvl,3)];
       this.activeTimer=dur;this.shieldTimer=dur;this.p.shieldActive=true;this.shieldPulseCd=0;
+      this.shieldDmgAbsorbed=0;
     }else if(sk==='barrage'){
       const lvl=this._qBarrageLv();
       this.activeTimer=[2500,4000,6000,7000][Math.min(lvl,3)];
@@ -2223,7 +2391,7 @@ class DungeonGame{
     }else if(sk==='minion'){
       if(this._qMinionLv()>=3) this.activeCd=3000; // Lv3: CD reduced to 3s
       const cap=this._getMinionCap();
-      const count=this._qMinionLv()>=2?3:1; // Lv2+: summon 3 at once
+      const lv=this._qMinionLv();const count=lv>=3?10:lv>=2?3:1; // Lv3:10, Lv2:3, Lv1:1
       for(let i=0;i<count;i++){
         if(this.minions.length>=cap)break;
         const base=this.minions.length>0?this.minions[this.minions.length-1].angle+0.8:Math.random()*Math.PI*2;
@@ -2237,15 +2405,26 @@ class DungeonGame{
     e.alive=false;
     this.dungeonXP+=Math.floor(e.maxHp*0.6);
     this._burst(e.x,e.y,'#f55',12);
+    // drops
+    const rng=Math.random;
+    if(rng()<0.40)this.drops.push({x:e.x+(rng()-.5)*20,y:e.y+(rng()-.5)*20,type:'gold',val:1+Math.floor(rng()*3),r:8});
+    if(rng()<0.25)this.drops.push({x:e.x+(rng()-.5)*20,y:e.y+(rng()-.5)*20,type:'mana',val:10+Math.floor(rng()*15),r:8});
     // split on death
     if(e.type==='split'){
-      const n=2+Math.floor(Math.random()*2); // 2-3 fragments
+      const n=2+Math.floor(Math.random()*2);
       for(let i=0;i<n;i++){
         const a=(i/n)*Math.PI*2+Math.random()*0.5;
         const shp=Math.round(this.dc.eHp*0.3);
-        this.allEnemies.push({x:e.x+Math.cos(a)*22,y:e.y+Math.sin(a)*22,
-          hp:shp,maxHp:shp,r:9,spd:this.dc.eSpd*1.5,type:'split_small',
-          alive:true,roomId:e.roomId});
+        let fx=e.x+Math.cos(a)*22, fy=e.y+Math.sin(a)*22;
+        // push fragment out of solid/barrier tiles
+        for(let t=0;t<12;t++){
+          const tx=Math.floor(fx/DTZ),ty=Math.floor(fy/DTZ);
+          if(tx>=0&&ty>=0&&tx<DUN_W&&ty<DUN_H&&this._solid(fx,fy)){
+            fx+=Math.cos(a)*8; fy+=Math.sin(a)*8;
+          } else break;
+        }
+        this.allEnemies.push({x:fx,y:fy,hp:shp,maxHp:shp,r:9,
+          spd:this.dc.eSpd*1.5,type:'split_small',alive:true,roomId:e.roomId});
       }
     }
   }
@@ -2292,6 +2471,14 @@ class DungeonGame{
         ctx.fillStyle='#0a1535';ctx.fillRect(px,py,DTZ,DTZ);
         ctx.fillStyle=`rgba(80,180,255,${0.2+0.12*Math.sin(_bt*4+tx+ty)})`;ctx.fillRect(px+2,py+2,DTZ-4,DTZ-4);
         ctx.fillStyle='rgba(120,220,255,0.3)';ctx.beginPath();ctx.arc(px+DTZ/2,py+DTZ/2,5,0,Math.PI*2);ctx.fill();
+      }else if(t===DT_BARRIER){
+        const _brt=performance.now()/1000;
+        const _bra=0.55+0.3*Math.sin(_brt*6+tx*0.8+ty*0.8);
+        ctx.fillStyle=`rgba(200,20,20,${_bra})`;ctx.fillRect(px,py,DTZ,DTZ);
+        ctx.fillStyle=`rgba(255,80,80,${_bra*0.6})`;ctx.fillRect(px+3,py+3,DTZ-6,DTZ-6);
+        ctx.strokeStyle=`rgba(255,120,120,${_bra})`;ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(px+5,py+5);ctx.lineTo(px+DTZ-5,py+DTZ-5);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(px+DTZ-5,py+5);ctx.lineTo(px+5,py+DTZ-5);ctx.stroke();
       }else{
         ctx.fillStyle=((tx+ty)%2===0)?'#13131f':'#11111a';ctx.fillRect(px,py,DTZ,DTZ);
       }
@@ -2314,22 +2501,16 @@ class DungeonGame{
     this.allEnemies.forEach(e=>{
       if(!e.alive)return;
       ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(e.x,e.y+e.r,e.r*.8,4,0,0,Math.PI*2);ctx.fill();
-      const eCol={charge:'#cc2222',shoot:'#9933ee',split:'#ff6600',split_small:'#ff8833',
-        summoner:'#aa00ff',minion_enemy:'#cc0066',elite:'#ccaa00'}[e.type]||'#cc2222';
-      ctx.fillStyle=eCol;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
-      // special markers
       if(e.type==='summoner'||e.type==='elite'){
         ctx.globalAlpha=0.3+0.2*Math.sin(Date.now()*.004);
         ctx.beginPath();ctx.arc(e.x,e.y,e.r+8,0,Math.PI*2);
         ctx.fillStyle=e.type==='elite'?'#ffd700':'#aa44ff';ctx.fill();
         ctx.globalAlpha=1;
       }
-      if(e.hp<e.maxHp){
-        const bw=e.r*2,bh=4,bx=e.x-e.r,by=e.y-e.r-8;
-        ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(bx,by,bw,bh);
-        ctx.fillStyle='#f44';ctx.fillRect(bx,by,bw*(e.hp/e.maxHp),bh);
-      }
-      ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.arc(e.x-3,e.y-3,5,0,Math.PI*2);ctx.fill();
+      const _sk=e.type==='minion_enemy'?'minion':e.type;
+      const _sd=_SPRS[_sk]||_SPRS.charge;
+      _PX(ctx,_sd.fr[_WF(e)],_sd.pal,e.x,e.y,_sd.sc,e.x>this.p.x);
+      if(e.hp<e.maxHp){const _bw=e.r*2,_bh=4,_bxh=e.x-e.r,_byh=e.y-e.r-8;ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(_bxh,_byh,_bw,_bh);ctx.fillStyle='#f44';ctx.fillRect(_bxh,_byh,_bw*(e.hp/e.maxHp),_bh);}
     });
     // Boss
     if(this.boss&&this.boss.alive){
@@ -2342,29 +2523,24 @@ class DungeonGame{
         ctx.fillStyle='#4488ff';ctx.fill();
         ctx.strokeStyle='#88ccff';ctx.lineWidth=3;ctx.stroke();
         ctx.restore();
-        // Shield HP bar
         const sbw=bos.r*2+20,sbx=bos.x-sbw/2,sby=bos.y-bos.r-22;
         ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(sbx,sby,sbw,5);
         ctx.fillStyle='#4af';ctx.fillRect(sbx,sby,sbw*(bos.shieldHp/bos.shieldMaxHp),5);
       }
-      // Body
-      const bpulse=0.15*Math.sin(bt*2.5);
-      ctx.save();ctx.shadowColor='#cc0044';ctx.shadowBlur=20;
-      ctx.fillStyle='#880022';ctx.beginPath();ctx.arc(bos.x,bos.y,bos.r+bpulse*4,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#cc2244';ctx.beginPath();ctx.arc(bos.x,bos.y,bos.r*.75,0,Math.PI*2);ctx.fill();
-      ctx.restore();
+      // Shadow + glow
+      ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(bos.x,bos.y+bos.r,bos.r*.9,5,0,0,Math.PI*2);ctx.fill();
+      const bpulse=Math.abs(Math.sin(bt*2.5))*.18;
+      ctx.save();ctx.globalAlpha=0.2+bpulse;ctx.beginPath();ctx.arc(bos.x,bos.y,bos.r+8,0,Math.PI*2);ctx.fillStyle='#cc0044';ctx.fill();ctx.restore();
+      // Pixel sprite
+      _PX(ctx,_SPRS.boss.fr[_WF(bos)],_SPRS.boss.pal,bos.x,bos.y,_SPRS.boss.sc,bos.x>this.p.x);
       // Crown
-      ctx.fillStyle='#ffd740';ctx.font='bold 16px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('👑',bos.x,bos.y-bos.r-8);
+      ctx.fillStyle='#ffd740';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('👑',bos.x,bos.y-bos.r-10);
       // Phase indicator
-      if(bos.phase==='shield'){
-        ctx.fillStyle='#88ccff';ctx.font='bold 9px Arial';ctx.fillText('SHIELD',bos.x,bos.y+bos.r+14);
-      }else if(bos.phase==='barrage'){
-        ctx.fillStyle='#ff6600';ctx.font='bold 9px Arial';ctx.fillText('BARRAGE',bos.x,bos.y+bos.r+14);
-      }else if(bos.phase==='summon'){
-        ctx.fillStyle='#ff44aa';ctx.font='bold 9px Arial';ctx.fillText('SUMMON',bos.x,bos.y+bos.r+14);
-      }
-      // Boss HP bar (over head)
+      if(bos.phase==='shield'){ctx.fillStyle='#88ccff';ctx.font='bold 9px Arial';ctx.fillText('SHIELD',bos.x,bos.y+bos.r+14);}
+      else if(bos.phase==='barrage'){ctx.fillStyle='#ff6600';ctx.font='bold 9px Arial';ctx.fillText('BARRAGE',bos.x,bos.y+bos.r+14);}
+      else if(bos.phase==='summon'){ctx.fillStyle='#ff44aa';ctx.font='bold 9px Arial';ctx.fillText('SUMMON',bos.x,bos.y+bos.r+14);}
+      // Boss HP bar
       const bw2=bos.r*2+20,bx2=bos.x-bw2/2,by2=bos.y-bos.r-(bos.shieldActive?32:14);
       ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx2,by2,bw2,6);
       ctx.fillStyle='#cc2244';ctx.fillRect(bx2,by2,bw2*(bos.hp/bos.maxHp),6);
@@ -2397,11 +2573,42 @@ class DungeonGame{
     if(!inv){
       if(p.atkFlash>0){ctx.fillStyle=`rgba(255,200,50,${p.atkFlash/230*.3})`;ctx.beginPath();ctx.arc(p.x,p.y,58,0,Math.PI*2);ctx.fill();}
       ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(p.x,p.y+p.r,p.r*.8,4,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#4477cc';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#6699ee';ctx.beginPath();ctx.arc(p.x-3,p.y-3,5,0,Math.PI*2);ctx.fill();
+      _PX(ctx,_SPRS.hero.fr[Math.floor(Date.now()/180)%2],_SPRS.hero.pal,p.x,p.y,_SPRS.hero.sc,p.dir.x<0);
       ctx.strokeStyle='#aad4ff';ctx.lineWidth=3;ctx.lineCap='round';
       ctx.beginPath();ctx.moveTo(p.x+p.dir.x*p.r,p.y+p.dir.y*p.r);ctx.lineTo(p.x+p.dir.x*26,p.y+p.dir.y*26);ctx.stroke();
     }
+    // Drops (gold coins + mana orbs)
+    this.drops.forEach(dr=>{
+      const _dt=performance.now()/1000;
+      if(dr.type==='gold'){
+        ctx.fillStyle=`rgba(255,215,0,${0.7+0.3*Math.sin(_dt*4+dr.x)})`;
+        ctx.beginPath();ctx.arc(dr.x,dr.y,dr.r,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff8';ctx.beginPath();ctx.arc(dr.x-2,dr.y-2,3,0,Math.PI*2);ctx.fill();
+      } else {
+        ctx.fillStyle=`rgba(60,160,255,${0.7+0.3*Math.sin(_dt*5+dr.x)})`;
+        ctx.beginPath();ctx.arc(dr.x,dr.y,dr.r,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#adf';ctx.beginPath();ctx.arc(dr.x-2,dr.y-2,3,0,Math.PI*2);ctx.fill();
+      }
+    });
+    // Shop vendors
+    (this.shopVendors||[]).forEach(sv=>{
+      if(sv.bought)return;
+      const _st=performance.now()/1000,glow=Math.sin(_st*2)*.2+.8;
+      ctx.save();ctx.globalAlpha=.25*glow;ctx.fillStyle='#00ffcc';
+      ctx.beginPath();ctx.arc(sv.x,sv.y,sv.r+10,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+      ctx.font='bold 22px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('🏪',sv.x,sv.y);
+      ctx.font='10px Arial';ctx.fillStyle='#0fc';ctx.textBaseline='top';
+      ctx.fillText('15💰',sv.x,sv.y+sv.r+2);
+      // F hint when player is near
+      if(this._nearShopVendor===sv){
+        ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(sv.x-38,sv.y-sv.r-22,76,16);
+        ctx.fillStyle='#fff';ctx.font='bold 10px Arial';ctx.textBaseline='middle';
+        ctx.fillText(lang==='en'?'[F] Buy upgrade':'[F] 购买升级',sv.x,sv.y-sv.r-14);
+      }
+      ctx.restore();
+    });
     // Chests
     this.chests.forEach(ch=>{
       if(ch.opened)return;
@@ -2445,7 +2652,26 @@ class DungeonGame{
     ctx.textAlign='right';ctx.fillStyle='#cc88ff';
     const floorTxt=this.endless?L('floorLabel',{n:this.dLevel})+' | '+L('hpGoal'):L('hpGoal');
     ctx.fillText(floorTxt,W-8,12);
-    const bw=200,bh=16,bx=10,by=H-22;
+    // Bottom-left HUD: gold / mp / hp stacked
+    const bw=200,bx=10;
+    // gold row
+    {const by=H-62,bh=14;
+      ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(bx-2,by-2,bw+4,bh+4);
+      ctx.fillStyle='#443300';ctx.fillRect(bx,by,bw,bh);
+      ctx.fillStyle='#ffd700';ctx.font='bold 11px Arial';ctx.textBaseline='middle';ctx.textAlign='left';
+      ctx.fillText('💰 '+this.gold,bx+5,by+bh/2);
+    }
+    // mp row
+    {const by=H-44,bh=14;
+      ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(bx-2,by-2,bw+4,bh+4);
+      ctx.fillStyle='#0a1a44';ctx.fillRect(bx,by,bw,bh);
+      ctx.fillStyle='#44aaff';ctx.fillRect(bx,by,bw*(p.mp/p.maxMp),bh);
+      ctx.strokeStyle='rgba(100,180,255,.35)';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+      ctx.fillStyle='#adf';ctx.font='bold 11px Arial';ctx.textBaseline='middle';ctx.textAlign='left';
+      ctx.fillText('MP '+Math.floor(p.mp)+'/'+p.maxMp,bx+5,by+bh/2);
+    }
+    // hp row
+    const bh=16,by=H-26;
     ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(bx-3,by-3,bw+6,bh+6);
     ctx.fillStyle='#220000';ctx.fillRect(bx,by,bw,bh);
     const pct=Math.max(0,p.hp/p.maxHp);
@@ -2477,10 +2703,11 @@ class DungeonGame{
       }
       ctx.textAlign='left';ctx.textBaseline='alphabetic';
     }
-    // P pause hint — top left below HUD bar
-    const _pHint=lang==='en'?'P: Pause':'P: 暂停';
-    ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='10px Arial';ctx.textAlign='left';ctx.textBaseline='top';
-    ctx.fillText(_pHint,8,28);
+    // Top-left hints
+    ctx.font='10px Arial';ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillStyle='rgba(255,255,255,.28)';
+    ctx.fillText(lang==='en'?'P: Pause':'P: 暂停',8,8);
+    ctx.fillText(lang==='en'?'F: Interact':'F: 交互',8,22);
     ctx.textAlign='left';ctx.textBaseline='alphabetic';
     // Boss HP bar (top center) — only when player is in boss room
     if(this.boss&&this.boss.alive&&this._getCurrentRoom()===this.portalRoomId){
@@ -2531,6 +2758,7 @@ class DungeonGame{
         let col,ic;
         if(r.type==='portal'){col='#cc44ff';ic='⬡';}
         else if(r.type==='chest'){col=r.cleared?'rgba(255,215,64,.5)':'rgba(255,215,64,.85)';ic='C';}
+        else if(r.type==='shop'){col='rgba(0,255,180,.75)';ic='$';}
         else if(r.type==='start'){col='rgba(100,200,100,.5)';ic='S';}
         else{col=r.cleared?'rgba(74,170,255,.5)':'rgba(255,100,100,.6)';ic=r.cleared?'✓':'!';}
         ctx.fillStyle=col;ctx.fillRect(rx,ry,mw,mh);
